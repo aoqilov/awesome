@@ -1,13 +1,17 @@
 import { useCallback, useMemo, useState } from 'react';
+
 type RuleResult = boolean | string;
+
 type ExactMatchRules<T, K extends Array<keyof T>> = {
   [P in K[number]]: (value: T[P]) => RuleResult;
 };
+
 type ValidifyArgs<T, K extends Array<keyof T>> = {
   autoValidateOnChange?: boolean;
   requiredFields: K;
   rules: ExactMatchRules<T, K>;
 };
+
 /**
  * Example:
  * type User = {
@@ -61,19 +65,23 @@ export function useValidify<T, K extends Array<keyof T>>({
       [key in keyof T]: RuleResult;
     }>
   >({});
+
   const handleChange = useCallback(
-    <F extends K[number]>(field: F, value: T[F]) => {
+    <F extends keyof T>(field: F, value: T[F]) => {
       setState((prev) => ({ ...prev, [field]: value }));
       if (autoValidateOnChange) {
-        const rule = rules[field] as (value: T[F]) => boolean;
-        setStateValidation((prev) => ({
-          ...prev,
-          [field]: rule(value)
-        }));
+        const rule = rules[field as K[number]] as (value: T[F]) => boolean;
+        if (rule) {
+          setStateValidation((prev) => ({
+            ...prev,
+            [field]: rule(value)
+          }));
+        }
       }
     },
     [rules, autoValidateOnChange]
   );
+
   const checkValidation = useCallback(() => {
     const newValidation: Partial<{ [key in keyof T]: RuleResult }> = {};
     for (const field of requiredFields) {
@@ -84,16 +92,20 @@ export function useValidify<T, K extends Array<keyof T>>({
     }
     setStateValidation(newValidation);
   }, [requiredFields, rules, state]);
+
   const isValid = useMemo(() => {
     return requiredFields.every((field) => stateValidation[field] === true);
   }, [requiredFields, stateValidation]);
+
   const getInvalidFields = useMemo(() => {
     return requiredFields.filter((field) => stateValidation[field] !== true);
   }, [requiredFields, stateValidation]);
+
   const resetState = () => {
     setState({});
     setStateValidation({});
   };
+
   return {
     state,
     setState,

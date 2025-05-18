@@ -1,6 +1,8 @@
 import DashboardLayout from '@/layout/Dashboard.layout';
 import MainMiddleware from '@/middleware/MainMiddleware';
-import HomePage from '@/pages/HomePage';
+
+import RegisterPage from '@/pages/Register/Register';
+import MainPage from '@/pages/Routes/MainPage';
 
 import { PageTransition } from '@/shared/Motion';
 
@@ -16,7 +18,7 @@ export const router = [
         children: [
           {
             path: 'home',
-            element: <HomePage />
+            element: <MainPage />
           },
           {
             path: '*',
@@ -31,7 +33,7 @@ export const router = [
         path: 'register',
         element: (
           <PageTransition>
-            <h1> Bu yerga register page ni import qilasiz </h1>
+            <RegisterPage />
           </PageTransition>
         )
       }
