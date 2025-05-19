@@ -1,5 +1,8 @@
 import DashboardLayout from '@/layout/Dashboard.layout';
 import MainMiddleware from '@/middleware/MainMiddleware';
+import Orders from '@/pages/ManagerPages/Orders/Orders';
+import StadionDetail from '@/pages/ManagerPages/Stadion/Detail/StadionDetail';
+import StadiumList from '@/pages/ManagerPages/Stadion/StadionMain';
 
 import RegisterPage from '@/pages/Register/Register';
 import MainPage from '@/pages/Routes/MainPage';
@@ -20,6 +23,15 @@ export const router = [
             path: 'home',
             element: <MainPage />
           },
+          {
+            path: 'stadium',
+            element: <StadiumList />
+          },
+          {
+            path: 'stadium/:id',
+            element: <StadionDetail />
+          },
+          { path: 'orders', element: <Orders /> },
           {
             path: '*',
             element: '404'

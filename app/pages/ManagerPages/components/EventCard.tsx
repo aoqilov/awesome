@@ -98,7 +98,7 @@ const EventCard: React.FC<{ event: (typeof _events)[0] }> = ({ event }) => {
           </span>
         </div>
         {event.timer ? (
-          <div className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-sm w-[150px]">
+          <div className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-sm w-[130px] min-w-[130px]">
             <svg
               width="17"
               height="20"
