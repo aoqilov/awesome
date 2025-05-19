@@ -1,17 +1,15 @@
 import { Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+
 import { useTheme } from '@/providers/theme-provider';
 
 export function ModeToggle() {
-  const { theme, setTheme } = useTheme();
-  const [currentTheme, setCurrentTheme] = useState(theme);
+  const { setTheme } = useTheme();
 
   return (
     <Button
       onClick={() => {
-        setCurrentTheme(currentTheme === 'dark' ? 'light' : 'dark');
-        setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        setTheme('light');
       }}
       variant={'secondary'}
     >
