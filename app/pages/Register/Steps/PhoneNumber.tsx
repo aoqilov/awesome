@@ -53,7 +53,7 @@ const PhoneNumber = () => {
   };
   useEffect(() => {
     setPayload((p) => ({ ...p, userType: 'player' }));
-  });
+  }, [setPayload]);
   return (
     <motion.div
       className="min-h-screen w-full bg-white flex flex-col"
@@ -63,6 +63,7 @@ const PhoneNumber = () => {
     >
       <div className="flex-1 flex flex-col px-2 py-8">
         {/* Tab Selector */}
+       
         <motion.div
           variants={itemVariants}
           className="mb-8 flex items-center justify-center w-full"
@@ -88,7 +89,11 @@ const PhoneNumber = () => {
             ]}
             size="large"
             onChange={(value) => {
-              setPayload((p) => ({ ...p, userType: value.value }));
+              console.log(value);
+              setPayload((p) => ({
+                ...p,
+                userType: value as unknown as string
+              }));
             }}
             className="mx-auto"
           />

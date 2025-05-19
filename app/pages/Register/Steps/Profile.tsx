@@ -102,6 +102,7 @@ const Profile = () => {
     >
       <div className="flex-1 flex flex-col items-center py-8">
         {/* Avatar */}
+
         <motion.div
           variants={itemVariants}
           className="relative mb-8 mt-4"
