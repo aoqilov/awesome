@@ -105,7 +105,7 @@ const StandartInput = <T,>({
                 handleInputChange(field, value2);
               }
             }}
-            placeholder={t(placeHolder)}
+            placeholder={t(placeHolder) as string}
             autoComplete={autocomplete}
             className="text-16px "
           />
