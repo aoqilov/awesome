@@ -11,6 +11,7 @@ const MainMiddleware = () => {
   // const { theme: darkOrLight } = useTheme();
   // const [user] = useLocalStorage('user', null);
   const { pathname } = useLocation();
+  console.log(pathname);
   useEffect(() => {
     // TODO: agar user bo'lsa ro'le ga qarab qayerga yo'naltirish kerakligini yozing agar user bo'lmasa qayerga yo'naltirish kerakligini yozing men bu yerda anniq path no ma'lum ekanligi uchun bir xil yozib qo'ya qoldim
     // navigate(user ? `/dashboard` : `/dashboard/users`);
