@@ -29,7 +29,7 @@ const StandartInput = <T,>({
 }: {
   title: { uz: string; ru: string; en: string };
   error: boolean | undefined;
-  handleInputChange: (
+  handleInputChange?: (
     field: keyof T,
     value: any | ((prevField?: T[keyof T]) => T[keyof T])
   ) => void;
@@ -100,9 +100,9 @@ const StandartInput = <T,>({
             onChange={(e) => {
               const value2 = e.target.value;
               if (regex) {
-                handleInputChange(field, value2.replace(regex, ''));
+                handleInputChange?.(field, value2.replace(regex, ''));
               } else {
-                handleInputChange(field, value2);
+                handleInputChange?.(field, value2);
               }
             }}
             placeholder={t(placeHolder) as string}

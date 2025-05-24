@@ -7,7 +7,7 @@ const Orders = () => {
   return (
     <div>
       <div className="relative">
-        <h1 className="text-center ">Buyurtmalar</h1>
+        <h1 className="text-center text-xl ">Buyurtmalar</h1>
       </div>
       <div className="w-full flex items-center justify-center mt-4">
         <Segmented

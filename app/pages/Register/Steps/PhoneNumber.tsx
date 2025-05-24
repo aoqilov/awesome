@@ -63,7 +63,7 @@ const PhoneNumber = () => {
     >
       <div className="flex-1 flex flex-col px-2 py-8">
         {/* Tab Selector */}
-       
+
         <motion.div
           variants={itemVariants}
           className="mb-8 flex items-center justify-center w-full"
@@ -89,7 +89,6 @@ const PhoneNumber = () => {
             ]}
             size="large"
             onChange={(value) => {
-              console.log(value);
               setPayload((p) => ({
                 ...p,
                 userType: value as unknown as string

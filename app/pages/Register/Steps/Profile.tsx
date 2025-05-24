@@ -57,7 +57,7 @@ const Profile = () => {
   };
 
   // Check if user is a player
-  const isPlayer = payload.userType === 'player';
+  const isPlayer = payload?.userType === 'player';
 
   // Handle extended field changes
   const handleExtendedChange = (field: string, value: any) => {
@@ -84,14 +84,14 @@ const Profile = () => {
 
   // Determine if form is valid based on user type
   const isFormValid = isPlayer
-    ? payload.fullName?.trim() &&
-      payload.familyName?.trim() &&
-      payload.birthDate &&
-      payload.birthPlace?.region &&
-      payload.birthPlace?.district &&
-      payload.residencePlace?.region &&
-      payload.residencePlace?.district
-    : payload.fullName?.trim();
+    ? payload?.fullName?.trim() &&
+      payload?.familyName?.trim() &&
+      payload?.birthDate &&
+      payload?.birthPlace?.region &&
+      payload?.birthPlace?.district &&
+      payload?.residencePlace?.region &&
+      payload?.residencePlace?.district
+    : payload?.fullName?.trim();
 
   return (
     <motion.div
@@ -113,9 +113,9 @@ const Profile = () => {
             className="w-40 h-40 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer"
             onClick={handleAvatarClick}
           >
-            {payload.avatar ? (
+            {payload?.avatar ? (
               <img
-                src={payload.avatar || '/placeholder.svg'}
+                src={payload?.avatar || '/placeholder.svg'}
                 alt="Profile"
                 className="w-full h-full rounded-full object-cover"
               />
@@ -149,7 +149,7 @@ const Profile = () => {
           </label>
           <Input
             size="large"
-            value={payload.fullName || ''}
+            value={payload?.fullName || ''}
             onChange={(e) => handleChange('fullName', e.target.value)}
             placeholder={
               t({
@@ -159,9 +159,9 @@ const Profile = () => {
               }) as string
             }
             className="text-lg rounded-lg"
-            status={stateValidation.fullName ? 'error' : ''}
+            status={stateValidation?.fullName ? 'error' : ''}
           />
-          {stateValidation.fullName && (
+          {stateValidation?.fullName && (
             <p className="text-red-500 text-sm mt-1">
               {t({
                 uz: 'Ismingizni kiriting',
@@ -186,7 +186,7 @@ const Profile = () => {
               </label>
               <Input
                 size="large"
-                value={payload.familyName || ''}
+                value={payload?.familyName || ''}
                 onChange={(e) =>
                   handleExtendedChange('familyName', e.target.value)
                 }
@@ -198,9 +198,9 @@ const Profile = () => {
                   }) as string
                 }
                 className="text-lg rounded-lg"
-                status={stateValidation.familyName ? 'error' : ''}
+                status={stateValidation?.familyName ? 'error' : ''}
               />
-              {stateValidation.familyName && (
+              {stateValidation?.familyName && (
                 <p className="text-red-500 text-sm mt-1">
                   {t({
                     uz: 'Familiyangizni kiriting',
@@ -222,14 +222,14 @@ const Profile = () => {
               </label>
               <DatePicker
                 size="large"
-                value={payload.birthDate}
+                value={payload?.birthDate}
                 onChange={(date) => handleExtendedChange('birthDate', date)}
                 placeholder="--/--/----"
                 className="w-full text-lg rounded-lg"
                 format="DD/MM/YYYY"
-                status={stateValidation.birthDate ? 'error' : ''}
+                status={stateValidation?.birthDate ? 'error' : ''}
               />
-              {stateValidation.birthDate && (
+              {stateValidation?.birthDate && (
                 <p className="text-red-500 text-sm mt-1">
                   {t({
                     uz: "Tug'ilgan sanangizni kiriting",
@@ -252,7 +252,7 @@ const Profile = () => {
               <div className="space-y-4">
                 <Select
                   size="large"
-                  value={payload.birthPlace?.region}
+                  value={payload?.birthPlace?.region}
                   onChange={(value) =>
                     handleNestedChange('birthPlace', 'region', value)
                   }
@@ -264,11 +264,11 @@ const Profile = () => {
                     }) as string
                   }
                   className="w-full text-lg rounded-lg"
-                  status={stateValidation.birthPlace?.region ? 'error' : ''}
+                  status={stateValidation?.birthPlace?.region ? 'error' : ''}
                 />
                 <Select
                   size="large"
-                  value={payload.birthPlace?.district}
+                  value={payload?.birthPlace?.district}
                   onChange={(value) =>
                     handleNestedChange('birthPlace', 'district', value)
                   }
@@ -280,7 +280,7 @@ const Profile = () => {
                     }) as string
                   }
                   className="w-full text-lg rounded-lg"
-                  status={stateValidation.birthPlace?.district ? 'error' : ''}
+                  status={stateValidation?.birthPlace?.district ? 'error' : ''}
                 />
               </div>
             </motion.div>
@@ -297,7 +297,7 @@ const Profile = () => {
               <div className="space-y-4">
                 <Select
                   size="large"
-                  value={payload.residencePlace?.region}
+                  value={payload?.residencePlace?.region}
                   onChange={(value) =>
                     handleNestedChange('residencePlace', 'region', value)
                   }
@@ -309,11 +309,13 @@ const Profile = () => {
                     }) as string
                   }
                   className="w-full text-lg rounded-lg"
-                  status={stateValidation.residencePlace?.region ? 'error' : ''}
+                  status={
+                    stateValidation?.residencePlace?.region ? 'error' : ''
+                  }
                 />
                 <Select
                   size="large"
-                  value={payload.residencePlace?.district}
+                  value={payload?.residencePlace?.district}
                   onChange={(value) =>
                     handleNestedChange('residencePlace', 'district', value)
                   }
@@ -326,7 +328,7 @@ const Profile = () => {
                   }
                   className="w-full text-lg rounded-lg"
                   status={
-                    stateValidation.residencePlace?.district ? 'error' : ''
+                    stateValidation?.residencePlace?.district ? 'error' : ''
                   }
                 />
               </div>
