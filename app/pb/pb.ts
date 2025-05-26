@@ -1,7 +1,7 @@
 import PocketBase, { AuthRecord } from 'pocketbase';
 import { useEffect } from 'react';
 
-const pb = new PocketBase(import.meta.env.VITE_API_URL as string);
+const pb = new PocketBase(import.meta.env.VITE_POCKETBASE_URL as string);
 const originalFetch = pb.send.bind(pb);
 
 pb.send = async (path, options = {}) => {
@@ -19,7 +19,7 @@ pb.send = async (path, options = {}) => {
     throw error;
   }
 };
-
+export { pb };
 export function usePocketBase() {
   useEffect(() => {
     // localStorage'dan pocketbase_auth ni olish

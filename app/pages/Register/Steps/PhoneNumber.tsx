@@ -4,9 +4,13 @@ import { ChevronRight, Check, Phone } from 'lucide-react';
 import { type RegisterContextType, useRegister } from '../Register';
 import { useTranslation } from '@/hooks/translation';
 import { formatPhoneNumber, unformatPhoneNumber } from '@/lib/utils';
-import { Button, Segmented } from 'antd';
+import { App, Button, Segmented } from 'antd';
 import { useEffect, type JSX } from 'react';
 import { motion } from 'framer-motion';
+import { usePocketBaseCollection } from '@/pb/usePbMethods';
+import { UsersRecord } from '@/types/pocketbaseTypes';
+import { useQueryParam } from '@/hooks/useQueryParam';
+import { pb } from '@/pb/pb';
 
 const PhoneNumber = () => {
   const { setStep, payload, setPayload, handleChange, stateValidation } =
@@ -20,12 +24,6 @@ const PhoneNumber = () => {
       !stateValidation.phone &&
       !stateValidation.agree
     );
-  };
-
-  const handleNext = () => {
-    if (isFormValid()) {
-      setStep(2);
-    }
   };
 
   // Animation variants
@@ -51,9 +49,54 @@ const PhoneNumber = () => {
       }
     }
   };
+  const { chat_id } = useQueryParam();
   useEffect(() => {
     setPayload((p) => ({ ...p, userType: 'player' }));
   }, [setPayload]);
+  const { create } = usePocketBaseCollection<UsersRecord>('users');
+  const { mutate } = create();
+  const { message } = App.useApp();
+  const handleNext = () => {
+    mutate(
+      {
+        email: chat_id + '@gmail.com',
+        password: chat_id,
+        passwordConfirm: chat_id
+      },
+      {
+        onSuccess: async () => {
+          const req = await pb
+            .collection('users')
+            .requestOTP(chat_id + '@gmail.com');
+          setPayload((p) => ({
+            ...p,
+            otp: req.otpId
+          }));
+          if (isFormValid()) {
+            setStep(2);
+          }
+          message.success(
+            t({
+              uz: 'Tasdiqlash kodi yuborildi',
+              ru: 'Код подтверждения отправлен',
+              en: 'Verification code sent'
+            })
+          );
+        },
+        onError: (error) => {
+          message.error(
+            t({
+              uz: 'Xatolik yuz berdi, qayta urinib ko’ring',
+              ru: 'Произошла ошибка, попробуйте еще раз',
+              en: 'An error occurred, please try again'
+            })
+          );
+          console.error('Error creating user:', error);
+        }
+      }
+    );
+  };
+
   return (
     <motion.div
       className="min-h-screen w-full bg-white flex flex-col"

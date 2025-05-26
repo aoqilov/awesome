@@ -1,8 +1,10 @@
+import { QueryParamProvider } from '@/hooks/useQueryParam';
 import DashboardLayout from '@/layout/Dashboard.layout';
 import MainMiddleware from '@/middleware/MainMiddleware';
 import AddField from '@/pages/ManagerPages/AddField/AddField';
 import AddStadionPage from '@/pages/ManagerPages/AddStadion/Stadion';
 import Orders from '@/pages/ManagerPages/Orders/Orders';
+import Schedule from '@/pages/ManagerPages/Schedule/Schedule';
 import StadionDetail from '@/pages/ManagerPages/Stadion/Detail/StadionDetail';
 import StadiumList from '@/pages/ManagerPages/Stadion/StadionMain';
 import Profile from '@/pages/Profile/Profile';
@@ -16,7 +18,12 @@ import { PageTransition } from '@/shared/Motion';
 export const router = [
   {
     path: '/',
-    element: <MainMiddleware />,
+
+    element: (
+      <QueryParamProvider>
+        <MainMiddleware />
+      </QueryParamProvider>
+    ),
     children: [
       // TODO: Asosiy Router shu yerda yoziladi
       {
@@ -35,6 +42,10 @@ export const router = [
           {
             path: 'stadium/:id',
             element: <StadionDetail />
+          },
+          {
+            path: 'stadium/:id/schedule/:fieldId',
+            element: <Schedule />
           },
           { path: 'stadium/:id/add-field', element: <AddField /> },
           { path: 'orders', element: <Orders /> },

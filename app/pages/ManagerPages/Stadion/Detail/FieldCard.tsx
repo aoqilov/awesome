@@ -2,6 +2,7 @@ import type React from 'react';
 import { motion } from 'framer-motion';
 import slideImage from '@/assets/stadion.png';
 import { Carousel } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 // Define the Stadium type
 export interface Stadium {
@@ -20,6 +21,7 @@ export interface Stadium {
 
 // Card component that will be mapped
 export const FieldCard: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <motion.div
       className="w-full p-2 mt-4  rounded-2xl overflow-hidden bg-white shadow-md"
@@ -124,7 +126,10 @@ export const FieldCard: React.FC = () => {
         </div>
 
         <div className="border-t mt-4 border-dashed border-[#989797] flex items-center justify-center gap-4  py-2">
-          <div className="w-[23.5%] h-[40px] rounded-sm bg-green-400/10 flex items-center justify-center">
+          <div
+            onClick={() => navigate('schedule/1')}
+            className="w-[23.5%] h-[40px] rounded-sm bg-green-400/10 flex items-center justify-center"
+          >
             <svg
               width="22"
               height="22"

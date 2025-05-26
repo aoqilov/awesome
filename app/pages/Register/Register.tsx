@@ -30,6 +30,7 @@ export interface PlayerPayload {
     region?: string | undefined;
     district?: string | undefined;
   };
+  otp?: string;
 }
 
 // Define the validation state type
@@ -50,6 +51,7 @@ export interface ValidationState {
     region?: boolean;
     district?: boolean;
   };
+  otp?: boolean | undefined;
 }
 
 const RegisterContext = createContext({});

@@ -266,6 +266,7 @@ export type UsersRecord = {
   language?: UsersLanguageOptions;
   liveCity?: RecordIdString;
   password: string;
+  passwordConfirm?: string;
   phoneNumber?: string;
   role?: UsersRoleOptions;
   tokenKey: string;

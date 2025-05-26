@@ -81,11 +81,6 @@ const ProfilePage = () => {
     }
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
-    form.resetFields();
-  };
-
   const t = useTranslation();
   const navigate = useNavigate();
 

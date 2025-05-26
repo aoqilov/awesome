@@ -9,17 +9,17 @@ const QueryParamContext = createContext<{ [key: string]: string }>({});
  * U o'z bolalarini o'z ichiga oladi va
  * query parametrini yangilash uchun hook beradi.
  * Quyida misol keltirilgan:
- * 
+ *
  * const { foo } = useQueryParam();
- * 
+ *
  * // foo o'zgaruvchisi foo query parametrining qiymatini saqlaydi
- * 
+ *
  * @example
  * const App = () => {
  *   const { foo } = useQueryParam();
  *   return <div>foo: {foo}</div>;
  * }
- * 
+ *
  * export default () => {
  *   return (
  *     <QueryParamProvider>
