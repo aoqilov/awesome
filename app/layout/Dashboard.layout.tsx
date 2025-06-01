@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/translation';
+import { useQueryParam } from '@/hooks/useQueryParam';
 
 const DashboardLayout = () => {
   const t = useTranslation();
@@ -87,6 +88,7 @@ const DashboardLayout = () => {
       return [];
     }
   };
+  const { chat_id } = useQueryParam();
   return (
     <div className="min-h-screen w-full max-w-md mx-auto bg-gradient-to-br from-gray-50 to-gray-100">
       <main className="h-[calc(100v-4.5rem)] pb-20 overflow-y-auto p-4 noScroll ">
@@ -101,8 +103,9 @@ const DashboardLayout = () => {
         <div className="flex items-center justify-center gap-2  h-full max-w-md mx-auto px-2 ">
           {getNavItems().map((item, index) => (
             <NavLink
+              replace={false}
               key={index}
-              to={item.path}
+              to={{ pathname: item.path, search: '?chat_id=' + chat_id }}
               className={() => `
                 relative flex flex-col items-center justify-center
                 transition-all duration-200 py-2 min-w-[55px]

@@ -58,6 +58,7 @@ const RegisterContext = createContext({});
 
 const RegisterPage = () => {
   const [step, setStep] = useState(0);
+  const [isEdit, setisEdit] = useState({ bool: false, id: '' });
   const {
     state: payload,
     setState: setPayload,
@@ -102,7 +103,9 @@ const RegisterPage = () => {
         payload,
         setPayload,
         handleChange,
-        stateValidation
+        stateValidation,
+        isEdit,
+        setisEdit
       }}
     >
       <div className="max-w-[500px] mx-auto h-screen  p-4">
@@ -115,6 +118,8 @@ const RegisterPage = () => {
 export default RegisterPage;
 
 export type RegisterContextType = {
+  isEdit: { bool: boolean; id: string };
+  setisEdit: Dispatch<React.SetStateAction<{ bool: boolean; id: string }>>;
   step: number;
   setStep: Dispatch<React.SetStateAction<number>>;
   payload: PlayerPayload;

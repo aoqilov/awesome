@@ -1,5 +1,7 @@
 import { Divider } from 'antd';
 import EventCard from './components/EventCard';
+import { usePocketBaseCollection } from '@/pb/usePbMethods';
+import { OrdersRecord, OrdersResponse } from '@/types/pocketbaseTypes';
 
 const HomePage = () => {
   const events = [
@@ -40,6 +42,9 @@ const HomePage = () => {
       actions: ['bell', 'call', 'trash']
     }
   ];
+  const { list: tickets } = usePocketBaseCollection<OrdersResponse>('stadiums');
+  const { data } = tickets({});
+  console.log('Tickets:', data);
   return (
     <div>
       <div className="w-full flex p-4 mt-5  mb-3 rounded-sm justify-center items-center shadow-sm bg-white">
@@ -104,145 +109,6 @@ const HomePage = () => {
         </div>
       </div>
       <div className="bg-white p-[8px] rounded-sm shadow-sm">
-        <div className="grid grid-cols-4 gap-2 mb-2">
-          <div className="text-center bg-[#F2F4F5] flex flex-col items-center justify-center gap-2 px-6 py-2 rounded-sm">
-            <svg
-              width="24"
-              height="25"
-              viewBox="0 0 24 25"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M22 24.2998L2 24.2998C1.28203 24.2998 0.700195 23.718 0.700195 23L0.700193 2C0.700195 1.28203 1.28203 0.700199 2 0.700197L22 0.700195C22.718 0.700195 23.2998 1.28203 23.2998 2L23.2998 23C23.2998 23.718 22.718 24.2998 22 24.2998Z"
-                stroke="#6C7072"
-                stroke-width="1.4"
-              />
-              <path
-                d="M16.3643 25L16.3643 21.4545C16.3643 20.9023 15.9165 20.4545 15.3643 20.4545L8.63699 20.4545C8.0847 20.4545 7.63699 20.9023 7.63699 21.4545L7.63699 25"
-                stroke="#6C7072"
-                stroke-width="1.4"
-              />
-              <path
-                d="M7.63574 0L7.63574 3.54545C7.63574 4.09774 8.08346 4.54545 8.63574 4.54545L15.363 4.54545C15.9153 4.54545 16.363 4.09774 16.363 3.54545L16.363 -1.87452e-07"
-                stroke="#6C7072"
-                stroke-width="1.4"
-              />
-              <path
-                d="M24 12.5L4.41074e-06 12.5"
-                stroke="#6C7072"
-                stroke-width="1.4"
-              />
-              <path
-                d="M12 16.3457C9.8581 16.3457 8.12891 14.62 8.12891 12.5C8.12915 10.3802 9.85825 8.65527 12 8.65527C14.1417 8.65535 15.8709 10.3802 15.8711 12.5C15.8711 14.62 14.1418 16.3456 12 16.3457Z"
-                stroke="#6C7072"
-                stroke-width="1.4"
-              />
-            </svg>
-            <h1 className="text-[12px] text-[#6C7072] font-semibold">
-              Stadion
-            </h1>
-          </div>
-          <div className="text-center bg-[#F2F4F5] flex flex-col items-center justify-center gap-2 px-6 py-2 rounded-sm">
-            <svg
-              width="24"
-              height="26"
-              viewBox="0 0 24 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g clip-path="url(#clip0_1_392)">
-                <path
-                  d="M16.8494 1.08282V5.90983M7.1524 1.08282V5.90983M1.0918 10.7368H22.91M3.51604 3.19464H20.4857C21.8246 3.19464 22.91 4.2752 22.91 5.60814V22.5027C22.91 23.8356 21.8246 24.9162 20.4857 24.9162H3.51604C2.17717 24.9162 1.0918 23.8356 1.0918 22.5027V5.60814C1.0918 4.2752 2.17717 3.19464 3.51604 3.19464Z"
-                  stroke="#6C7072"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M9.81871 17.7264H5.45508"
-                  stroke="#6C7072"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-                <path
-                  d="M18.5453 17.7264H14.1816"
-                  stroke="#6C7072"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_1_392">
-                  <rect width="24" height="26" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-
-            <h1 className="text-[12px] text-[#6C7072] font-semibold">Jadval</h1>
-          </div>
-          <div className="text-center bg-[#F2F4F5] flex flex-col items-center justify-center gap-2 px-6 py-2 rounded-sm">
-            <svg
-              width="24"
-              height="25"
-              viewBox="0 0 24 25"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g clip-path="url(#clip0_1_406)">
-                <path
-                  d="M14.2833 22.7274C14.0513 23.0719 13.7182 23.3577 13.3174 23.5565C12.9166 23.7552 12.4627 23.8638 12.0002 23.8638C11.5377 23.8638 11.0828 23.7552 10.6821 23.5565C10.2813 23.3577 9.9482 23.0719 9.71613 22.7274M19.9197 7.95472C19.9197 6.14642 19.0853 4.41219 17.6 3.13353C16.1147 1.85488 14.1002 1.13654 11.9997 1.13654C9.89921 1.13654 7.88473 1.85488 6.39944 3.13353C4.91415 4.41219 4.07973 6.14642 4.07973 7.95472C4.07973 15.9093 1.2002 19.3184 1.2002 19.3184H22.8002C22.8002 19.3184 19.9197 15.9093 19.9197 7.95472Z"
-                  stroke="#6C7072"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_1_406">
-                  <rect width="24" height="25" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-
-            <h1 className="text-[12px] text-[#6C7072] font-semibold">
-              Buyurtma
-            </h1>
-          </div>
-          <div className="text-center bg-[#F2F4F5] flex flex-col items-center justify-center gap-2 px-6 py-2 rounded-sm">
-            <svg
-              width="24"
-              height="25"
-              viewBox="0 0 24 25"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g clip-path="url(#clip0_1_400)">
-                <path
-                  d="M23 23.9998V21.4443C23 20.0887 22.4205 18.7887 21.3891 17.8302C20.3576 16.8716 18.9587 16.3331 17.5 16.3331H6.5C5.04131 16.3331 3.64236 16.8716 2.61091 17.8302C1.57946 18.7887 1 20.0887 1 21.4443V23.9998"
-                  stroke="#6C7072"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M12 11.222C15.0376 11.222 17.5 8.93372 17.5 6.11093C17.5 3.28814 15.0376 0.999817 12 0.999817C8.96243 0.999817 6.5 3.28814 6.5 6.11093C6.5 8.93372 8.96243 11.222 12 11.222Z"
-                  stroke="#6C7072"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_1_400">
-                  <rect width="24" height="25" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-
-            <h1 className="text-[12px] text-[#6C7072] font-semibold">Profil</h1>
-          </div>
-        </div>
         <div className=" grid grid-cols-4  rounded-lg border  border-[#989797] border-dashed">
           <div className="text-center   border-r border-dashed my-1 border-[#989797] text-[#6C7072] ">
             {' '}

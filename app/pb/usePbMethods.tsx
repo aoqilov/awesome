@@ -36,11 +36,15 @@ export function usePocketBaseCollection<T>(collection: string) {
   const pb = usePocketBase();
   const queryClient = useQueryClient();
 
-  const list = () =>
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const list = (params: { sort?: string; filter?: string } = {}) =>
     useQuery<T[]>({
-      queryKey: [collection],
+      queryKey: [collection, params],
       queryFn: () =>
-        pb.collection(collection).getFullList<T>({ sort: '-created' })
+        pb.collection(collection).getFullList<T>({
+          sort: params.sort || '-created',
+          filter: params.filter
+        })
     });
 
   const one = (id: string) =>

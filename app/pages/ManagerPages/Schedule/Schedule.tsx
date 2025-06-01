@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useNavigate } from 'react-router-dom';
+
 import { motion } from 'framer-motion';
 import { ConfigProvider, Table } from 'antd';
 import { ChevronLeft } from 'lucide-react';
@@ -8,6 +8,7 @@ import shoe from '@/assets/shoe.png';
 import TimeRange from '../components/TimeRange';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import { useNavigateWithChatId } from '@/hooks/useNavigate';
 const hours = [
   '00 - 01',
   '01 - 02',
@@ -266,7 +267,7 @@ const data = hours.map((hour, i) => {
   return row;
 });
 const Schedule = () => {
-  const navigate = useNavigate();
+  const { navigate } = useNavigateWithChatId();
   const [date, setDate] = useState(dayjs(new Date()));
   return (
     <ConfigProvider

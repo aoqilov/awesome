@@ -8,10 +8,11 @@ import {
   useState
 } from 'react';
 // import {Input,Select} from 'antd';
-import { useNavigate } from 'react-router-dom';
+
 import { useTranslation } from '@/hooks/translation';
 import { useValidify } from '@/hooks/useValidify';
 import { Button, Input, Select } from 'antd';
+import { useNavigateWithChatId } from '@/hooks/useNavigate';
 // Define the extended payload type with player-specific fields
 export type PlayerPayload = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -90,7 +91,7 @@ const AddStadionPage = () => {
     requiredFields: ['name', 'images', 'fieldType', 'size', 'priceByHour'],
     autoValidateOnChange: true
   });
-  const navigate = useNavigate();
+  const { navigate } = useNavigateWithChatId();
   const t = useTranslation();
   useEffect(() => {
     setPayload((prev) => ({

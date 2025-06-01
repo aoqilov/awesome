@@ -23,3 +23,11 @@ export function unformatPhoneNumber(phoneNumber: string) {
   const digits = phoneNumber.replace(/[^\d]/g, '');
   return '+' + digits;
 }
+const baseURL = import.meta.env.VITE_API_URL as string;
+export const getImage = (
+  collectionIdOrName: string,
+  recordId: string,
+  filename: string
+) => {
+  return `${baseURL}/api/files/${collectionIdOrName}/${recordId}/${filename}`;
+};

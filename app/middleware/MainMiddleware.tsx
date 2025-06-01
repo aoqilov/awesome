@@ -12,7 +12,9 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const MainMiddleware = () => {
   const n = useNavigate();
-
+  const navigate = (pathName: string) => {
+    n(pathName + (pathname.includes('?') ? '&' : '?') + `chat_id=${chat_id}`);
+  };
   // const { theme: darkOrLight } = useTheme();
   // const [user] = useLocalStorage('user', null);
   const { pathname } = useLocation();
@@ -25,37 +27,38 @@ const MainMiddleware = () => {
   //   }
   // }, [navigate, pathname]);
   const { chat_id } = useQueryParam();
-  const navigate = (pathName: string) => {
-    n(pathName + (pathname.includes('?') ? '&' : '?') + `chat_id=${chat_id}`);
-  };
-  const [user, setUser] = useState<
-    undefined | RecordAuthResponse<RecordModel>
-  >();
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setUser] = useState<undefined | RecordAuthResponse<RecordModel>>();
   useEffect(() => {
     const authenticateUser = async () => {
       try {
         const data = await pb
           .collection('users')
-          .authWithPassword(`${chat_id}gmail.com`, chat_id);
-
+          .authWithPassword(`${chat_id}@gmail.com`, chat_id);
         setUser(data);
+        console.log('User authenticated:', data);
+        if (!pathname.includes('dashboard')) {
+          navigate(`/dashboard/home`);
+        }
       } catch (error) {
-        console.error('Authentication error:', error);
+        navigate(`/register`);
+        await pb.authStore.clear();
+
+        console.error('Authentication failed:', error);
       }
     };
 
     if (chat_id) {
       authenticateUser();
     }
-  }, [chat_id]);
+  }, [pathname]);
 
-  useEffect(() => {
-    if (!user) {
-      navigate(`/register`);
-    } else {
-      navigate(`/dashboard/home`);
-    }
-  }, [user, navigate]);
+  // useEffect(() => {
+  // if (!pathname.includes('dashboard')) {
+  //   navigate(`/dashboard/home`);
+  // }
+  // }, []);
   return (
     <div className="cw-screen h-screen w-full ">
       <ConfigProvider

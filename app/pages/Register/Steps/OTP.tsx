@@ -6,6 +6,8 @@ import { Button, Typography } from 'antd';
 import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from '@/hooks/translation';
 import { type RegisterContextType, useRegister } from '../Register';
+import { pb } from '@/pb/pb';
+import { useQueryParam } from '@/hooks/useQueryParam';
 
 const { Title, Text } = Typography;
 
@@ -79,20 +81,28 @@ const OTP = () => {
     setActiveIndex(index);
     inputRefs.current[index]?.focus();
   };
-
+  const { chat_id } = useQueryParam();
   // Handle continue button
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (otp.join('').length === 4) {
-      setStep(3);
+      await pb
+        .collection('users')
+        .authWithOTP(payload.otp || '', otp.join(''))
+        .then(() => {
+          setStep(3);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     }
   };
 
   // Handle resend code
-  const handleResend = () => {
+  const handleResend = async () => {
     if (canResend) {
       setTimeLeft(60); // Reset timer to 5:24
       setCanResend(false);
-      // Add your resend logic here
+      await pb.collection('users').requestOTP(chat_id + '@gmail.com');
     }
   };
 

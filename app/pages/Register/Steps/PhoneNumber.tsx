@@ -13,18 +13,25 @@ import { useQueryParam } from '@/hooks/useQueryParam';
 import { pb } from '@/pb/pb';
 
 const PhoneNumber = () => {
-  const { setStep, payload, setPayload, handleChange, stateValidation } =
-    useRegister() as RegisterContextType;
+  const {
+    setStep,
+    payload,
+    setPayload,
+    handleChange,
+    stateValidation,
+    isEdit,
+    setisEdit
+  } = useRegister() as RegisterContextType;
   const t = useTranslation();
 
-  const isFormValid = () => {
-    return (
-      payload.agree !== undefined &&
-      payload.phone !== undefined &&
-      !stateValidation.phone &&
-      !stateValidation.agree
-    );
-  };
+  // const isFormValid = () => {
+  //   return (
+  //     payload.agree !== undefined &&
+  //     payload.phone !== undefined &&
+  //     !stateValidation.phone &&
+  //     !stateValidation.agree
+  //   );
+  // };
 
   // Animation variants
   const containerVariants = {
@@ -53,18 +60,71 @@ const PhoneNumber = () => {
   useEffect(() => {
     setPayload((p) => ({ ...p, userType: 'player' }));
   }, [setPayload]);
-  const { create } = usePocketBaseCollection<UsersRecord>('users');
+  const { create, update } = usePocketBaseCollection<UsersRecord>('users');
+
   const { mutate } = create();
+  const { mutate: upadteMutate } = update();
   const { message } = App.useApp();
   const handleNext = () => {
+    if (isEdit.bool) {
+      upadteMutate(
+        {
+          id: isEdit.id || '',
+          data: {
+            email: chat_id + '@gmail.com',
+            password: chat_id + 'password',
+            passwordConfirm: chat_id + 'password',
+            phoneNumber: payload.phone
+          }
+        },
+        {
+          onSuccess: async () => {
+            setStep(2);
+            const user = await pb
+              .collection('users')
+              .authWithPassword(chat_id + '@gmail.com', chat_id);
+            const req = await pb
+              .collection('users')
+              .requestOTP(chat_id + '@gmail.com');
+            setPayload((p) => ({
+              ...p,
+              otp: req.otpId
+            }));
+            setisEdit({ bool: true, id: user.record.id });
+            message.success(
+              t({
+                uz: 'Tasdiqlash kodi yuborildi',
+                ru: 'Код подтверждения отправлен',
+                en: 'Verification code sent'
+              })
+            );
+          },
+          onError: (error) => {
+            message.error(
+              t({
+                uz: 'Xatolik yuz berdi, qayta urinib ko’ring',
+                ru: 'Произошла ошибка, попробуйте еще раз',
+                en: 'An error occurred, please try again'
+              })
+            );
+            console.error('Error creating user:', error);
+          }
+        }
+      );
+    }
     mutate(
       {
         email: chat_id + '@gmail.com',
         password: chat_id,
-        passwordConfirm: chat_id
+        passwordConfirm: chat_id,
+        phoneNumber: payload.phone
       },
       {
         onSuccess: async () => {
+          setStep(2);
+          const user = await pb
+            .collection('users')
+            .authWithPassword(chat_id + '@gmail.com', chat_id);
           const req = await pb
             .collection('users')
             .requestOTP(chat_id + '@gmail.com');
@@ -72,9 +132,8 @@ const PhoneNumber = () => {
             ...p,
             otp: req.otpId
           }));
-          if (isFormValid()) {
-            setStep(2);
-          }
+          setisEdit({ bool: true, id: user.record.id });
+
           message.success(
             t({
               uz: 'Tasdiqlash kodi yuborildi',

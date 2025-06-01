@@ -1,6 +1,6 @@
 import { Carousel, Segmented, Image, DatePicker, Button } from 'antd';
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import imageStadim from '@/assets/stadion.png';
 import map from '@/assets/manzil.png';
 import { motion } from 'framer-motion';
@@ -8,9 +8,10 @@ import { User } from 'lucide-react';
 import { itemVariants } from '@/pages/Register/Register';
 import { FieldCard } from './FieldCard';
 import { useTranslation } from '@/hooks/translation';
+import { useNavigateWithChatId } from '@/hooks/useNavigate';
 
 const StadionDetail = () => {
-  const navigate = useNavigate();
+  const { navigate } = useNavigateWithChatId();
   const [selected, setSelected] = useState('Umumiy');
   const t = useTranslation();
   const { id } = useParams();

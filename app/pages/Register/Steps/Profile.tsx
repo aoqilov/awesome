@@ -12,15 +12,19 @@ import {
   useRegister,
   itemVariants
 } from '../Register';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithChatId } from '@/hooks/useNavigate';
+import { usePocketBaseCollection } from '@/pb/usePbMethods';
+import useApp from 'antd/es/app/useApp';
+import { UsersRecord, UsersRoleOptions } from '@/types/pocketbaseTypes';
 
 const Profile = () => {
-  const { payload, handleChange, stateValidation, setPayload } =
+  const { payload, handleChange, stateValidation, setPayload, isEdit } =
     useRegister() as RegisterContextType;
   const t = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
+  const { navigate } = useNavigateWithChatId();
 
+  const { update } = usePocketBaseCollection<UsersRecord>('users');
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
@@ -40,9 +44,42 @@ const Profile = () => {
       reader.readAsDataURL(file);
     }
   };
-
+  const { mutate } = update();
+  const { message } = useApp();
   const handleContinue = () => {
-    navigate('/dashboard/home');
+    mutate(
+      {
+        id: isEdit.id,
+        data: {
+          fullname: payload?.fullName,
+          avatar: payload?.avatar,
+          role: payload?.userType as UsersRoleOptions
+        }
+      },
+      {
+        onSuccess: () => {
+          // Handle successful update
+          message.success(
+            t({
+              uz: 'Profil muvaffaqiyatli yangilandi',
+              ru: 'Профиль успешно обновлен',
+              en: 'Profile updated successfully'
+            })
+          );
+          navigate('/dashboard/home');
+        },
+        onError: (error) => {
+          // Handle error
+          message.error(
+            t({
+              uz: 'Profilni yangilashda xatolik yuz berdi',
+              ru: 'Произошла ошибка при обновлении профиля',
+              en: 'An error occurred while updating the profile'
+            }) + `: ${error.message}`
+          );
+        }
+      }
+    );
   };
 
   // Animation variants from the imported itemVariants

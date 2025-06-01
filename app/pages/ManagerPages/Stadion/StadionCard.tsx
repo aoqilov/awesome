@@ -2,8 +2,7 @@ import type React from 'react';
 import { motion } from 'framer-motion';
 
 import { Carousel } from 'antd';
-
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithChatId } from '@/hooks/useNavigate';
 
 // Define the Stadium type
 export interface Stadium {
@@ -22,7 +21,7 @@ export interface Stadium {
 
 // Card component that will be mapped
 export const StadiumCard: React.FC<{ stadium: Stadium }> = ({ stadium }) => {
-  const navigate = useNavigate();
+  const { navigate } = useNavigateWithChatId();
   return (
     <motion.div
       className="w-full p-2  rounded-2xl overflow-hidden bg-white shadow-md"

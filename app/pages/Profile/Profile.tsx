@@ -1,14 +1,5 @@
-import { useState } from 'react';
-import {
-  Card,
-  Avatar,
-  Rate,
-  Button,
-  Form,
-  Input,
-  DatePicker,
-  message
-} from 'antd';
+import { useEffect, useState } from 'react';
+import { Card, Avatar, Button, Form, Input, DatePicker } from 'antd';
 import {
   EditOutlined,
   UserOutlined,
@@ -16,8 +7,15 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useTranslation } from '@/hooks/translation';
-import { useNavigate } from 'react-router-dom';
+
 import { motion, AnimatePresence } from 'framer-motion'; // Import Framer Motion
+import { useNavigateWithChatId } from '@/hooks/useNavigate';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { Copy } from 'lucide-react';
+import useApp from 'antd/es/app/useApp';
+import { getImage } from '@/lib/utils';
+import { usePocketBaseCollection } from '@/pb/usePbMethods';
+import { UsersResponse } from '@/types/pocketbaseTypes';
 
 interface UserProfile {
   name: string;
@@ -61,28 +59,8 @@ const ProfilePage = () => {
     });
   };
 
-  const handleSave = async () => {
-    try {
-      const values = await form.validateFields();
-      setUserProfile({
-        ...userProfile,
-        name: values.name,
-        surname: values.surname,
-        birthDate: values.birthDate.format('DD.MM.YYYY'),
-        phone: values.phone,
-        address: values.address,
-        city: values.city
-      });
-      setIsEditing(false);
-      message.success('Profil muvaffaqiyatli yangilandi!');
-    } catch (_) {
-      console.log(_);
-      message.error("Iltimos, barcha maydonlarni to'ldiring!");
-    }
-  };
-
   const t = useTranslation();
-  const navigate = useNavigate();
+  const { navigate } = useNavigateWithChatId();
 
   // Animation variants for Framer Motion
   const containerVariants = {
@@ -108,7 +86,56 @@ const ProfilePage = () => {
     hover: { scale: 1.05, transition: { duration: 0.2 } },
     tap: { scale: 0.95 }
   };
-
+  const [pocketbase_auth] = useLocalStorage('pocketbase_auth', null);
+  const { one, update } = usePocketBaseCollection<UsersResponse>('users');
+  const { data: userData, refetch } = one(pocketbase_auth?.record?.id);
+  const { message } = useApp();
+  const { mutate } = update();
+  useEffect(() => {
+    if (userData) {
+      setUserProfile((p) => ({
+        ...p,
+        name: userData.fullname || '',
+        surname: '',
+        birthDate: dayjs(userData.birthDate).format('DD.MM.YYYY'),
+        phone: userData.phoneNumber || '',
+        address: userData.liveCity || '',
+        city: userData.liveCity || '',
+        avatar: userData.avatar || ''
+      }));
+    }
+  }, [userData]);
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+      const updatedData = {
+        fullname: values.name,
+        birthDate: dayjs(values.birthDate).format('YYYY-MM-DD')
+      };
+      await mutate({
+        id: pocketbase_auth?.record?.id || '',
+        data: updatedData
+      });
+      message.success(
+        t({
+          uz: 'Profil muvaffaqiyatli yangilandi!',
+          ru: 'Профиль успешно обновлен!',
+          en: 'Profile updated successfully!'
+        })
+      );
+      setIsEditing(false);
+      refetch();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      message.error(
+        t({
+          uz: 'Profilni yangilashda xatolik yuz berdi!',
+          ru: 'Произошла ошибка при обновлении профиля!',
+          en: 'Error updating profile!'
+        })
+      );
+    }
+  };
   return (
     <AnimatePresence mode="wait">
       {isEditing ? (
@@ -118,7 +145,6 @@ const ProfilePage = () => {
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="min-h-screen"
         >
           <div className="max-w-md mx-auto">
             {/* Header */}
@@ -265,17 +291,18 @@ const ProfilePage = () => {
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="min-h-screen"
+          className=""
         >
           <div className="max-w-md mx-auto">
             {/* Header */}
             <motion.div className="relative mb-6" variants={containerVariants}>
               <h1 className="text-center text-xl">
-                {t({
-                  uz: 'Stadion yaratish',
-                  ru: 'Создать стадион',
-                  en: 'Create stadium'
-                })}
+                {userData?.fullname ||
+                  t({
+                    uz: 'Nomalum Foydalanuvchi',
+                    ru: 'Неизвестный пользователь',
+                    en: 'Unknown User'
+                  })}
               </h1>
               <div
                 className="absolute top-0 left-0 cursor-pointer"
@@ -309,11 +336,33 @@ const ProfilePage = () => {
             <motion.div className="text-center mb-6" variants={cardVariants}>
               <Avatar
                 size={100}
-                src="/lovable-uploads/91a1c7e9-8344-469a-a72e-d48888854bfb.png"
+                src={getImage(
+                  userData?.collectionName || '',
+                  userData?.id || '',
+                  userData?.avatar || ''
+                )}
                 icon={<UserOutlined />}
                 className="mb-6"
               />
-              <div className="flex items-center justify-center gap-2 mb-2 mt-4">
+              <div
+                className="text-gray-500 font-light text-[12px] cursor-pointer flex items-center justify-center gap-1"
+                title="ID ni nusxalash"
+                onClick={() => {
+                  navigator.clipboard.writeText(pocketbase_auth?.record?.id);
+                  message.success(
+                    t({
+                      uz: 'ID nusxalandi',
+                      ru: 'ID скопирован',
+                      en: 'ID copied'
+                    })
+                  );
+                }}
+              >
+                {' '}
+                <Copy size={12} />
+                {pocketbase_auth?.record?.id}
+              </div>
+              {/* <div className="flex items-center justify-center gap-2 mb-2 mt-4">
                 <Rate
                   disabled
                   defaultValue={userProfile.rating}
@@ -321,11 +370,11 @@ const ProfilePage = () => {
                 />
                 <span className="font-medium">{userProfile.rating}</span>
                 <span className="text-gray-500">15 ta ovoz</span>
-              </div>
+              </div> */}
             </motion.div>
 
             {/* Stats Cards */}
-            <motion.div
+            {/* <motion.div
               className="grid grid-cols-3 gap-1 mb-6 bg-white rounded-lg p-4 shadow-sm"
               variants={cardVariants}
             >
@@ -347,7 +396,7 @@ const ProfilePage = () => {
                   {userProfile.cancelledTasks} marta
                 </div>
               </div>
-            </motion.div>
+            </motion.div> */}
 
             {/* Profile Information */}
             <motion.div variants={cardVariants}>
@@ -386,7 +435,7 @@ const ProfilePage = () => {
             </motion.div>
 
             {/* Action Button */}
-            <motion.div
+            {/* <motion.div
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
@@ -399,7 +448,7 @@ const ProfilePage = () => {
               >
                 Baholash →
               </Button>
-            </motion.div>
+            </motion.div> */}
           </div>
         </motion.div>
       )}

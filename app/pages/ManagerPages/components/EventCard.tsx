@@ -129,7 +129,7 @@ const EventCard: React.FC<{ event: (typeof _events)[0] }> = ({ event }) => {
             <span className="text-[14px] font-medium">{event.timer}</span>
           </div>
         ) : event.actions ? (
-          <div className="flex items-center gap-2 w-[150px] ">
+          <div className="flex items-center gap-2 w-[130px] ">
             {event.actions.includes('bell') && (
               <div className="bg-yellow-500/10 p-2 rounded ">
                 <Bell className="w-5 h-5 text-yellow-500" />

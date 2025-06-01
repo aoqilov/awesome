@@ -2,11 +2,12 @@ import { Button } from 'antd';
 import { Stadium, StadiumCard } from './StadionCard';
 import imageStadim from '@/assets/stadion.png';
 import { useTranslation } from '@/hooks/translation';
-import { useNavigate } from 'react-router-dom';
+
+import { useNavigateWithChatId } from '@/hooks/useNavigate';
 // Main component that maps through the data
 export default function StadiumList() {
   const t = useTranslation();
-  const navigate = useNavigate();
+  const { navigate } = useNavigateWithChatId();
   // Sample data array
   const stadiumsData: Stadium[] = [
     {
