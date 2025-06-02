@@ -1,7 +1,7 @@
 import { Divider } from 'antd';
 import EventCard from './components/EventCard';
 import { usePocketBaseCollection } from '@/pb/usePbMethods';
-import { OrdersRecord, OrdersResponse } from '@/types/pocketbaseTypes';
+import { OrdersResponse } from '@/types/pocketbaseTypes';
 
 const HomePage = () => {
   const events = [
