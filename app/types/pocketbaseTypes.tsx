@@ -2,28 +2,28 @@
  * This file was @generated using pocketbase-typegen
  */
 
-import type PocketBase from 'pocketbase';
-import type { RecordService } from 'pocketbase';
+import type PocketBase from "pocketbase";
+import type { RecordService } from "pocketbase";
 
 export enum Collections {
-  Authorigins = '_authOrigins',
-  Externalauths = '_externalAuths',
-  Mfas = '_mfas',
-  Otps = '_otps',
-  Superusers = '_superusers',
-  Buttons = 'buttons',
-  Cities = 'cities',
-  FieldSizes = 'field_sizes',
-  Fields = 'fields',
-  OrderItem = 'order_item',
-  Orders = 'orders',
-  Regions = 'regions',
-  StadiumFeatures = 'stadium_features',
-  StadiumRates = 'stadium_rates',
-  Stadiums = 'stadiums',
-  Translations = 'translations',
-  UserFavoriteStadiums = 'user_favorite_stadiums',
-  Users = 'users'
+  Authorigins = "_authOrigins",
+  Externalauths = "_externalAuths",
+  Mfas = "_mfas",
+  Otps = "_otps",
+  Superusers = "_superusers",
+  Buttons = "buttons",
+  Cities = "cities",
+  FieldSizes = "field_sizes",
+  Fields = "fields",
+  OrderItem = "order_item",
+  Orders = "orders",
+  Regions = "regions",
+  StadiumFeatures = "stadium_features",
+  StadiumRates = "stadium_rates",
+  Stadiums = "stadiums",
+  Translations = "translations",
+  UserFavoriteStadiums = "user_favorite_stadiums",
+  Users = "users",
 }
 
 // Alias types for improved usability
@@ -122,6 +122,10 @@ export type CitiesRecord = {
   id: string;
   name?: RecordIdString;
   updated?: IsoDateString;
+  region?: RecordIdString;
+  expand?: {
+    name?: TranslationsRecord;
+  };
 };
 
 export type FieldSizesRecord = {
@@ -132,25 +136,30 @@ export type FieldSizesRecord = {
 };
 
 export enum FieldsTypeOptions {
-  'grass' = 'grass',
-  'futsal' = 'futsal'
+  "grass" = "grass",
+  "futsal" = "futsal",
 }
 
 export enum FieldsStatusOptions {
-  'suspended' = 'suspended',
-  'active' = 'active'
+  "suspended" = "suspended",
+  "active" = "active",
 }
 export type FieldsRecord = {
+  name: string;
   created?: IsoDateString;
   fid?: number;
   id: string;
   images?: string[];
-  price?: number;
+  price: number;
   size?: RecordIdString;
   stadium?: RecordIdString;
   status?: FieldsStatusOptions;
   type?: FieldsTypeOptions;
   updated?: IsoDateString;
+  collectionId: string;
+  expand?: {
+    size: FieldSizesRecord;
+  };
 };
 
 export type OrderItemRecord = {
@@ -162,8 +171,8 @@ export type OrderItemRecord = {
 };
 
 export enum OrdersTypeOptions {
-  'order' = 'order',
-  'reserve' = 'reserve'
+  "order" = "order",
+  "reserve" = "reserve",
 }
 export type OrdersRecord = {
   created?: IsoDateString;
@@ -182,6 +191,9 @@ export type RegionsRecord = {
   id: string;
   name?: RecordIdString;
   updated?: IsoDateString;
+  expand?: {
+    name?: TranslationsRecord;
+  };
 };
 
 export type StadiumFeaturesRecord = {
@@ -189,6 +201,9 @@ export type StadiumFeaturesRecord = {
   id: string;
   name?: RecordIdString;
   updated?: IsoDateString;
+  collectionId?: string;
+  collectionName?: string;
+  icon?: string;
 };
 
 export type StadiumRatesRecord = {
@@ -199,19 +214,23 @@ export type StadiumRatesRecord = {
   stadium?: RecordIdString;
   updated?: IsoDateString;
   user?: RecordIdString;
+  expand?: {
+    user?: UsersRecord;
+    stadium?: StadiumsRecord;
+  };
 };
 
 export enum StadiumsStatusOptions {
-  'verified' = 'verified',
-  'new' = 'new'
+  "verified" = "verified",
+  "new" = "new",
 }
 export type StadiumsRecord<Tsocials = unknown> = {
   address?: string;
   city?: RecordIdString;
   created?: IsoDateString;
-  features?: RecordIdString;
+  features?: RecordIdString[];
   id: string;
-  image?: string[];
+  images?: string[];
   isSaved?: boolean;
   longlat?: GeoPoint;
   name?: string;
@@ -224,16 +243,21 @@ export type StadiumsRecord<Tsocials = unknown> = {
   updated?: IsoDateString;
   worktime_from?: number;
   worktime_to?: number;
+  collectionId?: string;
+  expand?: {
+    features?: StadiumFeaturesRecord[];
+    city?: CitiesRecord;
+  };
 };
 
 export type TranslationsRecord = {
   created?: IsoDateString;
-  english?: string;
+  eng?: string;
   id: string;
   key?: string;
-  russian?: string;
+  ru?: string;
   updated?: IsoDateString;
-  uzbek?: string;
+  uz?: string;
 };
 
 export type UserFavoriteStadiumsRecord = {
@@ -245,14 +269,14 @@ export type UserFavoriteStadiumsRecord = {
 };
 
 export enum UsersRoleOptions {
-  'admin' = 'admin',
-  'manager' = 'manager'
+  "admin" = "admin",
+  "manager" = "manager",
 }
 
 export enum UsersLanguageOptions {
-  'russian' = 'russian',
-  'english' = 'english',
-  'uzbek' = 'uzbek'
+  "russian" = "russian",
+  "english" = "english",
+  "uzbek" = "uzbek",
 }
 export type UsersRecord = {
   avatar?: string;
@@ -362,26 +386,26 @@ export type CollectionResponses = {
 // https://github.com/pocketbase/js-sdk#specify-typescript-definitions
 
 export type TypedPocketBase = PocketBase & {
-  collection(idOrName: '_authOrigins'): RecordService<AuthoriginsResponse>;
-  collection(idOrName: '_externalAuths'): RecordService<ExternalauthsResponse>;
-  collection(idOrName: '_mfas'): RecordService<MfasResponse>;
-  collection(idOrName: '_otps'): RecordService<OtpsResponse>;
-  collection(idOrName: '_superusers'): RecordService<SuperusersResponse>;
-  collection(idOrName: 'buttons'): RecordService<ButtonsResponse>;
-  collection(idOrName: 'cities'): RecordService<CitiesResponse>;
-  collection(idOrName: 'field_sizes'): RecordService<FieldSizesResponse>;
-  collection(idOrName: 'fields'): RecordService<FieldsResponse>;
-  collection(idOrName: 'order_item'): RecordService<OrderItemResponse>;
-  collection(idOrName: 'orders'): RecordService<OrdersResponse>;
-  collection(idOrName: 'regions'): RecordService<RegionsResponse>;
+  collection(idOrName: "_authOrigins"): RecordService<AuthoriginsResponse>;
+  collection(idOrName: "_externalAuths"): RecordService<ExternalauthsResponse>;
+  collection(idOrName: "_mfas"): RecordService<MfasResponse>;
+  collection(idOrName: "_otps"): RecordService<OtpsResponse>;
+  collection(idOrName: "_superusers"): RecordService<SuperusersResponse>;
+  collection(idOrName: "buttons"): RecordService<ButtonsResponse>;
+  collection(idOrName: "cities"): RecordService<CitiesResponse>;
+  collection(idOrName: "field_sizes"): RecordService<FieldSizesResponse>;
+  collection(idOrName: "fields"): RecordService<FieldsResponse>;
+  collection(idOrName: "order_item"): RecordService<OrderItemResponse>;
+  collection(idOrName: "orders"): RecordService<OrdersResponse>;
+  collection(idOrName: "regions"): RecordService<RegionsResponse>;
   collection(
-    idOrName: 'stadium_features'
+    idOrName: "stadium_features"
   ): RecordService<StadiumFeaturesResponse>;
-  collection(idOrName: 'stadium_rates'): RecordService<StadiumRatesResponse>;
-  collection(idOrName: 'stadiums'): RecordService<StadiumsResponse>;
-  collection(idOrName: 'translations'): RecordService<TranslationsResponse>;
+  collection(idOrName: "stadium_rates"): RecordService<StadiumRatesResponse>;
+  collection(idOrName: "stadiums"): RecordService<StadiumsResponse>;
+  collection(idOrName: "translations"): RecordService<TranslationsResponse>;
   collection(
-    idOrName: 'user_favorite_stadiums'
+    idOrName: "user_favorite_stadiums"
   ): RecordService<UserFavoriteStadiumsResponse>;
-  collection(idOrName: 'users'): RecordService<UsersResponse>;
+  collection(idOrName: "users"): RecordService<UsersResponse>;
 };

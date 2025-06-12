@@ -1,13 +1,20 @@
 import {
   itemVariants,
   type RegisterContextType,
-  useRegister
-} from '../Register';
-import { useLang } from '@/providers/LangProvider';
-import { useTranslation } from '@/hooks/translation';
-import { motion } from 'framer-motion';
-import { Button } from 'antd';
-import { ChevronRight } from 'lucide-react';
+  useRegister,
+} from "../Register";
+import { useLang } from "@/providers/LangProvider";
+import { useTranslation } from "@/hooks/translation";
+import { motion } from "framer-motion";
+import { Button } from "antd";
+import { ChevronRight } from "lucide-react";
+import { UsersLanguageOptions } from "@/types/pocketbaseTypes";
+
+interface Language {
+  code: string;
+  name: string;
+  value: UsersLanguageOptions;
+}
 
 const SelectLang = () => {
   const { setStep, payload, setPayload } = useRegister() as RegisterContextType;
@@ -19,19 +26,22 @@ const SelectLang = () => {
     }
   };
 
-  const languages = [
+  const languages: Language[] = [
     {
-      code: 'uz',
-      name: "O'zbekcha"
+      code: "uz",
+      name: "O'zbekcha",
+      value: UsersLanguageOptions.uzbek,
     },
     {
-      code: 'ru',
-      name: 'Русский'
+      code: "ru",
+      name: "Русский",
+      value: UsersLanguageOptions.russian,
     },
     {
-      code: 'en',
-      name: 'English'
-    }
+      code: "en",
+      name: "English",
+      value: UsersLanguageOptions.english,
+    },
   ];
 
   return (
@@ -40,9 +50,9 @@ const SelectLang = () => {
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-medium text-gray-800">
             {t({
-              uz: 'Tilni tanlash',
-              en: 'Select a language',
-              ru: 'Выберите язык'
+              uz: "Tilni tanlash",
+              en: "Select a language",
+              ru: "Выберите язык",
             })}
           </h1>
         </div>
@@ -62,9 +72,9 @@ const SelectLang = () => {
         </div>
         <h2 className="text-2xl font-medium text-gray-800 mb-8 text-left  w-full">
           {t({
-            uz: 'Tilni tanlang',
-            en: 'Select a language',
-            ru: 'Выберите язык'
+            uz: "Tilni tanlang",
+            en: "Select a language",
+            ru: "Выберите язык",
           })}
         </h2>
         <div className="w-full max-w-md space-y-6">
@@ -72,19 +82,19 @@ const SelectLang = () => {
             <button
               key={language.code}
               onClick={() => {
-                setPayload({ ...payload, lang: language.code });
+                setPayload({ ...payload, lang: language.value });
                 setLang(language.code);
               }}
               className="w-full flex items-center space-x-4"
             >
               <div
                 className={`h-6 w-6 rounded-full flex items-center justify-center transition-all duration-300 ${
-                  payload.lang === language.code
-                    ? 'bg-[#42BA3D]'
-                    : 'border-2 border-gray-300'
+                  payload.lang === language.value
+                    ? "bg-[#42BA3D]"
+                    : "border-2 border-gray-300"
                 }`}
               >
-                {payload.lang === language.code && (
+                {payload.lang === language.value && (
                   <div className="h-2 w-2 rounded-full bg-white"></div>
                 )}
               </div>
@@ -103,12 +113,12 @@ const SelectLang = () => {
           disabled={!payload.lang}
           className={`w-full h-14 rounded-full text-lg font-medium flex items-center justify-center ${
             payload.lang
-              ? 'bg-green-500 hover:bg-green-600'
-              : 'bg-gray-200 text-gray-400'
+              ? "bg-green-500 hover:bg-green-600"
+              : "bg-gray-200 text-gray-400"
           }`}
           size="large"
         >
-          <span>{t({ uz: 'Keyingisi', en: 'Next', ru: 'Далее' })}</span>
+          <span>{t({ uz: "Keyingisi", en: "Next", ru: "Далее" })}</span>
           <ChevronRight className="ml-2 h-5 w-5" />
         </Button>
       </motion.div>

@@ -33,27 +33,27 @@ const DashboardLayout = () => {
           <path
             d="M22 24.2998L2 24.2998C1.28203 24.2998 0.700195 23.718 0.700195 23L0.700193 2C0.700195 1.28203 1.28203 0.700199 2 0.700197L22 0.700195C22.718 0.700195 23.2998 1.28203 23.2998 2L23.2998 23C23.2998 23.718 22.718 24.2998 22 24.2998Z"
             stroke={activeItem.includes('stadium') ? 'white' : '#6C7072'}
-            stroke-width="1.4"
+            strokeWidth="1.4"
           />
           <path
             d="M16.3643 25L16.3643 21.4545C16.3643 20.9023 15.9165 20.4545 15.3643 20.4545L8.63699 20.4545C8.0847 20.4545 7.63699 20.9023 7.63699 21.4545L7.63699 25"
             stroke={activeItem.includes('stadium') ? 'white' : '#6C7072'}
-            stroke-width="1.4"
+            strokeWidth="1.4"
           />
           <path
             d="M7.63574 0L7.63574 3.54545C7.63574 4.09774 8.08346 4.54545 8.63574 4.54545L15.363 4.54545C15.9153 4.54545 16.363 4.09774 16.363 3.54545L16.363 -1.87452e-07"
             stroke={activeItem.includes('stadium') ? 'white' : '#6C7072'}
-            stroke-width="1.4"
+            strokeWidth="1.4"
           />
           <path
             d="M24 12.5L4.41074e-06 12.5"
             stroke={activeItem.includes('stadium') ? 'white' : '#6C7072'}
-            stroke-width="1.4"
+            strokeWidth="1.4"
           />
           <path
             d="M12 16.3457C9.8581 16.3457 8.12891 14.62 8.12891 12.5C8.12915 10.3802 9.85825 8.65527 12 8.65527C14.1417 8.65535 15.8709 10.3802 15.8711 12.5C15.8711 14.62 14.1418 16.3456 12 16.3457Z"
             stroke={activeItem.includes('stadium') ? 'white' : '#6C7072'}
-            stroke-width="1.4"
+            strokeWidth="1.4"
           />
         </svg>
       ),

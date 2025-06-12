@@ -1,21 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+"use client";
 
-import type React from 'react';
-import { useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Button, Input, DatePicker, Select } from 'antd';
-import { Camera, ChevronRight, User } from 'lucide-react';
-import { useTranslation } from '@/hooks/translation';
+import type React from "react";
+import { useRef } from "react";
+import { motion } from "framer-motion";
+import { Button, Input, DatePicker, Select } from "antd";
+import { Camera, ChevronRight, User } from "lucide-react";
+import { useTranslation } from "@/hooks/translation";
 import {
   type RegisterContextType,
   useRegister,
-  itemVariants
-} from '../Register';
-import { useNavigateWithChatId } from '@/hooks/useNavigate';
-import { usePocketBaseCollection } from '@/pb/usePbMethods';
-import useApp from 'antd/es/app/useApp';
-import { UsersRecord, UsersRoleOptions } from '@/types/pocketbaseTypes';
+  itemVariants,
+} from "../Register";
+import { useNavigateWithChatId } from "@/hooks/useNavigate";
+import { usePocketBaseCollection } from "@/pb/usePbMethods";
+import useApp from "antd/es/app/useApp";
+import {
+  UsersRecord,
+  RegionsRecord,
+  UsersRoleOptions,
+  CitiesRecord,
+} from "@/types/pocketbaseTypes";
 
 const Profile = () => {
   const { payload, handleChange, stateValidation, setPayload, isEdit } =
@@ -24,7 +29,15 @@ const Profile = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { navigate } = useNavigateWithChatId();
 
-  const { update } = usePocketBaseCollection<UsersRecord>('users');
+  const { update } = usePocketBaseCollection<UsersRecord>("users");
+  const { list: listRegions } =
+    usePocketBaseCollection<RegionsRecord>("regions");
+  const { list: listCities } = usePocketBaseCollection<CitiesRecord>("cities");
+
+  const { data: regions } = listRegions({ expand: "name" });
+  const { data: cities } = listCities({
+    expand: "name",
+  });
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
@@ -37,13 +50,14 @@ const Profile = () => {
         if (event.target?.result) {
           setPayload((prevPayload) => ({
             ...prevPayload,
-            avatar: event.target?.result
+            avatar: event.target?.result,
           }));
         }
       };
       reader.readAsDataURL(file);
     }
   };
+
   const { mutate } = update();
   const { message } = useApp();
   const handleContinue = () => {
@@ -51,33 +65,39 @@ const Profile = () => {
       {
         id: isEdit.id,
         data: {
-          fullname: payload?.fullName,
+          fullname: [payload?.fullName, payload?.familyName]
+            .filter(Boolean)
+            .join(" "),
           avatar: payload?.avatar,
-          role: payload?.userType as UsersRoleOptions
-        }
+          role: payload?.userType as UsersRoleOptions,
+          liveCity: payload?.residencePlace?.district,
+          bornCity: payload?.birthPlace?.district,
+          language: payload.lang,
+          birthDate: payload?.birthDate
+        },
       },
       {
         onSuccess: () => {
           // Handle successful update
           message.success(
             t({
-              uz: 'Profil muvaffaqiyatli yangilandi',
-              ru: 'Профиль успешно обновлен',
-              en: 'Profile updated successfully'
+              uz: "Profil muvaffaqiyatli yangilandi",
+              ru: "Профиль успешно обновлен",
+              en: "Profile updated successfully",
             })
           );
-          navigate('/dashboard/home');
+          navigate("/dashboard/home");
         },
         onError: (error) => {
           // Handle error
           message.error(
             t({
-              uz: 'Profilni yangilashda xatolik yuz berdi',
-              ru: 'Произошла ошибка при обновлении профиля',
-              en: 'An error occurred while updating the profile'
+              uz: "Profilni yangilashda xatolik yuz berdi",
+              ru: "Произошла ошибка при обновлении профиля",
+              en: "An error occurred while updating the profile",
             }) + `: ${error.message}`
           );
-        }
+        },
       }
     );
   };
@@ -88,19 +108,19 @@ const Profile = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   // Check if user is a player
-  const isPlayer = payload?.userType === 'player';
+  const isPlayer = payload?.userType === "player";
 
   // Handle extended field changes
   const handleExtendedChange = (field: string, value: any) => {
     setPayload((prevPayload) => ({
       ...prevPayload,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -114,8 +134,8 @@ const Profile = () => {
       ...prevPayload,
       [parentField]: {
         ...prevPayload[parentField],
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
@@ -152,7 +172,7 @@ const Profile = () => {
           >
             {payload?.avatar ? (
               <img
-                src={payload?.avatar || '/placeholder.svg'}
+                src={payload?.avatar || "/placeholder.svg"}
                 alt="Profile"
                 className="w-full h-full rounded-full object-cover"
               />
@@ -179,31 +199,31 @@ const Profile = () => {
         <motion.div variants={itemVariants} className="w-full mb-6 px-4">
           <label className="block text-gray-700 text-lg mb-2">
             {t({
-              uz: 'Ismingiz:',
-              ru: 'Ваше имя:',
-              en: 'Your name:'
+              uz: "Ismingiz:",
+              ru: "Ваше имя:",
+              en: "Your name:",
             })}
           </label>
           <Input
             size="large"
-            value={payload?.fullName || ''}
-            onChange={(e) => handleChange('fullName', e.target.value)}
+            value={payload?.fullName || ""}
+            onChange={(e) => handleChange("fullName", e.target.value)}
             placeholder={
               t({
-                uz: 'Ismingizni kiriting...',
-                ru: 'Введите ваше имя...',
-                en: 'Enter your name...'
+                uz: "Ismingizni kiriting...",
+                ru: "Введите ваше имя...",
+                en: "Enter your name...",
               }) as string
             }
             className="text-lg rounded-lg"
-            status={stateValidation?.fullName ? 'error' : ''}
+            status={stateValidation?.fullName ? "error" : ""}
           />
           {stateValidation?.fullName && (
             <p className="text-red-500 text-sm mt-1">
               {t({
-                uz: 'Ismingizni kiriting',
-                ru: 'Введите ваше имя',
-                en: 'Please enter your name'
+                uz: "Ismingizni kiriting",
+                ru: "Введите ваше имя",
+                en: "Please enter your name",
               })}
             </p>
           )}
@@ -216,33 +236,33 @@ const Profile = () => {
             <motion.div variants={itemVariants} className="w-full mb-6 px-4">
               <label className="block text-gray-700 text-lg mb-2">
                 {t({
-                  uz: 'Familiyangiz:',
-                  ru: 'Ваша фамилия:',
-                  en: 'Your family name:'
+                  uz: "Familiyangiz:",
+                  ru: "Ваша фамилия:",
+                  en: "Your family name:",
                 })}
               </label>
               <Input
                 size="large"
-                value={payload?.familyName || ''}
+                value={payload?.familyName || ""}
                 onChange={(e) =>
-                  handleExtendedChange('familyName', e.target.value)
+                  handleExtendedChange("familyName", e.target.value)
                 }
                 placeholder={
                   t({
-                    uz: 'Familiyangizni kiriting...',
-                    ru: 'Введите вашу фамилию...',
-                    en: 'Enter your family name...'
+                    uz: "Familiyangizni kiriting...",
+                    ru: "Введите вашу фамилию...",
+                    en: "Enter your family name...",
                   }) as string
                 }
                 className="text-lg rounded-lg"
-                status={stateValidation?.familyName ? 'error' : ''}
+                status={stateValidation?.familyName ? "error" : ""}
               />
               {stateValidation?.familyName && (
                 <p className="text-red-500 text-sm mt-1">
                   {t({
-                    uz: 'Familiyangizni kiriting',
-                    ru: 'Введите вашу фамилию',
-                    en: 'Please enter your family name'
+                    uz: "Familiyangizni kiriting",
+                    ru: "Введите вашу фамилию",
+                    en: "Please enter your family name",
                   })}
                 </p>
               )}
@@ -253,25 +273,25 @@ const Profile = () => {
               <label className="block text-gray-700 text-lg mb-2">
                 {t({
                   uz: "Tug'ilgan sanangiz:",
-                  ru: 'Дата рождения:',
-                  en: 'Date of birth:'
+                  ru: "Дата рождения:",
+                  en: "Date of birth:",
                 })}
               </label>
               <DatePicker
                 size="large"
                 value={payload?.birthDate}
-                onChange={(date) => handleExtendedChange('birthDate', date)}
+                onChange={(date) => handleExtendedChange("birthDate", date)}
                 placeholder="--/--/----"
                 className="w-full text-lg rounded-lg"
                 format="DD/MM/YYYY"
-                status={stateValidation?.birthDate ? 'error' : ''}
+                status={stateValidation?.birthDate ? "error" : ""}
               />
               {stateValidation?.birthDate && (
                 <p className="text-red-500 text-sm mt-1">
                   {t({
                     uz: "Tug'ilgan sanangizni kiriting",
-                    ru: 'Введите дату рождения',
-                    en: 'Please enter your date of birth'
+                    ru: "Введите дату рождения",
+                    en: "Please enter your date of birth",
                   })}
                 </p>
               )}
@@ -282,42 +302,64 @@ const Profile = () => {
               <label className="block text-gray-700 text-lg mb-2">
                 {t({
                   uz: "Tug'ilgan joyingiz:",
-                  ru: 'Место рождения:',
-                  en: 'Place of birth:'
+                  ru: "Место рождения:",
+                  en: "Place of birth:",
                 })}
               </label>
               <div className="space-y-4">
                 <Select
                   size="large"
                   value={payload?.birthPlace?.region}
-                  onChange={(value) =>
-                    handleNestedChange('birthPlace', 'region', value)
-                  }
+                  onChange={(value) => {
+                    handleNestedChange("birthPlace", "region", value);
+                  }}
                   placeholder={
                     t({
-                      uz: 'Viloyat / shahar',
-                      ru: 'Область / город',
-                      en: 'Region / city'
+                      uz: "Viloyat / shahar",
+                      ru: "Область / город",
+                      en: "Region / city",
                     }) as string
                   }
+                  options={
+                    regions?.map((region) => ({
+                      label: t({
+                        uz: region?.expand?.name?.uz || "",
+                        ru: region?.expand?.name?.ru || "",
+                        en: region?.expand?.name?.eng || "",
+                      }),
+                      value: region?.id,
+                    })) || []
+                  }
                   className="w-full text-lg rounded-lg"
-                  status={stateValidation?.birthPlace?.region ? 'error' : ''}
+                  status={stateValidation?.birthPlace?.region ? "error" : ""}
                 />
                 <Select
                   size="large"
                   value={payload?.birthPlace?.district}
                   onChange={(value) =>
-                    handleNestedChange('birthPlace', 'district', value)
+                    handleNestedChange("birthPlace", "district", value)
                   }
                   placeholder={
                     t({
-                      uz: 'Tuman / shaharcha',
-                      ru: 'Район / городок',
-                      en: 'District / town'
+                      uz: "Tuman / shaharcha",
+                      ru: "Район / городок",
+                      en: "District / town",
                     }) as string
                   }
+                  options={
+                    cities
+                      ?.filter((el) => el.region == payload?.birthPlace?.region)
+                      .map((city) => ({
+                        label: t({
+                          uz: city?.expand?.name?.uz || "",
+                          ru: city?.expand?.name?.ru || "",
+                          en: city?.expand?.name?.eng || "",
+                        }),
+                        value: city?.id,
+                      })) || []
+                  }
                   className="w-full text-lg rounded-lg"
-                  status={stateValidation?.birthPlace?.district ? 'error' : ''}
+                  status={stateValidation?.birthPlace?.district ? "error" : ""}
                 />
               </div>
             </motion.div>
@@ -326,9 +368,9 @@ const Profile = () => {
             <motion.div variants={itemVariants} className="w-full mb-6 px-4">
               <label className="block text-gray-700 text-lg mb-2">
                 {t({
-                  uz: 'Yashash manzilingiz:',
-                  ru: 'Место проживания:',
-                  en: 'Place of residence:'
+                  uz: "Yashash manzilingiz:",
+                  ru: "Место проживания:",
+                  en: "Place of residence:",
                 })}
               </label>
               <div className="space-y-4">
@@ -336,36 +378,60 @@ const Profile = () => {
                   size="large"
                   value={payload?.residencePlace?.region}
                   onChange={(value) =>
-                    handleNestedChange('residencePlace', 'region', value)
+                    handleNestedChange("residencePlace", "region", value)
                   }
                   placeholder={
                     t({
-                      uz: 'Viloyat / shahar',
-                      ru: 'Область / город',
-                      en: 'Region / city'
+                      uz: "Viloyat / shahar",
+                      ru: "Область / город",
+                      en: "Region / city",
                     }) as string
+                  }
+                  options={
+                    regions?.map((region) => ({
+                      label: t({
+                        uz: region?.expand?.name?.uz || "",
+                        ru: region?.expand?.name?.ru || "",
+                        en: region?.expand?.name?.eng || "",
+                      }),
+                      value: region?.id,
+                    })) || []
                   }
                   className="w-full text-lg rounded-lg"
                   status={
-                    stateValidation?.residencePlace?.region ? 'error' : ''
+                    stateValidation?.residencePlace?.region ? "error" : ""
                   }
                 />
                 <Select
                   size="large"
                   value={payload?.residencePlace?.district}
                   onChange={(value) =>
-                    handleNestedChange('residencePlace', 'district', value)
+                    handleNestedChange("residencePlace", "district", value)
                   }
                   placeholder={
                     t({
-                      uz: 'Tuman / shaharcha',
-                      ru: 'Район / городок',
-                      en: 'District / town'
+                      uz: "Tuman / shaharcha",
+                      ru: "Район / городок",
+                      en: "District / town",
                     }) as string
                   }
                   className="w-full text-lg rounded-lg"
                   status={
-                    stateValidation?.residencePlace?.district ? 'error' : ''
+                    stateValidation?.residencePlace?.district ? "error" : ""
+                  }
+                  options={
+                    cities
+                      ?.filter(
+                        (el) => el.region == payload?.residencePlace?.region
+                      )
+                      .map((city) => ({
+                        label: t({
+                          uz: city?.expand?.name?.uz || "",
+                          ru: city?.expand?.name?.ru || "",
+                          en: city?.expand?.name?.eng || "",
+                        }),
+                        value: city?.id,
+                      })) || []
                   }
                 />
               </div>
@@ -382,16 +448,16 @@ const Profile = () => {
           disabled={!isFormValid}
           className={`w-full h-14 rounded-full text-lg font-medium flex items-center justify-center ${
             isFormValid
-              ? 'bg-green-500 hover:bg-green-600'
-              : 'bg-gray-200 text-gray-400'
+              ? "bg-green-500 hover:bg-green-600"
+              : "bg-gray-200 text-gray-400"
           }`}
           size="large"
         >
           <span>
             {t({
-              uz: 'Kirish',
-              ru: 'Войти',
-              en: 'Enter'
+              uz: "Kirish",
+              ru: "Войти",
+              en: "Enter",
             })}
           </span>
           <ChevronRight className="ml-2 h-5 w-5" />

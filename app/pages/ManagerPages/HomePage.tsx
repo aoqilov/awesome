@@ -1,50 +1,54 @@
-import { Divider } from 'antd';
-import EventCard from './components/EventCard';
-import { usePocketBaseCollection } from '@/pb/usePbMethods';
-import { OrdersResponse } from '@/types/pocketbaseTypes';
+import { Divider } from "antd";
+import EventCard from "./components/EventCard";
+import { usePocketBaseCollection } from "@/pb/usePbMethods";
+import { OrdersResponse } from "@/types/pocketbaseTypes";
+import { useLang } from "@/providers/LangProvider";
+import DateTimeWidget from "@/components/date-time-widget";
 
 const HomePage = () => {
   const events = [
     {
-      field: '1-maydon',
-      time: '09:00 - 10:00',
-      user: 'Asror Mansurov',
-      timer: '-00:19:05'
+      field: "1-maydon",
+      time: "09:00 - 10:00",
+      user: "Asror Mansurov",
+      timer: "-00:19:05",
     },
     {
-      field: '2-maydon',
-      time: '09:00 - 11:00',
-      user: 'Feruz Mahkamov',
-      timer: '-01:19:05'
+      field: "2-maydon",
+      time: "09:00 - 11:00",
+      user: "Feruz Mahkamov",
+      timer: "-01:19:05",
     },
     {
-      field: '3-maydon',
-      time: '18:00 - 19:00',
-      user: 'Javlon Jonibekov',
-      actions: ['bell', 'call', 'trash']
+      field: "3-maydon",
+      time: "18:00 - 19:00",
+      user: "Javlon Jonibekov",
+      actions: ["bell", "call", "trash"],
     },
     {
-      field: '3-maydon',
-      time: '19:00 - 20:00',
-      user: 'Umid Ahmedov',
-      actions: ['bell', 'call', 'trash']
+      field: "3-maydon",
+      time: "19:00 - 20:00",
+      user: "Umid Ahmedov",
+      actions: ["bell", "call", "trash"],
     },
     {
-      field: '2-maydon',
-      time: '20:00 - 21:00',
-      user: 'Doston Rahmonov',
-      actions: ['bell', 'call', 'trash']
+      field: "2-maydon",
+      time: "20:00 - 21:00",
+      user: "Doston Rahmonov",
+      actions: ["bell", "call", "trash"],
     },
     {
-      field: '1-maydon',
-      time: '21:00 - 22:00',
-      user: 'Sardor Boboyorov',
-      actions: ['bell', 'call', 'trash']
-    }
+      field: "1-maydon",
+      time: "21:00 - 22:00",
+      user: "Sardor Boboyorov",
+      actions: ["bell", "call", "trash"],
+    },
   ];
-  const { list: tickets } = usePocketBaseCollection<OrdersResponse>('stadiums');
+  const { list: tickets } = usePocketBaseCollection<OrdersResponse>("stadiums");
   const { data } = tickets({});
-  console.log('Tickets:', data);
+  const { lang } = useLang();
+
+  console.log("Tickets:", data);
   return (
     <div>
       <div className="w-full flex p-4 mt-5  mb-3 rounded-sm justify-center items-center shadow-sm bg-white">
@@ -103,20 +107,17 @@ const HomePage = () => {
           </svg>
         </div>
         <Divider type="vertical" />
-        <div className="text-center">
-          <h1 className="text-4xl  text-[#404446] font-bold">14:48</h1>
-          <p className="text-gray-500 text-[12px]">16-aprel ,seshanba</p>
-        </div>
+        <DateTimeWidget lang={lang} />
       </div>
       <div className="bg-white p-[8px] rounded-sm shadow-sm">
         <div className=" grid grid-cols-4  rounded-lg border  border-[#989797] border-dashed">
           <div className="text-center   border-r border-dashed my-1 border-[#989797] text-[#6C7072] ">
-            {' '}
+            {" "}
             <h1>Kecha</h1>
             <p>14 soat</p>
           </div>
           <div className="text-center   border-r border-dashed my-1 border-[#989797] text-[#6C7072] ">
-            {' '}
+            {" "}
             <h1>Kecha</h1>
             <p>14 soat</p>
           </div>
@@ -140,34 +141,34 @@ const HomePage = () => {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <g clip-path="url(#clip0_22124_10013)">
+            <g clipPath="url(#clip0_22124_10013)">
               <path
                 d="M6.51357 15.3687H11.4873C15.632 15.3687 17.2899 13.895 17.2899 10.2108V5.78973C17.2899 2.10552 15.632 0.631836 11.4873 0.631836H6.51357C2.36883 0.631836 0.710938 2.10552 0.710938 5.78973V10.2108C0.710938 13.895 2.36883 15.3687 6.51357 15.3687Z"
                 stroke="#0078FF"
-                stroke-width="1.3125"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="1.3125"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
               <path
                 d="M12.3135 8H12.3203"
                 stroke="#0078FF"
-                stroke-width="2.2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
               <path
                 d="M8.99609 8H9.00304"
                 stroke="#0078FF"
-                stroke-width="2.2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
               <path
                 d="M5.67993 8H5.625"
                 stroke="#0078FF"
-                stroke-width="2.2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </g>
             <defs>
@@ -180,8 +181,8 @@ const HomePage = () => {
         </div>
       </div>
       <div className="">
-        {events.map((event) => (
-          <EventCard event={event} />
+        {events.map((event, index) => (
+          <EventCard key={index} event={event} />
         ))}
       </div>
     </div>

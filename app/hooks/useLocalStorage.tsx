@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react';
+import { useState } from "react";
 
 /**
  * LocalStoragedan qiymat olish va saqlash uchun hook.

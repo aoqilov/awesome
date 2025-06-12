@@ -1,9 +1,9 @@
-import { Segmented } from 'antd';
-import { useState } from 'react';
-import OrderCard from './OrderCard';
+import { Segmented } from "antd";
+import { useState } from "react";
+import OrderCard from "./OrderCard";
 
 const Orders = () => {
-  const [selected, setSelected] = useState('Umumiy');
+  const [selected, setSelected] = useState("Umumiy");
   return (
     <div>
       <div className="relative">
@@ -14,12 +14,12 @@ const Orders = () => {
           value={selected}
           onChange={(e) => setSelected(e)}
           size="large"
-          options={['Umumiy', 'Maydonlar']}
+          options={["Umumiy", "Maydonlar"]}
         />
       </div>
       <div className="mt-2">
-        {[...Array(10)].map(() => (
-          <OrderCard />
+        {[...Array(10)].map((_, index) => (
+          <OrderCard key={index} />
         ))}
       </div>
     </div>

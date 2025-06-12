@@ -1,16 +1,35 @@
-'use client';
+"use client";
 
-import { ChevronRight, Check, Phone } from 'lucide-react';
-import { type RegisterContextType, useRegister } from '../Register';
-import { useTranslation } from '@/hooks/translation';
-import { formatPhoneNumber, unformatPhoneNumber } from '@/lib/utils';
-import { App, Button, Segmented } from 'antd';
-import { useEffect, type JSX } from 'react';
-import { motion } from 'framer-motion';
-import { usePocketBaseCollection } from '@/pb/usePbMethods';
-import { UsersRecord } from '@/types/pocketbaseTypes';
-import { useQueryParam } from '@/hooks/useQueryParam';
-import { pb } from '@/pb/pb';
+import { useEffect, type JSX } from "react";
+import { motion } from "framer-motion";
+import { Phone, Check, ChevronRight } from "lucide-react";
+import { App, Button, Segmented } from "antd";
+import { type RegisterContextType, useRegister } from "../Register";
+import { useTranslation } from "@/hooks/translation";
+import { formatPhoneNumber, unformatPhoneNumber } from "@/lib/utils";
+import { usePocketBaseCollection } from "@/pb/usePbMethods";
+import { pb } from "@/pb/pb";
+import { useQueryParam } from "@/hooks/useQueryParam";
+
+type PocketBaseFieldError = {
+  code: string;
+  message: string;
+};
+
+type PocketBaseError = Error & {
+  data?: {
+    data?: Record<string, PocketBaseFieldError>;
+  };
+};
+
+function isPocketBaseError(error: unknown): error is PocketBaseError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "data" in error &&
+    typeof (error as { data?: unknown }).data === "object"
+  );
+}
 
 const PhoneNumber = () => {
   const {
@@ -20,18 +39,8 @@ const PhoneNumber = () => {
     handleChange,
     stateValidation,
     isEdit,
-    setisEdit
+    setisEdit,
   } = useRegister() as RegisterContextType;
-  const t = useTranslation();
-
-  // const isFormValid = () => {
-  //   return (
-  //     payload.agree !== undefined &&
-  //     payload.phone !== undefined &&
-  //     !stateValidation.phone &&
-  //     !stateValidation.agree
-  //   );
-  // };
 
   // Animation variants
   const containerVariants = {
@@ -39,9 +48,9 @@ const PhoneNumber = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
@@ -50,110 +59,75 @@ const PhoneNumber = () => {
       y: 0,
       opacity: 1,
       transition: {
-        type: 'spring',
+        type: "spring",
         stiffness: 300,
-        damping: 24
-      }
-    }
-  };
-  const { chat_id } = useQueryParam();
-  useEffect(() => {
-    setPayload((p) => ({ ...p, userType: 'player' }));
-  }, [setPayload]);
-  const { create, update } = usePocketBaseCollection<UsersRecord>('users');
-
-  const { mutate } = create();
-  const { mutate: upadteMutate } = update();
-  const { message } = App.useApp();
-  const handleNext = () => {
-    if (isEdit.bool) {
-      upadteMutate(
-        {
-          id: isEdit.id || '',
-          data: {
-            email: chat_id + '@gmail.com',
-            password: chat_id + 'password',
-            passwordConfirm: chat_id + 'password',
-            phoneNumber: payload.phone
-          }
-        },
-        {
-          onSuccess: async () => {
-            setStep(2);
-            const user = await pb
-              .collection('users')
-              .authWithPassword(chat_id + '@gmail.com', chat_id);
-            const req = await pb
-              .collection('users')
-              .requestOTP(chat_id + '@gmail.com');
-            setPayload((p) => ({
-              ...p,
-              otp: req.otpId
-            }));
-            setisEdit({ bool: true, id: user.record.id });
-            message.success(
-              t({
-                uz: 'Tasdiqlash kodi yuborildi',
-                ru: 'Код подтверждения отправлен',
-                en: 'Verification code sent'
-              })
-            );
-          },
-          onError: (error) => {
-            message.error(
-              t({
-                uz: 'Xatolik yuz berdi, qayta urinib ko’ring',
-                ru: 'Произошла ошибка, попробуйте еще раз',
-                en: 'An error occurred, please try again'
-              })
-            );
-            console.error('Error creating user:', error);
-          }
-        }
-      );
-    }
-    mutate(
-      {
-        email: chat_id + '@gmail.com',
-        password: chat_id,
-        passwordConfirm: chat_id,
-        phoneNumber: payload.phone
+        damping: 24,
       },
-      {
-        onSuccess: async () => {
-          setStep(2);
-          const user = await pb
-            .collection('users')
-            .authWithPassword(chat_id + '@gmail.com', chat_id);
-          const req = await pb
-            .collection('users')
-            .requestOTP(chat_id + '@gmail.com');
-          setPayload((p) => ({
-            ...p,
-            otp: req.otpId
-          }));
-          setisEdit({ bool: true, id: user.record.id });
+    },
+  };
+  const { message } = App.useApp();
+  const { create, update } = usePocketBaseCollection("users");
+  const { mutate } = create();
+  const { mutate: updateMutate } = update();
+  const t = useTranslation();
+  const { chat_id } = useQueryParam();
 
-          message.success(
-            t({
-              uz: 'Tasdiqlash kodi yuborildi',
-              ru: 'Код подтверждения отправлен',
-              en: 'Verification code sent'
-            })
-          );
-        },
-        onError: (error) => {
-          message.error(
-            t({
-              uz: 'Xatolik yuz berdi, qayta urinib ko’ring',
-              ru: 'Произошла ошибка, попробуйте еще раз',
-              en: 'An error occurred, please try again'
-            })
-          );
-          console.error('Error creating user:', error);
-        }
+  useEffect(() => {
+    setPayload((p) => ({ ...p, userType: "player" }));
+  }, [setPayload]);
+
+  const handleNext = () => {
+    const data = {
+      email: `${chat_id}@gmail.com`,
+      password: chat_id,
+      passwordConfirm: chat_id,
+      phoneNumber: payload.phone,
+    };
+
+    const onSuccess = async () => {
+      setStep(2);
+      const user = await pb
+        .collection("users")
+        .authWithPassword(data.email, chat_id);
+      const req = await pb.collection("users").requestOTP(data.email);
+      setPayload((p) => ({ ...p, otp: req.otpId }));
+      setisEdit({ bool: true, id: user.record.id });
+
+      message.success(
+        t({
+          uz: "Tasdiqlash kodi yuborildi",
+          ru: "Код подтверждения отправлен",
+          en: "Verification code sent",
+        })
+      );
+    };
+
+    const onError = (error: unknown) => {
+      let firstFieldErrorMessage = "";
+
+      if (isPocketBaseError(error)) {
+        const fieldErrors = error.data?.data ?? {};
+        firstFieldErrorMessage =
+          Object.values(fieldErrors)
+            .map((field) => field.message)
+            .find(Boolean) ?? "";
       }
-    );
+
+      message.error(
+        firstFieldErrorMessage ||
+          t({
+            uz: "Xatolik yuz berdi, qayta urinib ko’ring",
+            ru: "Произошла ошибка, попробуйте еще раз",
+            en: "An error occurred, please try again",
+          })
+      );
+    };
+
+    if (isEdit.bool) {
+      updateMutate({ id: isEdit.id, data }, { onSuccess, onError });
+    } else {
+      mutate(data, { onSuccess, onError });
+    }
   };
 
   return (
@@ -174,26 +148,26 @@ const PhoneNumber = () => {
             options={[
               {
                 label: t({
-                  uz: 'Futbolchi',
-                  ru: 'Футболист',
-                  en: 'Footballer'
+                  uz: "Futbolchi",
+                  ru: "Футболист",
+                  en: "Footballer",
                 }),
-                value: 'player'
+                value: "player",
               },
               {
                 label: t({
-                  uz: 'Stadion rahbari',
-                  ru: 'Директор стадиона',
-                  en: 'Stadium manager'
+                  uz: "Stadion rahbari",
+                  ru: "Директор стадиона",
+                  en: "Stadium manager",
                 }),
-                value: 'manager'
-              }
+                value: "manager",
+              },
             ]}
             size="large"
             onChange={(value) => {
               setPayload((p) => ({
                 ...p,
-                userType: value as unknown as string
+                userType: value as unknown as string,
               }));
             }}
             className="mx-auto"
@@ -206,9 +180,9 @@ const PhoneNumber = () => {
           className="text-4xl font-bold text-gray-800 mb-2"
         >
           {t({
-            uz: 'Xush kelibsiz!',
-            ru: 'Добро пожаловать!',
-            en: 'Welcome!'
+            uz: "Xush kelibsiz!",
+            ru: "Добро пожаловать!",
+            en: "Welcome!",
           })}
         </motion.h1>
         <motion.p
@@ -216,9 +190,9 @@ const PhoneNumber = () => {
           className="text-xl text-gray-600 mb-8"
         >
           {t({
-            uz: 'Akkauntga kirish',
-            ru: 'Вход в аккаунт',
-            en: 'Login to account'
+            uz: "Akkauntga kirish",
+            ru: "Вход в аккаунт",
+            en: "Login to account",
           })}
         </motion.p>
 
@@ -227,10 +201,10 @@ const PhoneNumber = () => {
           <div
             className={`relative rounded-xl overflow-hidden transition-all duration-200 ${
               stateValidation.phone
-                ? 'ring-2 ring-red-500'
+                ? "ring-2 ring-red-500"
                 : payload.phone
-                ? 'ring-2 ring-green-500'
-                : 'ring-1 ring-gray-200 focus-within:ring-blue-500'
+                ? "ring-2 ring-green-500"
+                : "ring-1 ring-gray-200 focus-within:ring-blue-500"
             }`}
           >
             <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
@@ -240,22 +214,22 @@ const PhoneNumber = () => {
               required
               type="tel"
               value={
-                formatPhoneNumber(payload.phone || '') === '+'
-                  ? '+998'
-                  : formatPhoneNumber(payload.phone || '')
+                formatPhoneNumber(payload.phone || "") === "+"
+                  ? "+998"
+                  : formatPhoneNumber(payload.phone || "")
               }
               name="phoneNumber"
               onChange={(e) => {
                 if (e.target.value.length > 19) {
                   return;
                 }
-                handleChange('phone', unformatPhoneNumber(e.target.value));
+                handleChange("phone", unformatPhoneNumber(e.target.value));
               }}
               placeholder={
                 t({
-                  uz: 'Telefon raqami',
-                  ru: 'Номер телефона',
-                  en: 'Phone number'
+                  uz: "Telefon raqami",
+                  ru: "Номер телефона",
+                  en: "Phone number",
                 }) as string
               }
               className="w-full pl-10 pr-4 py-3 bg-transparent outline-none text-gray-800"
@@ -265,8 +239,8 @@ const PhoneNumber = () => {
             <p className="text-red-500 text-sm mt-1">
               {t({
                 uz: "To'g'ri telefon raqamini kiriting",
-                ru: 'Введите правильный номер телефона',
-                en: 'Please enter a valid phone number'
+                ru: "Введите правильный номер телефона",
+                en: "Please enter a valid phone number",
               })}
             </p>
           )}
@@ -289,7 +263,7 @@ const PhoneNumber = () => {
                   A verification code will be sent to the phone number you
                   entered. The code is a 4-digit number.
                 </>
-              )
+              ),
             })}
           </p>
         </motion.div>
@@ -301,29 +275,29 @@ const PhoneNumber = () => {
         >
           <button
             type="button"
-            onClick={() => handleChange('agree', !payload.agree)}
+            onClick={() => handleChange("agree", !payload.agree)}
             className={`flex-shrink-0 w-6 h-6 rounded ${
-              payload.agree ? 'bg-green-500' : 'border border-gray-300'
+              payload.agree ? "bg-green-500" : "border border-gray-300"
             } flex items-center justify-center mt-0.5 ${
-              stateValidation.agree ? 'border-red-500' : ''
+              stateValidation.agree ? "border-red-500" : ""
             }`}
           >
             {payload.agree && <Check className="h-4 w-4 text-white" />}
           </button>
           <p className="text-gray-600 text-[12px]">
             {t({
-              uz: 'Men ilovanining Maxfiylik siyosati va Ommaviy oferta qoidalariga rozilik bildiraman.',
-              ru: 'Я согласен с Политикой конфиденциальности и Правилами публичной оферты приложения.',
-              en: 'I agree to the Privacy Policy and Public Offer Terms of the application.'
+              uz: "Men ilovanining Maxfiylik siyosati va Ommaviy oferta qoidalariga rozilik bildiraman.",
+              ru: "Я согласен с Политикой конфиденциальности и Правилами публичной оферты приложения.",
+              en: "I agree to the Privacy Policy and Public Offer Terms of the application.",
             })}
           </p>
         </motion.div>
         {stateValidation.agree && (
           <p className="text-red-500 text-sm mt-1 ml-9">
             {t({
-              uz: 'Foydalanuvchi shartnomasiga rozilik berishingiz kerak',
-              ru: 'Вы должны согласиться с пользовательским соглашением',
-              en: 'You must agree to the user agreement'
+              uz: "Foydalanuvchi shartnomasiga rozilik berishingiz kerak",
+              ru: "Вы должны согласиться с пользовательским соглашением",
+              en: "You must agree to the user agreement",
             })}
           </p>
         )}
@@ -342,12 +316,12 @@ const PhoneNumber = () => {
           }
           className={`w-full h-14 rounded-full text-lg font-medium flex items-center justify-center ${
             payload.phone && payload.agree
-              ? 'bg-green-500 hover:bg-green-600'
-              : 'bg-gray-200 text-gray-400'
+              ? "bg-green-500 hover:bg-green-600"
+              : "bg-gray-200 text-gray-400"
           }`}
           size="large"
         >
-          <span>{t({ uz: 'Keyingisi', en: 'Next', ru: 'Далее' })}</span>
+          <span>{t({ uz: "Keyingisi", en: "Next", ru: "Далее" })}</span>
           <ChevronRight className="ml-2 h-5 w-5" />
         </Button>
       </motion.div>

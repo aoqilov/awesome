@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // import { useTranslation } from '@/hooks/translation';
 
-import { createContext, Dispatch, useContext, useState } from 'react';
+import { createContext, Dispatch, useContext, useState } from "react";
 
-import { PageTransition } from '@/shared/Motion';
+import { PageTransition } from "@/shared/Motion";
 
-import { useValidify } from '@/hooks/useValidify';
-import SelectLang from './Steps/SelectLang';
-import PhoneNumber from './Steps/PhoneNumber';
-import OTP from './Steps/OTP';
-import Profile from './Steps/Profile';
-
+import { useValidify } from "@/hooks/useValidify";
+import SelectLang from "./Steps/SelectLang";
+import PhoneNumber from "./Steps/PhoneNumber";
+import OTP from "./Steps/OTP";
+import Profile from "./Steps/Profile";
+import { UsersLanguageOptions } from "@/types/pocketbaseTypes";
 // Define the extended payload type with player-specific fields
 export interface PlayerPayload {
-  lang: string | undefined;
+  lang: UsersLanguageOptions | undefined;
   fullName: string | undefined;
   phone: string | undefined;
   userType: string | undefined;
@@ -58,28 +58,28 @@ const RegisterContext = createContext({});
 
 const RegisterPage = () => {
   const [step, setStep] = useState(0);
-  const [isEdit, setisEdit] = useState({ bool: false, id: '' });
+  const [isEdit, setisEdit] = useState({ bool: false, id: "" });
   const {
     state: payload,
     setState: setPayload,
     handleChange,
-    stateValidation
-  } = useValidify<PlayerPayload, ['phone', 'fullName', 'agree']>({
+    stateValidation,
+  } = useValidify<PlayerPayload, ["phone", "fullName", "agree"]>({
     rules: {
       phone: (value: string | undefined): boolean => {
         const phoneRegex = /^\+998\d{9}$/;
-        return !phoneRegex.test(value || '');
+        return !phoneRegex.test(value || "");
       },
       fullName: (value: string | undefined): boolean => {
         const nameRegex = /^[a-zA-Zа-яА-ЯёЁ\s]+$/;
-        return !nameRegex.test(value || '');
+        return !nameRegex.test(value || "");
       },
       agree: (value: boolean | undefined): boolean => {
         return value !== true;
-      }
+      },
     },
-    requiredFields: ['phone', 'fullName', 'agree'],
-    autoValidateOnChange: true
+    requiredFields: ["phone", "fullName", "agree"],
+    autoValidateOnChange: true,
   });
 
   // const t = useTranslation();
@@ -95,6 +95,7 @@ const RegisterPage = () => {
         return <Profile />;
     }
   };
+
   return (
     <RegisterContext.Provider
       value={{
@@ -105,7 +106,7 @@ const RegisterPage = () => {
         handleChange,
         stateValidation,
         isEdit,
-        setisEdit
+        setisEdit,
       }}
     >
       <div className="max-w-[500px] mx-auto h-screen  p-4">
@@ -141,9 +142,9 @@ export const itemVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      type: 'spring',
+      type: "spring",
       stiffness: 300,
-      damping: 24
-    }
-  }
+      damping: 24,
+    },
+  },
 };

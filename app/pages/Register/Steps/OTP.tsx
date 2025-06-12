@@ -1,29 +1,31 @@
-import type React from 'react';
+import type React from "react";
 
-import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Button, Typography } from 'antd';
-import { ArrowLeft } from 'lucide-react';
-import { useTranslation } from '@/hooks/translation';
-import { type RegisterContextType, useRegister } from '../Register';
-import { pb } from '@/pb/pb';
-import { useQueryParam } from '@/hooks/useQueryParam';
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { Button, Typography } from "antd";
+import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "@/hooks/translation";
+import { type RegisterContextType, useRegister } from "../Register";
+import { pb } from "@/pb/pb";
+import { useQueryParam } from "@/hooks/useQueryParam";
+import useApp from "antd/es/app/useApp";
 
 const { Title, Text } = Typography;
 
 const OTP = () => {
   const { payload, setStep } = useRegister() as RegisterContextType;
   const t = useTranslation();
-  const [otp, setOtp] = useState<string[]>(['', '', '', '']);
+  const [otp, setOtp] = useState<string[]>(["", "", "", ""]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const { message } = useApp();
 
   // Format phone number for display
   const formatDisplayPhone = (phone: string) => {
-    if (!phone) return '+998 90 123 45 67'; // Default for demo
-    const cleaned = phone.replace(/\D/g, '');
+    if (!phone) return "+998 90 123 45 67"; // Default for demo
+    const cleaned = phone.replace(/\D/g, "");
     const match = cleaned.match(/^(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})$/);
     if (match) {
       return `+${match[1]} ${match[2]} ${match[3]} ${match[4]} ${match[5]}`;
@@ -56,7 +58,7 @@ const OTP = () => {
     e: React.KeyboardEvent<HTMLInputElement>,
     index: number
   ) => {
-    if (e.key === 'Backspace') {
+    if (e.key === "Backspace") {
       if (!otp[index] && index > 0) {
         // If current field is empty and backspace is pressed, go to previous field
         setActiveIndex(index - 1);
@@ -64,13 +66,13 @@ const OTP = () => {
 
         // Clear the previous field
         const newOtp = [...otp];
-        newOtp[index - 1] = '';
+        newOtp[index - 1] = "";
         setOtp(newOtp);
       }
-    } else if (e.key === 'ArrowLeft' && index > 0) {
+    } else if (e.key === "ArrowLeft" && index > 0) {
       setActiveIndex(index - 1);
       inputRefs.current[index - 1]?.focus();
-    } else if (e.key === 'ArrowRight' && index < 3) {
+    } else if (e.key === "ArrowRight" && index < 3) {
       setActiveIndex(index + 1);
       inputRefs.current[index + 1]?.focus();
     }
@@ -84,15 +86,16 @@ const OTP = () => {
   const { chat_id } = useQueryParam();
   // Handle continue button
   const handleContinue = async () => {
-    if (otp.join('').length === 4) {
+    if (otp.join("").length === 4) {
       await pb
-        .collection('users')
-        .authWithOTP(payload.otp || '', otp.join(''))
+        .collection("users")
+        .authWithOTP(payload.otp || "", otp.join(""))
         .then(() => {
           setStep(3);
         })
         .catch((err) => {
           console.error(err);
+          message.error(err.message || "Failed to verify OTP");
         });
     }
   };
@@ -102,7 +105,7 @@ const OTP = () => {
     if (canResend) {
       setTimeLeft(60); // Reset timer to 5:24
       setCanResend(false);
-      await pb.collection('users').requestOTP(chat_id + '@gmail.com');
+      await pb.collection("users").requestOTP(chat_id + "@gmail.com");
     }
   };
 
@@ -127,9 +130,9 @@ const OTP = () => {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
       .toString()
-      .padStart(2, '0')}`;
+      .padStart(2, "0")}`;
   };
 
   // Animation variants
@@ -138,9 +141,9 @@ const OTP = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
@@ -149,11 +152,11 @@ const OTP = () => {
       y: 0,
       opacity: 1,
       transition: {
-        type: 'spring',
+        type: "spring",
         stiffness: 300,
-        damping: 24
-      }
-    }
+        damping: 24,
+      },
+    },
   };
 
   return (
@@ -173,9 +176,9 @@ const OTP = () => {
         </button>
         <Title level={5} className="m-0 ml-4">
           {t({
-            uz: 'Telefon raqamini tasdiqlash',
-            ru: 'Подтверждение номера телефона',
-            en: 'Verify phone number'
+            uz: "Telefon raqamini tasdiqlash",
+            ru: "Подтверждение номера телефона",
+            en: "Verify phone number",
           })}
         </Title>
       </motion.div>
@@ -185,17 +188,17 @@ const OTP = () => {
         <motion.div variants={itemVariants} className="text-center mb-6 w-full">
           <Title level={2} className="mb-2">
             {t({
-              uz: 'Tasdiqlash kodini kiriting',
-              ru: 'Введите код подтверждения',
-              en: 'Enter verification code'
+              uz: "Tasdiqlash kodini kiriting",
+              ru: "Введите код подтверждения",
+              en: "Enter verification code",
             })}
           </Title>
           <Text className="text-gray-600 text-lg">
-            {formatDisplayPhone(payload.phone || '')}{' '}
+            {formatDisplayPhone(payload.phone || "")}{" "}
             {t({
-              uz: 'telefon raqamingizga yuborilgan smsdagi 4 raqamli kodni kiriting',
-              ru: 'введите 4-значный код из SMS, отправленного на ваш номер телефона',
-              en: 'enter the 4-digit code sent in the SMS to your phone number'
+              uz: "telefon raqamingizga yuborilgan smsdagi 4 raqamli kodni kiriting",
+              ru: "введите 4-значный код из SMS, отправленного на ваш номер телефона",
+              en: "enter the 4-digit code sent in the SMS to your phone number",
             })}
           </Text>
         </motion.div>
@@ -211,10 +214,10 @@ const OTP = () => {
               onClick={() => handleOtpDigitClick(index)}
               className={`w-16 h-16 flex items-center justify-center rounded-full border-2 text-2xl font-bold cursor-pointer transition-all ${
                 index === activeIndex
-                  ? 'border-green-500'
+                  ? "border-green-500"
                   : digit
-                  ? 'border-gray-300 bg-white'
-                  : 'border-gray-200'
+                  ? "border-gray-300 bg-white"
+                  : "border-gray-200"
               }`}
             >
               <input
@@ -230,7 +233,7 @@ const OTP = () => {
                 onChange={(e) => handleInputChange(e, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
                 className="w-full h-full text-center bg-transparent border-none outline-none text-2xl font-bold"
-                style={{ caretColor: 'transparent' }}
+                style={{ caretColor: "transparent" }}
               />
             </div>
           ))}
@@ -246,12 +249,14 @@ const OTP = () => {
           <button
             onClick={handleResend}
             disabled={!canResend}
-            className={`text-${canResend ? 'green' : 'gray'}-500 font-medium`}
+            className={`text-${
+              canResend ? "green" : "gray"
+            }-500 font-medium cursor-pointer`}
           >
             {t({
-              uz: 'Kodni qayta yuborish',
-              ru: 'Отправить код повторно',
-              en: 'Resend code'
+              uz: "Kodni qayta yuborish",
+              ru: "Отправить код повторно",
+              en: "Resend code",
             })}
           </button>
         </motion.div>
@@ -264,19 +269,19 @@ const OTP = () => {
         <Button
           type="primary"
           onClick={handleContinue}
-          disabled={otp.join('').length !== 4}
+          disabled={otp.join("").length !== 4}
           className={`w-full h-14 rounded-full text-lg font-medium flex items-center justify-center ${
-            otp.join('').length === 4
-              ? 'bg-green-500 hover:bg-green-600'
-              : 'bg-gray-200 text-gray-400'
+            otp.join("").length === 4
+              ? "bg-green-500 hover:bg-green-600"
+              : "bg-gray-200 text-gray-400"
           }`}
           size="large"
         >
           <span>
             {t({
-              uz: 'Davom etish',
-              ru: 'Продолжить',
-              en: 'Continue'
+              uz: "Davom etish",
+              ru: "Продолжить",
+              en: "Continue",
             })}
           </span>
           <span className="ml-2">→</span>

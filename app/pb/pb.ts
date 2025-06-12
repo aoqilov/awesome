@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 const pb = new PocketBase(import.meta.env.VITE_POCKETBASE_URL as string);
 const originalFetch = pb.send.bind(pb);
 
+
 pb.send = async (path, options = {}) => {
   try {
     const response = await originalFetch(path, options);

@@ -27,9 +27,9 @@ const StadionMap = () => {
             <path
               d="M7 18L1 12L7 6"
               stroke="#090A0A"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </svg>
         </div>

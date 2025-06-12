@@ -112,22 +112,22 @@ const generateColumns = (): ColumnsType<any> => [
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <g clip-path="url(#clip0_23_6198)">
+                    <g clipPath="url(#clip0_23_6198)">
                       <path
                         d="M9.00018 17.1818C13.5189 17.1818 17.182 13.5187 17.182 9C17.182 4.4813 13.5189 0.818176 9.00018 0.818176C4.48148 0.818176 0.818359 4.4813 0.818359 9C0.818359 13.5187 4.48148 17.1818 9.00018 17.1818Z"
                         stroke="#42BA3D"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
                     </g>
-                    <g clip-path="url(#clip1_23_6198)">
+                    <g clipPath="url(#clip1_23_6198)">
                       <path
                         d="M13 6L7.5 12L5 9.27273"
                         stroke="#42BA3D"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
                     </g>
                     <defs>
@@ -156,20 +156,20 @@ const generateColumns = (): ColumnsType<any> => [
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <g clip-path="url(#clip0_23_4051)">
+                    <g clipPath="url(#clip0_23_4051)">
                       <path
                         d="M15.1109 17.1004V15.3004C15.1109 14.3456 14.7363 13.4299 14.0695 12.7548C13.4027 12.0797 12.4983 11.7004 11.5553 11.7004H4.44423C3.50124 11.7004 2.59687 12.0797 1.93007 12.7548C1.26327 13.4299 0.888672 14.3456 0.888672 15.3004V17.1004"
                         stroke="#FF5247"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
                       <path
                         d="M7.99978 8.10039C9.96346 8.10039 11.5553 6.48862 11.5553 4.50039C11.5553 2.51217 9.96346 0.900391 7.99978 0.900391C6.0361 0.900391 4.44423 2.51217 4.44423 4.50039C4.44423 6.48862 6.0361 8.10039 7.99978 8.10039Z"
                         stroke="#FF5247"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
                     </g>
                     <defs>
@@ -190,13 +190,13 @@ const generateColumns = (): ColumnsType<any> => [
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <g clip-path="url(#clip0_23_4107)">
+                    <g clipPath="url(#clip0_23_4107)">
                       <path
                         d="M7.36381 11.4545V6.54545M10.6365 11.4545V6.54545M17.182 8.99999C17.182 13.5187 13.5189 17.1818 9.00018 17.1818C4.48148 17.1818 0.818359 13.5187 0.818359 8.99999C0.818359 4.4813 4.48148 0.818176 9.00018 0.818176C13.5189 0.818176 17.182 4.4813 17.182 8.99999Z"
                         stroke="#FFD188"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
                     </g>
                     <defs>
@@ -216,20 +216,20 @@ const generateColumns = (): ColumnsType<any> => [
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  <g clip-path="url(#clip0_23_4181)">
+                  <g clipPath="url(#clip0_23_4181)">
                     <path
                       d="M15.1109 17.1004V15.3004C15.1109 14.3456 14.7363 13.4299 14.0695 12.7548C13.4027 12.0797 12.4983 11.7004 11.5553 11.7004H4.44423C3.50124 11.7004 2.59687 12.0797 1.93007 12.7548C1.26327 13.4299 0.888672 14.3456 0.888672 15.3004V17.1004"
                       stroke="#CDCFD0"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
                     <path
                       d="M7.99978 8.10039C9.96346 8.10039 11.5553 6.48862 11.5553 4.50039C11.5553 2.51217 9.96346 0.900391 7.99978 0.900391C6.0361 0.900391 4.44423 2.51217 4.44423 4.50039C4.44423 6.48862 6.0361 8.10039 7.99978 8.10039Z"
                       stroke="#CDCFD0"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
                   </g>
                   <defs>

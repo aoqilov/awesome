@@ -3,11 +3,13 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
-  useInfiniteQuery
-} from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { usePocketBase } from './pb';
-import { useInView } from 'react-intersection-observer';
+  useInfiniteQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
+import { useEffect } from "react";
+import { usePocketBase } from "./pb";
+import { useInView } from "react-intersection-observer";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 /**
  * usePocketBaseCollection funksiyasi - PocketBase kolleksiyasi bilan ishlash uchun turli
@@ -35,30 +37,45 @@ import { useInView } from 'react-intersection-observer';
 export function usePocketBaseCollection<T>(collection: string) {
   const pb = usePocketBase();
   const queryClient = useQueryClient();
+  const [pocketbase_auth] = useLocalStorage("pocketbase_auth", null);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const list = (params: { sort?: string; filter?: string } = {}) =>
+  const list = (
+    params: { sort?: string; filter?: string; expand?: string } = {}
+  ) =>
     useQuery<T[]>({
       queryKey: [collection, params],
       queryFn: () =>
         pb.collection(collection).getFullList<T>({
-          sort: params.sort || '-created',
-          filter: params.filter
-        })
+          sort: params.sort || "-created",
+          filter: params.filter,
+          expand: params.expand,
+        }),
     });
 
-  const one = (id: string) =>
-    useQuery<T>({
-      queryKey: [collection, id],
-      queryFn: () => pb.collection(collection).getOne<T>(id),
-      enabled: !!id
+  const one = (
+    id?: string,
+    expand?: string,
+    queryOptions?: Partial<UseQueryOptions<T, Error>>
+  ) => {
+    return useQuery<T, Error>({
+      queryKey: [collection, "one", id, expand],
+      queryFn: () => {
+        if (!id) throw new Error("ID is required");
+        if (!pocketbase_auth) throw new Error("Not authenticated");
+        return pb.collection(collection).getOne<T>(id, { expand });
+      },
+      enabled: !!id,
+      ...queryOptions,
     });
+  };
 
   const create = () =>
     useMutation({
       mutationFn: (data: Partial<T>) =>
         pb.collection(collection).create<T>(data),
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: [collection] })
+      onSuccess: () =>
+        queryClient.invalidateQueries({ queryKey: [collection] }),
     });
 
   const update = () =>
@@ -66,7 +83,7 @@ export function usePocketBaseCollection<T>(collection: string) {
       mutationFn: ({ id, data }: { id: string; data: Partial<T> }) =>
         pb.collection(collection).update<T>(id, data),
       onSuccess: (_, vars) =>
-        queryClient.invalidateQueries({ queryKey: [collection, vars.id] })
+        queryClient.invalidateQueries({ queryKey: [collection, vars.id] }),
     });
 
   const patch = () =>
@@ -74,21 +91,22 @@ export function usePocketBaseCollection<T>(collection: string) {
       mutationFn: ({ id, data }: { id: string; data: Partial<T> }) =>
         pb.collection(collection).update<T>(id, data),
       onSuccess: (_, vars) =>
-        queryClient.invalidateQueries({ queryKey: [collection, vars.id] })
+        queryClient.invalidateQueries({ queryKey: [collection, vars.id] }),
     });
 
   const remove = () =>
     useMutation({
       mutationFn: (id: string) => pb.collection(collection).delete(id),
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: [collection] })
+      onSuccess: () =>
+        queryClient.invalidateQueries({ queryKey: [collection] }),
     });
 
   const subscribe = (cb: (data: { action: string; record: T }) => void) => {
     useEffect(() => {
-      pb.collection(collection).subscribe<T>('*', cb);
+      pb.collection(collection).subscribe<T>("*", cb);
 
       return () => {
-        pb.collection(collection).unsubscribe('*');
+        pb.collection(collection).unsubscribe("*");
       };
     }, [cb]);
   };
@@ -96,14 +114,14 @@ export function usePocketBaseCollection<T>(collection: string) {
     const { ref, inView } = useInView({ threshold: 1 });
 
     const query = useInfiniteQuery({
-      queryKey: [collection, 'infinite'],
+      queryKey: [collection, "infinite"],
       initialPageParam: 1,
       queryFn: async ({ pageParam = 1 }) => {
         const limit = 10;
         const result = await pb
           .collection(collection)
           .getList<T>(pageParam, limit, {
-            sort: '-created'
+            sort: "-created",
           });
         return result;
       },
@@ -112,7 +130,7 @@ export function usePocketBaseCollection<T>(collection: string) {
           return lastPage.page + 1;
         }
         return undefined;
-      }
+      },
     });
 
     useEffect(() => {
@@ -123,9 +141,10 @@ export function usePocketBaseCollection<T>(collection: string) {
 
     return {
       ...query,
-      ref
+      ref,
     };
   };
+
   return {
     list,
     one,
@@ -134,6 +153,20 @@ export function usePocketBaseCollection<T>(collection: string) {
     patch,
     remove,
     subscribe,
-    infinity
+    infinity,
   };
+}
+
+export function usePocketBaseFile() {
+  const pb = usePocketBase();
+
+  const getFileUrl = (
+    collectionId: string | undefined,
+    recordId: string,
+    fileName: string
+  ) => {
+    return `${pb.baseURL}/api/files/${collectionId}/${recordId}/${fileName}`;
+  };
+
+  return { getFileUrl };
 }

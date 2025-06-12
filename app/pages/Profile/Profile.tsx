@@ -1,25 +1,28 @@
-import { useEffect, useState } from 'react';
-import { Card, Avatar, Button, Form, Input, DatePicker } from 'antd';
+import { useEffect, useState } from "react";
+import { useLang } from "@/providers/LangProvider";
+import { Card, Avatar, Button, Form, Input, DatePicker } from "antd";
 import {
   EditOutlined,
   UserOutlined,
-  CalendarOutlined
-} from '@ant-design/icons';
-import dayjs from 'dayjs';
-import { useTranslation } from '@/hooks/translation';
+  CalendarOutlined,
+} from "@ant-design/icons";
+import dayjs from "dayjs";
+import { useTranslation } from "@/hooks/translation";
 
-import { motion, AnimatePresence } from 'framer-motion'; // Import Framer Motion
-import { useNavigateWithChatId } from '@/hooks/useNavigate';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { Copy } from 'lucide-react';
-import useApp from 'antd/es/app/useApp';
-import { getImage } from '@/lib/utils';
-import { usePocketBaseCollection } from '@/pb/usePbMethods';
-import { UsersResponse } from '@/types/pocketbaseTypes';
+import { motion, AnimatePresence } from "framer-motion"; // Import Framer Motion
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { Copy } from "lucide-react";
+import useApp from "antd/es/app/useApp";
+import { getImage } from "@/lib/utils";
+import { usePocketBaseCollection } from "@/pb/usePbMethods";
+import {
+  UsersRecord,
+  CitiesRecord,
+  TranslationsRecord,
+} from "@/types/pocketbaseTypes";
 
 interface UserProfile {
   name: string;
-  surname: string;
   birthDate: string;
   phone: string;
   address: string;
@@ -33,34 +36,37 @@ interface UserProfile {
 const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
+  const t = useTranslation();
+  const rawLang = useLang().lang as string;
+  const lang = (rawLang === "en" ? "eng" : rawLang) as keyof TranslationsRecord;
+  const [pocketbase_auth] = useLocalStorage("pocketbase_auth", null);
 
   const [userProfile, setUserProfile] = useState<UserProfile>({
-    name: 'Abrorjon',
-    surname: "Turg'unboyev",
-    birthDate: '16.04.1997',
-    phone: '+998 91 797 74 97',
+    name: "Abrorjon",
+    birthDate: "16.04.1997",
+    phone: "+998 91 797 74 97",
     address: "Farg'ona viloyati, Bag'dod tumani",
-    city: 'Toshkent shahri, Chilonzor tumani',
+    city: "Toshkent shahri, Chilonzor tumani",
     rating: 4.7,
     completedTasks: 14,
     pendingTasks: 2,
-    cancelledTasks: 1
+    cancelledTasks: 1,
   });
+
+  const userId = pocketbase_auth?.record?.id;
+  const [cityId, setCityId] = useState<string | null>(null);
+  const [bornCityId, setBornCityId] = useState<string | null>(null);
 
   const handleEdit = () => {
     setIsEditing(true);
     form.setFieldsValue({
       name: userProfile.name,
-      surname: userProfile.surname,
-      birthDate: dayjs(userProfile.birthDate, 'DD.MM.YYYY'),
+      birthDate: dayjs(userProfile.birthDate, "DD.MM.YYYY"),
       phone: userProfile.phone,
       address: userProfile.address,
-      city: userProfile.city
+      city: userProfile.city,
     });
   };
-
-  const t = useTranslation();
-  const { navigate } = useNavigateWithChatId();
 
   // Animation variants for Framer Motion
   const containerVariants = {
@@ -68,9 +74,9 @@ const ProfilePage = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: 'easeOut' }
+      transition: { duration: 0.5, ease: "easeOut" },
     },
-    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
+    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } },
   };
 
   const cardVariants = {
@@ -78,64 +84,95 @@ const ProfilePage = () => {
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { duration: 0.4, ease: 'easeOut' }
-    }
+      transition: { duration: 0.4, ease: "easeOut" },
+    },
   };
 
   const buttonVariants = {
     hover: { scale: 1.05, transition: { duration: 0.2 } },
-    tap: { scale: 0.95 }
+    tap: { scale: 0.95 },
   };
-  const [pocketbase_auth] = useLocalStorage('pocketbase_auth', null);
-  const { one, update } = usePocketBaseCollection<UsersResponse>('users');
-  const { data: userData, refetch } = one(pocketbase_auth?.record?.id);
+  const { one, update } = usePocketBaseCollection<UsersRecord>("users");
+  // const { one: oneRegion } = usePocketBaseCollection<RegionsRecord>("regions");
+  const { one: oneCity } = usePocketBaseCollection<CitiesRecord>("cities");
+
+  const { data: userData, refetch } = one(userId || "");
+  const { data: userCity } = oneCity(cityId || "", "name");
+  const { data: userBornCity } = oneCity(bornCityId || "", "name");
+
   const { message } = useApp();
   const { mutate } = update();
   useEffect(() => {
     if (userData) {
       setUserProfile((p) => ({
         ...p,
-        name: userData.fullname || '',
-        surname: '',
-        birthDate: dayjs(userData.birthDate).format('DD.MM.YYYY'),
-        phone: userData.phoneNumber || '',
-        address: userData.liveCity || '',
-        city: userData.liveCity || '',
-        avatar: userData.avatar || ''
+        name: userData.fullname || "",
+        birthDate: dayjs(userData.birthDate).format("DD.MM.YYYY"),
+        phone: userData.phoneNumber || "",
+        address: userData.liveCity || "",
+        city: userData.liveCity || "",
+        avatar: userData.avatar || "",
       }));
+
+      if (userData.liveCity) {
+        setCityId(userData.liveCity);
+      }
+      if (userData.bornCity) {
+        setBornCityId(userData.bornCity);
+      }
     }
   }, [userData]);
+
+  useEffect(() => {
+    if (userCity) {
+      setUserProfile((p) => ({
+        ...p,
+        city: (userCity.expand?.name?.[lang] as string) || "",
+      }));
+    }
+  }, [userCity, lang]);
+
+  useEffect(() => {
+    if (userBornCity) {
+      setUserProfile((p) => ({
+        ...p,
+        address: (userBornCity.expand?.name?.[lang] as string) || "",
+      }));
+    }
+  }, [userBornCity, lang]);
+
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
       const updatedData = {
         fullname: values.name,
-        birthDate: dayjs(values.birthDate).format('YYYY-MM-DD')
+        birthDate: dayjs(values.birthDate).format("YYYY-MM-DD"),
       };
       await mutate({
-        id: pocketbase_auth?.record?.id || '',
-        data: updatedData
+        id: pocketbase_auth?.record?.id || "",
+        data: updatedData,
       });
       message.success(
         t({
-          uz: 'Profil muvaffaqiyatli yangilandi!',
-          ru: 'Профиль успешно обновлен!',
-          en: 'Profile updated successfully!'
+          uz: "Profil muvaffaqiyatli yangilandi!",
+          ru: "Профиль успешно обновлен!",
+          en: "Profile updated successfully!",
         })
       );
       setIsEditing(false);
       refetch();
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
       message.error(
         t({
-          uz: 'Profilni yangilashda xatolik yuz berdi!',
-          ru: 'Произошла ошибка при обновлении профиля!',
-          en: 'Error updating profile!'
+          uz: "Profilni yangilashda xatolik yuz berdi!",
+          ru: "Произошла ошибка при обновлении профиля!",
+          en: "Error updating profile!",
         })
       );
     }
   };
+
   return (
     <AnimatePresence mode="wait">
       {isEditing ? (
@@ -166,9 +203,9 @@ const ProfilePage = () => {
                   <path
                     d="M7 18L1 12L7 6"
                     stroke="#090A0A"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </div>
@@ -198,24 +235,16 @@ const ProfilePage = () => {
                 <Form.Item
                   label="Ism"
                   name="name"
-                  rules={[{ required: true, message: 'Ismni kiriting!' }]}
+                  rules={[{ required: true, message: "Ismni kiriting!" }]}
                 >
                   <Input size="large" placeholder="Abrorjon" />
-                </Form.Item>
-
-                <Form.Item
-                  label="Familiya"
-                  name="surname"
-                  rules={[{ required: true, message: 'Familiyani kiriting!' }]}
-                >
-                  <Input size="large" placeholder="Turg'unboyev" />
                 </Form.Item>
 
                 <Form.Item
                   label="Tug'ilgan sana"
                   name="birthDate"
                   rules={[
-                    { required: true, message: "Tug'ilgan sanani kiriting!" }
+                    { required: true, message: "Tug'ilgan sanani kiriting!" },
                   ]}
                 >
                   <DatePicker
@@ -230,7 +259,7 @@ const ProfilePage = () => {
                   label="Telefon raqami"
                   name="phone"
                   rules={[
-                    { required: true, message: 'Telefon raqamini kiriting!' }
+                    { required: true, message: "Telefon raqamini kiriting!" },
                   ]}
                 >
                   <Input size="large" placeholder="+998 91 797 74 97" />
@@ -240,7 +269,7 @@ const ProfilePage = () => {
                   label="Tug'ilgan joyi"
                   name="address"
                   rules={[
-                    { required: true, message: "Tug'ilgan joyini kiriting!" }
+                    { required: true, message: "Tug'ilgan joyini kiriting!" },
                   ]}
                 >
                   <Input
@@ -253,7 +282,7 @@ const ProfilePage = () => {
                   label="Yashash manzili"
                   name="city"
                   rules={[
-                    { required: true, message: 'Yashash manzilini kiriting!' }
+                    { required: true, message: "Yashash manzilini kiriting!" },
                   ]}
                 >
                   <Input
@@ -299,31 +328,11 @@ const ProfilePage = () => {
               <h1 className="text-center text-xl">
                 {userData?.fullname ||
                   t({
-                    uz: 'Nomalum Foydalanuvchi',
-                    ru: 'Неизвестный пользователь',
-                    en: 'Unknown User'
+                    uz: "Nomalum Foydalanuvchi",
+                    ru: "Неизвестный пользователь",
+                    en: "Unknown User",
                   })}
               </h1>
-              <div
-                className="absolute top-0 left-0 cursor-pointer"
-                onClick={() => navigate(-1)}
-              >
-                <svg
-                  width="8"
-                  height="24"
-                  viewBox="0 0 8 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M7 18L1 12L7 6"
-                    stroke="#090A0A"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
               <div
                 className="absolute top-0 right-0 cursor-pointer"
                 onClick={handleEdit}
@@ -337,9 +346,9 @@ const ProfilePage = () => {
               <Avatar
                 size={100}
                 src={getImage(
-                  userData?.collectionName || '',
-                  userData?.id || '',
-                  userData?.avatar || ''
+                  userData?.collectionName || "",
+                  userData?.id || "",
+                  userData?.avatar || ""
                 )}
                 icon={<UserOutlined />}
                 className="mb-6"
@@ -351,14 +360,14 @@ const ProfilePage = () => {
                   navigator.clipboard.writeText(pocketbase_auth?.record?.id);
                   message.success(
                     t({
-                      uz: 'ID nusxalandi',
-                      ru: 'ID скопирован',
-                      en: 'ID copied'
+                      uz: "ID nusxalandi",
+                      ru: "ID скопирован",
+                      en: "ID copied",
                     })
                   );
                 }}
               >
-                {' '}
+                {" "}
                 <Copy size={12} />
                 {pocketbase_auth?.record?.id}
               </div>
@@ -405,10 +414,6 @@ const ProfilePage = () => {
                   <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
                     <span className="text-gray-600">Ism</span>
                     <span className="font-medium">{userProfile.name}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
-                    <span className="text-gray-600">Familiya</span>
-                    <span className="font-medium">{userProfile.surname}</span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
                     <span className="text-gray-600">Tug'ilgan sana</span>
