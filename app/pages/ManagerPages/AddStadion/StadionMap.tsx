@@ -36,11 +36,11 @@ const StadionMap = () => {
       </div>
       <div className="h-[calc(100vh-115px)] border ">
         <YandexMapComponent
-          onSelect={
+          // onSelect={
             // (lat, lng) =>
             // setPayload?.((p) => ({ ...p, location: `${lat},${lng}` }))
-          }
-          value={payload?.location}
+          // }
+          // value={payload?.location}
         />
       </div>
       <div className="pb-[85px] absolute bottom-0 left-0 right-0  bg-white rounded-t-xl p-4">
