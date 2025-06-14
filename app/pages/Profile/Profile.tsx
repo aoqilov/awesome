@@ -346,7 +346,7 @@ const ProfilePage = () => {
               <Avatar
                 size={100}
                 src={getImage(
-                  userData?.collectionName || "",
+                  "users",
                   userData?.id || "",
                   userData?.avatar || ""
                 )}
