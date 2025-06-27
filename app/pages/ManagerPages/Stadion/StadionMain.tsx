@@ -18,12 +18,20 @@ export default function StadiumList() {
   const { navigate } = useNavigateWithChatId();
 
   if (isLoading) {
-    return <>Loading...</>;
+    return (
+      <>{t({ uz: "Yuklanmoqda...", en: "Loading...", ru: "Загрузка..." })}</>
+    );
   }
 
   return (
     <div>
-      <h1 className="text-xl text-center  mb-4"> Mening stadionlarim</h1>
+      <h1 className="text-xl text-center  mb-4">
+        {t({
+          uz: "Mening stadionlarim",
+          en: "My Stadiums",
+          ru: "Мои стадионы",
+        })}
+      </h1>
       <div className=" grid grid-cols-1 gap-6">
         {stadiums?.map((stadium) => (
           <StadiumCard key={stadium.id} stadium={stadium} />

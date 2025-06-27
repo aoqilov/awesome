@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import type React from "react";
-import { useRef } from "react";
 import { motion } from "framer-motion";
 import { Button, Input, DatePicker, Select } from "antd";
-import { Camera, ChevronRight, User } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useTranslation } from "@/hooks/translation";
 import {
   type RegisterContextType,
@@ -26,7 +24,7 @@ const Profile = () => {
   const { payload, handleChange, stateValidation, setPayload, isEdit } =
     useRegister() as RegisterContextType;
   const t = useTranslation();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // const fileInputRef = useRef<HTMLInputElement>(null);
   const { navigate } = useNavigateWithChatId();
 
   const { update } = usePocketBaseCollection<UsersRecord>("users");
@@ -38,25 +36,25 @@ const Profile = () => {
   const { data: cities } = listCities({
     expand: "name",
   });
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
+  // const handleAvatarClick = () => {
+  //   fileInputRef.current?.click();
+  // };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setPayload((prevPayload) => ({
-            ...prevPayload,
-            avatar: event.target?.result,
-          }));
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onload = (event) => {
+  //       if (event.target?.result) {
+  //         setPayload((prevPayload) => ({
+  //           ...prevPayload,
+  //           avatar: event.target?.result,
+  //         }));
+  //       }
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
 
   const { mutate } = update();
   const { message } = useApp();
@@ -73,7 +71,7 @@ const Profile = () => {
           liveCity: payload?.residencePlace?.district,
           bornCity: payload?.birthPlace?.district,
           language: payload.lang,
-          birthDate: payload?.birthDate
+          birthDate: payload?.birthDate,
         },
       },
       {
@@ -159,7 +157,7 @@ const Profile = () => {
     >
       <div className="flex-1 flex flex-col items-center py-8">
         {/* Avatar */}
-
+        {/* 
         <motion.div
           variants={itemVariants}
           className="relative mb-8 mt-4"
@@ -193,7 +191,7 @@ const Profile = () => {
             accept="image/*"
             className="hidden"
           />
-        </motion.div>
+        </motion.div> */}
 
         {/* Name Input */}
         <motion.div variants={itemVariants} className="w-full mb-6 px-4">

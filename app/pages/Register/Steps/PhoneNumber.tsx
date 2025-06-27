@@ -73,6 +73,8 @@ const PhoneNumber = () => {
   const { chat_id } = useQueryParam();
 
   useEffect(() => {
+    localStorage.setItem("role", JSON.stringify("player"));
+
     setPayload((p) => ({ ...p, userType: "player" }));
   }, [setPayload]);
 
@@ -132,7 +134,7 @@ const PhoneNumber = () => {
 
   return (
     <motion.div
-      className="min-h-screen w-full bg-white flex flex-col"
+      className="h-[97vh] w-full bg-white flex flex-col"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
@@ -165,10 +167,14 @@ const PhoneNumber = () => {
             ]}
             size="large"
             onChange={(value) => {
+              // ✅ Redux/contextga set qilish
               setPayload((p) => ({
                 ...p,
                 userType: value as unknown as string,
               }));
+
+              // ✅ LocalStoragega yozish
+              localStorage.setItem("role", JSON.stringify(value));
             }}
             className="mx-auto"
           />

@@ -99,6 +99,7 @@ export type OtpsRecord = {
 export type SuperusersRecord = {
   created?: IsoDateString;
   email: string;
+  chat_id?: string;
   emailVisibility?: boolean;
   id: string;
   password: string;
@@ -157,8 +158,15 @@ export type FieldsRecord = {
   type?: FieldsTypeOptions;
   updated?: IsoDateString;
   collectionId: string;
-  expand?: {
-    size: FieldSizesRecord;
+  expand: {
+    size?: {
+      id: string;
+      name: string;
+      collectionId: string;
+      collectionName: "field_sizes";
+      created: string;
+      updated: string;
+    };
   };
 };
 
@@ -204,6 +212,9 @@ export type StadiumFeaturesRecord = {
   collectionId?: string;
   collectionName?: string;
   icon?: string;
+  expand?: {
+    name?: TranslationsRecord;
+  };
 };
 
 export type StadiumRatesRecord = {
@@ -296,6 +307,10 @@ export type UsersRecord = {
   tokenKey: string;
   updated?: IsoDateString;
   verified?: boolean;
+  expand?: {
+    bornCity?: CitiesRecord;
+    liveCity?: CitiesRecord;
+  };
 };
 
 // Response types include system fields and match responses from the PocketBase API

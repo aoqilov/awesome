@@ -2,53 +2,59 @@ import { Divider } from "antd";
 import EventCard from "./components/EventCard";
 import { usePocketBaseCollection } from "@/pb/usePbMethods";
 import { OrdersResponse } from "@/types/pocketbaseTypes";
+import { useTranslation } from "@/hooks/translation";
 import { useLang } from "@/providers/LangProvider";
 import DateTimeWidget from "@/components/date-time-widget";
-
+const events = [
+  {
+    field: "1-maydon",
+    time: "09:00 - 10:00",
+    user: "Asror Mansurov",
+    timer: "-00:19:05",
+  },
+  {
+    field: "2-maydon",
+    time: "09:00 - 11:00",
+    user: "Feruz Mahkamov",
+    timer: "-01:19:05",
+  },
+  {
+    field: "3-maydon",
+    time: "18:00 - 19:00",
+    user: "Javlon Jonibekov",
+    actions: ["bell", "call", "trash"],
+  },
+  {
+    field: "3-maydon",
+    time: "19:00 - 20:00",
+    user: "Umid Ahmedov",
+    actions: ["bell", "call", "trash"],
+  },
+  {
+    field: "2-maydon",
+    time: "20:00 - 21:00",
+    user: "Doston Rahmonov",
+    actions: ["bell", "call", "trash"],
+  },
+  {
+    field: "1-maydon",
+    time: "21:00 - 22:00",
+    user: "Sardor Boboyorov",
+    actions: ["bell", "call", "trash"],
+  },
+];
 const HomePage = () => {
-  const events = [
-    {
-      field: "1-maydon",
-      time: "09:00 - 10:00",
-      user: "Asror Mansurov",
-      timer: "-00:19:05",
-    },
-    {
-      field: "2-maydon",
-      time: "09:00 - 11:00",
-      user: "Feruz Mahkamov",
-      timer: "-01:19:05",
-    },
-    {
-      field: "3-maydon",
-      time: "18:00 - 19:00",
-      user: "Javlon Jonibekov",
-      actions: ["bell", "call", "trash"],
-    },
-    {
-      field: "3-maydon",
-      time: "19:00 - 20:00",
-      user: "Umid Ahmedov",
-      actions: ["bell", "call", "trash"],
-    },
-    {
-      field: "2-maydon",
-      time: "20:00 - 21:00",
-      user: "Doston Rahmonov",
-      actions: ["bell", "call", "trash"],
-    },
-    {
-      field: "1-maydon",
-      time: "21:00 - 22:00",
-      user: "Sardor Boboyorov",
-      actions: ["bell", "call", "trash"],
-    },
-  ];
+  const t = useTranslation();
+  const { lang } = useLang();
+  // zaproslar  ////**********////// */
   const { list: tickets } = usePocketBaseCollection<OrdersResponse>("stadiums");
   const { data } = tickets({});
-  const { lang } = useLang();
+  const a = data;
+  console.log("Stadiums Data:", a);
+  // // Fetching users with expanded city information
+  // const { list: users } = usePocketBaseCollection<OrdersResponse>("users");
+  // const { data: usersData } = users({});
 
-  console.log("Tickets:", data);
   return (
     <div>
       <div className="w-full flex p-4 mt-5  mb-3 rounded-sm justify-center items-center shadow-sm bg-white">
@@ -111,15 +117,16 @@ const HomePage = () => {
       </div>
       <div className="bg-white p-[8px] rounded-sm shadow-sm">
         <div className=" grid grid-cols-4  rounded-lg border  border-[#989797] border-dashed">
+          {" "}
           <div className="text-center   border-r border-dashed my-1 border-[#989797] text-[#6C7072] ">
             {" "}
-            <h1>Kecha</h1>
-            <p>14 soat</p>
+            <h1>{t({ uz: "Kecha", en: "Yesterday", ru: "Вчера" })}</h1>
+            <p>{t({ uz: "14 soat", en: "14 hours", ru: "14 часов" })}</p>
           </div>
           <div className="text-center   border-r border-dashed my-1 border-[#989797] text-[#6C7072] ">
             {" "}
-            <h1>Kecha</h1>
-            <p>14 soat</p>
+            <h1>{t({ uz: "Kecha", en: "Yesterday", ru: "Вчера" })}</h1>
+            <p>{t({ uz: "14 soat", en: "14 hours", ru: "14 часов" })}</p>
           </div>
           <div className="text-center   border-r border-dashed my-1 border-[#989797] text-[#6C7072] ">
             <h1>Kecha</h1>
@@ -177,7 +184,7 @@ const HomePage = () => {
               </clipPath>
             </defs>
           </svg>
-          <h1>Batafsil</h1>
+          <h1>{t({ uz: "Batafsil", en: "Details", ru: "Подробно" })}</h1>
         </div>
       </div>
       <div className="">

@@ -26,15 +26,22 @@ type socials = {
 };
 
 const TranslationText = ({ id }: { id?: string }) => {
+  const t = useTranslation();
   const { one } = usePocketBaseCollection<TranslationsRecord>("translations");
   const { data } = one(id || "");
   const rawLang = useLang().lang;
   const lang = (rawLang === "en" ? "eng" : rawLang) as keyof TranslationsRecord;
-
-  return <>{data?.[lang] || id || "Noma'lum"}</>;
+  return (
+    <>
+      {data?.[lang] ||
+        id ||
+        t({ uz: "Noma'lum", en: "Unknown", ru: "Неизвестно" })}
+    </>
+  );
 };
 
 const Rates = ({ id }: { id?: string }) => {
+  const t = useTranslation();
   const { list } = usePocketBaseCollection<StadiumRatesRecord>("stadium_rates");
   const { data: rates, isLoading } = list({
     filter: `stadium = '${id}'`,
@@ -102,9 +109,12 @@ const Rates = ({ id }: { id?: string }) => {
       return `${month} ${day}, ${year}`;
     }
   }
-
   if (isLoading || !rates) {
-    return <div className="text-center">Loading...</div>;
+    return (
+      <div className="text-center">
+        {t({ uz: "Yuklanmoqda...", en: "Loading...", ru: "Загрузка..." })}
+      </div>
+    );
   }
 
   return (
@@ -176,6 +186,7 @@ const StadionDetail = () => {
   const { list: fieldsList } = usePocketBaseCollection<FieldsRecord>("fields");
 
   const { data: stadium, isLoading } = one(id, "features");
+
   const { data: features, isLoading: isLoadingFeatures } = featuresList({
     expand: "name",
   });
@@ -200,8 +211,10 @@ const StadionDetail = () => {
   return (
     <div className="">
       <div className="relative">
+        {" "}
         <h1 className="text-center text-xl ">
-          {stadium?.name || "Loading..."}
+          {stadium?.name ||
+            t({ uz: "Yuklanmoqda...", en: "Loading...", ru: "Загрузка..." })}
         </h1>
         <div
           className="absolute top-0 left-0"
@@ -225,14 +238,18 @@ const StadionDetail = () => {
         </div>
       </div>
       <div className="w-full flex items-center justify-center mt-4">
+        {" "}
         <Segmented
           value={selected}
-          onChange={(e) => setSelected(e)}
+          onChange={(e) => setSelected(e as string)}
           size="large"
-          options={["Umumiy", "Maydonlar"]}
+          options={[
+            t({ uz: "Umumiy", en: "General", ru: "Общий" }),
+            t({ uz: "Maydonlar", en: "Fields", ru: "Поля" }),
+          ]}
         />
       </div>
-      {selected === "Umumiy" ? (
+      {selected === t({ uz: "Umumiy", en: "General", ru: "Общий" }) ? (
         <>
           <motion.div variants={itemVariants} className="mt-4 w-full p-2 ">
             <Carousel infinite autoplay className="w-full">
@@ -251,8 +268,15 @@ const StadionDetail = () => {
             variants={itemVariants}
             className="flex items-center justify-between mt-2"
           >
+            {" "}
             <div className="">
-              <h1>Ish vaqtlari</h1>
+              <h1>
+                {t({
+                  uz: "Ish vaqtlari",
+                  en: "Working hours",
+                  ru: "Рабочие часы",
+                })}
+              </h1>
               <div className="flex p-1 justify-start gap-1.5 items-center bg-white rounded-md border px-3 mt-1">
                 <svg
                   width="20"
@@ -295,7 +319,7 @@ const StadionDetail = () => {
               </div>
             </div>
             <div>
-              <h1>Reyting</h1>
+              <h1>{t({ uz: "Reyting", en: "Rating", ru: "Рейтинг" })}</h1>
               <div className="flex p-1 justify-start gap-1 items-center  bg-white rounded-md border px-3 mt-1">
                 <svg
                   width="16"
@@ -317,9 +341,10 @@ const StadionDetail = () => {
                   </defs>
                 </svg>
                 <p>{stadium?.score || 0}</p>
-                <hr className="w-[1px] h-4 border" />
+                <hr className="w-[1px] h-4 border" />{" "}
                 <p className="text-[12px]">
-                  {stadium?.ratesCount || 0} ta ovoz
+                  {stadium?.ratesCount || 0}{" "}
+                  {t({ uz: "ta ovoz", en: "votes", ru: "голосов" })}
                 </p>
               </div>
             </div>
@@ -438,7 +463,10 @@ const StadionDetail = () => {
                     </svg>
                     <p>{stadium?.score}</p>
                     <hr className="w-[1px] h-4 border" />
-                    <p className="text-[12px]">{stadium?.ratesCount} ta ovoz</p>
+                    <p className="text-[12px]">
+                      {stadium?.ratesCount}{" "}
+                      {t({ uz: "ta ovoz", en: "votes", ru: "голосов" })}
+                    </p>
                   </div>
                   <div className="flex text-blue-500 items-center gap-1 justify-end">
                     <svg
@@ -462,8 +490,12 @@ const StadionDetail = () => {
                           <rect width="20" height="20" fill="white" />
                         </clipPath>
                       </defs>
-                    </svg>
-                    Izoh yozish
+                    </svg>{" "}
+                    {t({
+                      uz: "Izoh yozish",
+                      en: "Write a review",
+                      ru: "Написать отзыв",
+                    })}
                   </div>
                 </div>
                 <motion.div
@@ -478,7 +510,13 @@ const StadionDetail = () => {
             </div>
           </div>
           <div className="mt-2">
-            <h1>Ijtimoiy tarmoqlar</h1>
+            <h1>
+              {t({
+                uz: "Ijtimoiy tarmoqlar",
+                en: "Social Networks",
+                ru: "Социальные сети",
+              })}
+            </h1>
             <div className="bg-white p-2 rounde-md grid grid-cols-4 gap-2 mt-2">
               {socials?.telegram && (
                 <a href={socials.telegram} target="_blank">
@@ -520,7 +558,9 @@ const StadionDetail = () => {
                       </defs>
                     </svg>
                   </div>
-                  <h1 className="text-center text-[#72777A]">Telegram</h1>
+                  <h1 className="text-center text-[#72777A]">
+                    {t({ uz: "Telegram", en: "Telegram", ru: "Telegram" })}
+                  </h1>
                 </a>
               )}
               {socials?.instagram && (
@@ -609,7 +649,7 @@ const StadionDetail = () => {
                           gradientUnits="userSpaceOnUse"
                         >
                           <stop stopColor="#4E60D3" />
-                          <stop offset="0.142763" stopColor="#913BAF" />
+                          <stop offset="0.142763" stopColor="#913BA3F" />
                           <stop offset="0.761458" stopColor="#D52D88" />
                           <stop offset="1" stopColor="#F26D4F" />
                         </linearGradient>
@@ -671,7 +711,9 @@ const StadionDetail = () => {
                       </defs>
                     </svg>
                   </div>
-                  <h1 className="text-center text-[#72777A]">Instagram</h1>
+                  <h1 className="text-center text-[#72777A]">
+                    {t({ uz: "Instagram", en: "Instagram", ru: "Instagram" })}
+                  </h1>
                 </a>
               )}
               {socials?.youtube && (
@@ -694,7 +736,9 @@ const StadionDetail = () => {
                       />
                     </svg>
                   </div>
-                  <h1 className="text-center text-[#72777A]">Youtube</h1>
+                  <h1 className="text-center text-[#72777A]">
+                    {t({ uz: "Youtube", en: "Youtube", ru: "Youtube" })}
+                  </h1>
                 </a>
               )}
               {socials?.facebook && (

@@ -307,7 +307,7 @@ const ProfilePage = () => {
                   icon={<CalendarOutlined />}
                   onClick={handleSave}
                 >
-                  Saqlash
+                  {t({ uz: "Saqlash", en: "Save", ru: "Сохранить" })}
                 </Button>
               </motion.div>
             </motion.div>
@@ -390,19 +390,19 @@ const ProfilePage = () => {
               <div className="border-r-2 text-center border-dashed">
                 <div className="text-green-600 text-sm">Bajarilgan</div>
                 <div className="text-sm font-light">
-                  {userProfile.completedTasks} marta
+                  {userProfile.completedTasks} {t({ uz: "marta", en: "times", ru: "раз" })}
                 </div>
               </div>
               <div className="border-r-2 border-dashed -ml-1 text-center">
                 <div className="text-orange-500 text-sm">Bekor qilingan</div>
                 <div className="text-sm font-light">
-                  {userProfile.pendingTasks} marta
+                  {userProfile.pendingTasks} {t({ uz: "marta", en: "times", ru: "раз" })}
                 </div>
               </div>
               <div className="ml-1 text-center">
                 <div className="text-red-500 text-sm">Kelmagan</div>
                 <div className="text-sm font-light">
-                  {userProfile.cancelledTasks} marta
+                  {userProfile.cancelledTasks} {t({ uz: "marta", en: "times", ru: "раз" })}
                 </div>
               </div>
             </motion.div> */}
@@ -411,26 +411,53 @@ const ProfilePage = () => {
             <motion.div variants={cardVariants}>
               <Card className="border-0 shadow-sm mb-6">
                 <div className="space-y-4">
+                  {" "}
                   <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
-                    <span className="text-gray-600">Ism</span>
+                    <span className="text-gray-600">
+                      {t({ uz: "Ism", en: "Name", ru: "Имя" })}
+                    </span>
                     <span className="font-medium">{userProfile.name}</span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
-                    <span className="text-gray-600">Tug'ilgan sana</span>
+                    <span className="text-gray-600">
+                      {t({
+                        uz: "Tug'ilgan sana",
+                        en: "Birth Date",
+                        ru: "Дата рождения",
+                      })}
+                    </span>
                     <span className="font-medium">{userProfile.birthDate}</span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
-                    <span className="text-gray-600">Telefon raqami</span>
+                    <span className="text-gray-600">
+                      {t({
+                        uz: "Telefon raqami",
+                        en: "Phone Number",
+                        ru: "Номер телефона",
+                      })}
+                    </span>
                     <span className="font-medium">{userProfile.phone}</span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
-                    <span className="text-gray-600">Tug'ilgan joyi</span>
+                    <span className="text-gray-600">
+                      {t({
+                        uz: "Tug'ilgan joyi",
+                        en: "Place of Birth",
+                        ru: "Место рождения",
+                      })}
+                    </span>
                     <span className="font-medium text-right ml-4">
                       {userProfile.address}
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
-                    <span className="text-gray-600">Yashash manzili</span>
+                    <span className="text-gray-600">
+                      {t({
+                        uz: "Yashash manzili",
+                        en: "Address",
+                        ru: "Адрес проживания",
+                      })}
+                    </span>
                     <span className="font-medium text-right ml-4">
                       {userProfile.city}
                     </span>

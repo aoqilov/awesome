@@ -4,8 +4,8 @@ body {
   font-family: sans-serif;
   box-sizing: border-box;
 }
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -141,4 +141,22 @@ body {
   -webkit-backdrop-filter: blur(5.8px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   pointer-events: none;
+}
+/* 
+
+ */
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+.scroll-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
