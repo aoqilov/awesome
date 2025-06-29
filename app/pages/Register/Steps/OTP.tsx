@@ -3,7 +3,7 @@ import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button, Typography } from "antd";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Edit2 } from "lucide-react";
 import { useTranslation } from "@/hooks/translation";
 import { type RegisterContextType, useRegister } from "../Register";
 import { pb } from "@/pb/pb";
@@ -13,7 +13,7 @@ import useApp from "antd/es/app/useApp";
 const { Title, Text } = Typography;
 
 const OTP = () => {
-  const { payload, setStep } = useRegister() as RegisterContextType;
+  const { payload, setStep, setPayload, setisEdit } = useRegister() as RegisterContextType;
   const t = useTranslation();
   const [otp, setOtp] = useState<string[]>(["", "", "", ""]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -24,7 +24,11 @@ const OTP = () => {
 
   // Format phone number for display
   const formatDisplayPhone = (phone: string) => {
-    if (!phone) return "+998 90 123 45 67"; // Default for demo
+    if (!phone) {
+      try {
+        return JSON.parse(localStorage.getItem("user") || "{}")?.phoneNumber;
+      } catch (error) {}
+    }
     const cleaned = phone.replace(/\D/g, "");
     const match = cleaned.match(/^(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})$/);
     if (match) {
@@ -83,14 +87,44 @@ const OTP = () => {
     setActiveIndex(index);
     inputRefs.current[index]?.focus();
   };
-  const { chat_id } = useQueryParam();
+
+  const handleEditPhone = async () => {
+    // Reset OTP state
+    setOtp(["", "", "", ""]);
+    setActiveIndex(0);
+    setTimeLeft(60);
+    setCanResend(false);
+    
+    // Clear stored OTP ID
+    localStorage.removeItem("otpId");
+    
+    // Reset the isEdit state to prevent update mode and force create mode
+    setisEdit({ bool: false, id: "" });
+    
+    // Clear the phone number from payload but keep other data
+    setPayload((p) => ({ ...p, phone: "", otp: "" }));
+    
+    // Log out the current user to reset authentication state
+    try {
+      pb.authStore.clear();
+    } catch (error) {
+      console.log("Auth clear error:", error);
+    }
+    
+    // Go back to phone number step
+    setStep(1);
+  };
+
   // Handle continue button
   const handleContinue = async () => {
+    const otpId = payload.otp || localStorage.getItem("otpId") || "";
+
     if (otp.join("").length === 4) {
       await pb
         .collection("users")
-        .authWithOTP(payload.otp || "", otp.join(""))
+        .authWithOTP(otpId || "", otp.join(""))
         .then(() => {
+          localStorage.removeItem("otpId");
           setStep(3);
         })
         .catch((err) => {
@@ -101,6 +135,7 @@ const OTP = () => {
   };
 
   // Handle resend code
+  const { chat_id } = useQueryParam();
   const handleResend = async () => {
     if (canResend) {
       setTimeLeft(60); // Reset timer to 5:24
@@ -194,12 +229,27 @@ const OTP = () => {
             })}
           </Title>
           <Text className="text-gray-600 text-lg">
-            {formatDisplayPhone(payload.phone || "")}{" "}
-            {t({
-              uz: "telefon raqamingizga yuborilgan smsdagi 4 raqamli kodni kiriting",
-              ru: "введите 4-значный код из SMS, отправленного на ваш номер телефона",
-              en: "enter the 4-digit code sent in the SMS to your phone number",
-            })}
+            <span className="flex items-center justify-center gap-2 flex-wrap">
+              <span>{formatDisplayPhone(payload.phone || "")}</span>
+              <button
+                onClick={handleEditPhone}
+                className="inline-flex items-center gap-1 text-green-500 hover:text-green-600 font-medium cursor-pointer disabled:opacity-50"
+              >
+                <Edit2 className="h-4 w-4" />
+                {t({
+                  uz: "O'zgartirish",
+                  ru: "Изменить",
+                  en: "Edit",
+                })}
+              </button>
+            </span>
+            <span className="block mt-1">
+              {t({
+                uz: "telefon raqamingizga yuborilgan smsdagi 4 raqamli kodni kiriting",
+                ru: "введите 4-значный код из SMS, отправленного на ваш номер телефона",
+                en: "enter the 4-digit code sent in the SMS to your phone number",
+              })}
+            </span>
           </Text>
         </motion.div>
 
