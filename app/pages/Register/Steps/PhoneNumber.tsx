@@ -73,6 +73,8 @@ const PhoneNumber = () => {
   const { chat_id } = useQueryParam();
 
   useEffect(() => {
+    localStorage.setItem("role", JSON.stringify("player"));
+
     setPayload((p) => ({ ...p, userType: "player" }));
   }, [setPayload]);
 
@@ -82,6 +84,7 @@ const PhoneNumber = () => {
       password: chat_id,
       passwordConfirm: chat_id,
       phoneNumber: payload.phone,
+      role: payload.userType,
     };
 
     const onSuccess = async () => {
@@ -91,6 +94,7 @@ const PhoneNumber = () => {
         .authWithPassword(data.email, chat_id);
       const req = await pb.collection("users").requestOTP(data.email);
       setPayload((p) => ({ ...p, otp: req.otpId }));
+      localStorage.setItem("otpId", req.otpId);
       setisEdit({ bool: true, id: user.record.id });
 
       message.success(
@@ -124,15 +128,33 @@ const PhoneNumber = () => {
     };
 
     if (isEdit.bool) {
-      updateMutate({ id: isEdit.id, data }, { onSuccess, onError });
+      const payload = {
+        oldPassword: chat_id,
+        ...data,
+      };
+      updateMutate({ id: isEdit.id, data: payload }, { onSuccess, onError });
     } else {
-      mutate(data, { onSuccess, onError });
+      // Check if user already exists before creating
+      pb.collection("users")
+        .authWithPassword(data.email, chat_id)
+        .then(async (user) => {
+          // User exists, update their phone number
+          const updatePayload = {
+            oldPassword: chat_id,
+            ...data,
+          };
+          updateMutate({ id: user.record.id, data: updatePayload }, { onSuccess, onError });
+        })
+        .catch(() => {
+          // User doesn't exist, create new one
+          mutate(data, { onSuccess, onError });
+        });
     }
   };
 
   return (
     <motion.div
-      className="min-h-screen w-full bg-white flex flex-col"
+      className="h-[97vh] w-full bg-white flex flex-col"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
@@ -165,10 +187,14 @@ const PhoneNumber = () => {
             ]}
             size="large"
             onChange={(value) => {
+              // ✅ Redux/contextga set qilish
               setPayload((p) => ({
                 ...p,
                 userType: value as unknown as string,
               }));
+
+              // ✅ LocalStoragega yozish
+              localStorage.setItem("role", JSON.stringify(value));
             }}
             className="mx-auto"
           />

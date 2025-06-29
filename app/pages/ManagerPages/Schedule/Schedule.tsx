@@ -1,43 +1,44 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { motion } from 'framer-motion';
-import { ConfigProvider, Table } from 'antd';
-import { ChevronLeft } from 'lucide-react';
-import type { ColumnsType } from 'antd/es/table';
-import shoe from '@/assets/shoe.png';
-import TimeRange from '../components/TimeRange';
-import dayjs from 'dayjs';
-import { useState } from 'react';
-import { useNavigateWithChatId } from '@/hooks/useNavigate';
+import { motion } from "framer-motion";
+import { ConfigProvider, Table } from "antd";
+import { ChevronLeft } from "lucide-react";
+import type { ColumnsType } from "antd/es/table";
+import shoe from "@/assets/shoe.png";
+import TimeRange from "../components/TimeRange";
+import dayjs from "dayjs";
+import { useState } from "react";
+import { useNavigateWithChatId } from "@/hooks/useNavigate";
+import { useTranslation } from "@/hooks/translation";
 const hours = [
-  '00 - 01',
-  '01 - 02',
-  '02 - 03',
-  '03 - 04',
-  '04 - 05',
-  '05 - 06',
-  '06 - 07',
-  '07 - 08',
-  '08 - 09',
-  '09 - 10',
-  '10 - 11',
-  '11 - 12',
-  '12 - 13',
-  '13 - 14',
-  '14 - 15',
-  '15 - 16',
-  '16 - 17',
-  '17 - 18',
-  '18 - 19',
-  '19 - 20',
-  '20 - 21',
-  '21 - 22',
-  '22 - 23',
-  '23 - 00'
+  "00 - 01",
+  "01 - 02",
+  "02 - 03",
+  "03 - 04",
+  "04 - 05",
+  "05 - 06",
+  "06 - 07",
+  "07 - 08",
+  "08 - 09",
+  "09 - 10",
+  "10 - 11",
+  "11 - 12",
+  "12 - 13",
+  "13 - 14",
+  "14 - 15",
+  "15 - 16",
+  "16 - 17",
+  "17 - 18",
+  "18 - 19",
+  "19 - 20",
+  "20 - 21",
+  "21 - 22",
+  "22 - 23",
+  "23 - 00",
 ];
 const currentHour = new Date().getHours();
-const currentTime = `${currentHour < 10 ? '0' : ''}${currentHour} - ${
-  currentHour + 1 < 10 ? '0' : ''
+const currentTime = `${currentHour < 10 ? "0" : ""}${currentHour} - ${
+  currentHour + 1 < 10 ? "0" : ""
 }${currentHour + 1}`;
 
 const fields = [1, 2, 3, 4, 5, 6, 11];
@@ -51,15 +52,15 @@ const generateColumns = (): ColumnsType<any> => [
         </h1>
       </div>
     ),
-    dataIndex: 'time',
-    fixed: 'left',
+    dataIndex: "time",
+    fixed: "left",
     width: 80,
     render: (text) => (
       <div
         className={
           text === currentTime
-            ? ' border-l-3 border-green-500 text-[#42BA3D] p-1 h-[30px] bg-white'
-            : 'p-1 h-[30px] bg-white'
+            ? " border-l-3 border-green-500 text-[#42BA3D] p-1 h-[30px] bg-white"
+            : "p-1 h-[30px] bg-white"
         }
       >
         {text === currentTime ? (
@@ -67,13 +68,13 @@ const generateColumns = (): ColumnsType<any> => [
         ) : null}
         <div
           className={`time-cell w-[80px]  ${
-            currentTime === text ? 'bg-[#ECFCE5]' : 'bg-gray-50/90'
+            currentTime === text ? "bg-[#ECFCE5]" : "bg-gray-50/90"
           } h-[32px] absolute top-0 left-2  rounded-md py-1 px-2 flex items-center justify-center`}
         >
           {text}
         </div>
       </div>
-    )
+    ),
   },
   ...fields.map((f) => ({
     title: (
@@ -85,7 +86,7 @@ const generateColumns = (): ColumnsType<any> => [
 
     dataIndex: `field${f}`,
 
-    render: (value: 'active' | 'busy', row: any) => {
+    render: (value: "active" | "busy", row: any) => {
       return (
         <div className={`relative  w-full h-full ${row.time === currentTime}`}>
           {row.time === currentTime && (
@@ -93,16 +94,16 @@ const generateColumns = (): ColumnsType<any> => [
           )}
           <div
             className={` ${
-              value === 'active'
-                ? 'bg-[#ECFCE5] text-[#42BA3D]'
-                : value === 'busy'
-                ? 'bg-[#FFE5E5] text-[#FF5247]'
-                : value === 'pause'
-                ? 'bg-[#FFEFD7] text-[#FFB300]'
-                : 'bg-gray-50 text-gray-500'
+              value === "active"
+                ? "bg-[#ECFCE5] text-[#42BA3D]"
+                : value === "busy"
+                ? "bg-[#FFE5E5] text-[#FF5247]"
+                : value === "pause"
+                ? "bg-[#FFEFD7] text-[#FFB300]"
+                : "bg-gray-50 text-gray-500"
             }  absolute  z-[1.5] -top-[1.3rem] left-0  bottom-0 right-0  h-[32px] m-1 rounded-sm py-1 px-2 flex items-center justify-center`}
           >
-            {value === 'active' ? (
+            {value === "active" ? (
               <div className="flex items-center justify-center gap-2">
                 <span className="text-green-500">
                   <svg
@@ -146,7 +147,7 @@ const generateColumns = (): ColumnsType<any> => [
                   </svg>
                 </span>
               </div>
-            ) : value === 'busy' ? (
+            ) : value === "busy" ? (
               <div className="flex items-center justify-center gap-2">
                 <span className="text-red-500">
                   <svg
@@ -180,7 +181,7 @@ const generateColumns = (): ColumnsType<any> => [
                   </svg>
                 </span>
               </div>
-            ) : value === 'pause' ? (
+            ) : value === "pause" ? (
               <div className="flex items-center justify-center gap-2">
                 <span className="text-yellow-500">
                   <svg
@@ -243,24 +244,24 @@ const generateColumns = (): ColumnsType<any> => [
           </div>
         </div>
       );
-    }
-  }))
+    },
+  })),
 ];
 
 const data = hours.map((hour, i) => {
   const row: Record<string, any> = {
     key: i,
-    time: hour
+    time: hour,
   };
   fields.forEach((field) => {
     const randomStatus =
       Math.random() < 0.25
-        ? 'active'
+        ? "active"
         : Math.random() < 0.5
-        ? 'busy'
+        ? "busy"
         : Math.random() < 0.75
-        ? 'pause'
-        : 'closed';
+        ? "pause"
+        : "closed";
     row[`field${field}`] = randomStatus;
   });
 
@@ -268,21 +269,22 @@ const data = hours.map((hour, i) => {
 });
 const Schedule = () => {
   const { navigate } = useNavigateWithChatId();
+  const t = useTranslation();
   const [date, setDate] = useState(dayjs(new Date()));
   return (
     <ConfigProvider
       theme={{
         components: {
           Table: {
-            headerBg: 'white',
-            headerColor: '#000',
-            borderColor: 'transparent',
-            rowHoverBg: 'transparent',
-            rowSelectedBg: 'transparent',
+            headerBg: "white",
+            headerColor: "#000",
+            borderColor: "transparent",
+            rowHoverBg: "transparent",
+            rowSelectedBg: "transparent",
             cellPaddingBlock: 2,
-            cellPaddingInline: 0
-          }
-        }
+            cellPaddingInline: 0,
+          },
+        },
       }}
     >
       <motion.div
@@ -291,8 +293,9 @@ const Schedule = () => {
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.5 }}
       >
+        {" "}
         <div className="relative mb-2 text-center text-xl font-semibold">
-          Jadval
+          {t({ uz: "Jadval", en: "Schedule", ru: "Расписание" })}
           <div
             className="absolute left-0 top-0 cursor-pointer"
             onClick={() => navigate(-1)}
@@ -300,7 +303,6 @@ const Schedule = () => {
             <ChevronLeft />
           </div>
         </div>
-
         <TimeRange value={date} onChange={(date: any) => setDate(date)} />
         <div className="bg-white p-2 rounded-xl">
           <Table

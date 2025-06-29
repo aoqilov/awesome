@@ -1,6 +1,9 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
+import { useTranslation } from "@/hooks/translation";
 
 const OrderCard: React.FC = () => {
+  const t = useTranslation();
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -49,9 +52,15 @@ const OrderCard: React.FC = () => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-            </svg>
+            </svg>{" "}
             <div>
-              <h1>Toshkent shari</h1>
+              <h1>
+                {t({
+                  uz: "Toshkent shahri",
+                  en: "Tashkent City",
+                  ru: "Город Ташкент",
+                })}
+              </h1>
               <p className="text-[12px]">Bektemir tumani</p>
             </div>
           </div>
@@ -78,17 +87,19 @@ const OrderCard: React.FC = () => {
                 </clipPath>
               </defs>
             </svg>
-            <h1 className="text-sm my-1">8-maydon</h1>
+            <h1 className="text-sm my-1">
+              {t({ uz: "8-maydon", en: "Field 8", ru: "8-поле" })}
+            </h1>
           </div>
         </div>
       </div>
       <div
         className="relative w-full my-2"
         style={{
-          borderWidth: '0.5px',
-          borderStyle: 'dashed',
+          borderWidth: "0.5px",
+          borderStyle: "dashed",
           borderImage:
-            'repeating-linear-gradient(to right, #22c55e 0, #22c55e 4px, transparent 4px, transparent 8px) 1'
+            "repeating-linear-gradient(to right, #22c55e 0, #22c55e 4px, transparent 4px, transparent 8px) 1",
         }}
       >
         <div className="absolute rounded-r-full w-5 h-5 bg-gradient-to-br from-gray-50 to-gray-100 -mt-2 -left-6.5"></div>
@@ -132,7 +143,13 @@ const OrderCard: React.FC = () => {
               </clipPath>
             </defs>
           </svg>
-          <h1 className="text-sm">00.00,chorshanba</h1>
+          <h1 className="text-sm">
+            {t({
+              uz: "00.00, chorshanba",
+              en: "00.00, Wednesday",
+              ru: "00.00, среда",
+            })}
+          </h1>
         </div>
         <div className="bg-green-500/20 text-center px-1 text-green-500 rounded-md ">
           00:00-00:00

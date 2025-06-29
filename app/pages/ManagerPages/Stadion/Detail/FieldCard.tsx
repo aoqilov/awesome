@@ -4,6 +4,7 @@ import { Carousel } from "antd";
 import { useNavigateWithChatId } from "@/hooks/useNavigate";
 import { FieldSizesRecord } from "@/types/pocketbaseTypes";
 import { usePocketBaseFile } from "@/pb/usePbMethods";
+import { useTranslation } from "@/hooks/translation";
 
 // Define the Field type
 export interface Field {
@@ -29,6 +30,7 @@ export interface Field {
 // Card component that will be mapped
 
 export const FieldCard: React.FC<{ field: Field }> = ({ field }) => {
+  const t = useTranslation();
   const { navigate } = useNavigateWithChatId();
   const { getFileUrl } = usePocketBaseFile();
 
@@ -129,7 +131,11 @@ export const FieldCard: React.FC<{ field: Field }> = ({ field }) => {
                   </defs>
                 </svg>
               )}
-              <h1>{field.type == "grass" ? "Gazon" : "Futzal"} </h1>
+              <h1>
+                {field.type == "grass"
+                  ? t({ uz: "Gazon", en: "Grass", ru: "Газон" })
+                  : t({ uz: "Futzal", en: "Futsal", ru: "Футзал" })}
+              </h1>
             </div>
             <h3 className="text-[#6C7072]">{field.expand?.size?.name}</h3>
           </div>
