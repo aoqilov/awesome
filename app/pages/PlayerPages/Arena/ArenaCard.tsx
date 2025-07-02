@@ -70,9 +70,10 @@ const ArenaCard: React.FC<Props> = ({ item }) => {
         <Button
           type="primary"
           size="small"
-          onClick={() =>
-            navigate(`/client/arena/${item.id}?chat_id=${chat_id}`)
-          }
+          onClick={() => {
+            navigate(`/client/arena/${item.id}?chat_id=${chat_id}`);
+            localStorage.removeItem("filterData");
+          }}
           style={{
             marginTop: "16px",
             height: "40px",

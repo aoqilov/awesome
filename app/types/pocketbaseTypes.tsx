@@ -5,6 +5,23 @@
 import type PocketBase from "pocketbase";
 import type { RecordService } from "pocketbase";
 
+export type DeepOrderType = OrdersResponse<{
+  field: FieldsResponse<{
+    stadium: StadiumsResponse<
+      unknown,
+      {
+        city: CitiesResponse<{
+          name: TranslationsResponse;
+          region: RegionsResponse<{
+            name: TranslationsResponse;
+          }>;
+        }>;
+      }
+    >;
+  }>;
+  user: UsersResponse;
+}>;
+
 export enum Collections {
   Authorigins = "_authOrigins",
   Externalauths = "_externalAuths",
@@ -262,6 +279,7 @@ export type StadiumsRecord<Tsocials = unknown> = {
 };
 
 export type TranslationsRecord = {
+  name?: string;
   created?: IsoDateString;
   eng?: string;
   id: string;

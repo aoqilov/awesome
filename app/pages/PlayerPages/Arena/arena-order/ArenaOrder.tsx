@@ -94,6 +94,13 @@ const ArenaOrder = () => {
       console.error("Saqlashda xatolik:", error);
     }
   }
+  let stadiumName = null;
+  try {
+    const stadiumRaw = localStorage.getItem("stadium");
+    stadiumName = stadiumRaw ? JSON.parse(stadiumRaw)?.name : null;
+  } catch (error) {
+    console.error("Stadiumni localStorage dan olishda xatolik:", error);
+  }
 
   if (isLoadingMaydonlar && isLoading) return <Loading />;
 
@@ -104,9 +111,7 @@ const ArenaOrder = () => {
         <span className="cursor-pointer flex items-center justify-center ">
           <BackBtn />
         </span>{" "}
-        <h5 className="text-center w-[90%] text-[18px]">
-          {t({ uz: "usStadium", en: "usStadium", ru: "usStadium" })}
-        </h5>
+        <h5 className="text-center w-[90%] text-[18px]">{stadiumName}</h5>
       </div>
       {/* calendar */}
       <div className="calendar---field">

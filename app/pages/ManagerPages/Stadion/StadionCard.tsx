@@ -21,8 +21,11 @@ export interface Stadium {
   address?: string;
   images?: string[]; // Changed from image: string to images: string[]
   status?: StadiumsStatusOptions;
+  longlat?: { lat: number; lon: number };
   collectionId?: string;
   features?: string[];
+  price?: number;
+  ratesCount?: number;
   expand?: {
     city?: CitiesRecord;
   };

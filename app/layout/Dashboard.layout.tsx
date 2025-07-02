@@ -7,8 +7,13 @@ import { useQueryParam } from "@/hooks/useQueryParam";
 const DashboardLayout = () => {
   const t = useTranslation();
   const { pathname } = useLocation();
+  console.log(pathname);
   const activeItem = pathname.split("/");
   const isClient = pathname.includes("client");
+
+  //
+
+  //
   const userNavigation = [
     {
       icon: <Home size={20} />,
@@ -105,6 +110,7 @@ const DashboardLayout = () => {
         transition={{ delay: 0.2, duration: 0.3 }}
         className="h-18   fixed bottom-0 left-0 right-0 z-[101] rounded-t-2xl"
       >
+        {/* NAVIGATION BOX */}
         <div className="flex items-center justify-center gap-2  h-full max-w-md mx-auto px-2 shadow-[0_0_10px_rgba(0,0,0,0.05)] bg-white rounded-t-[32px]">
           {/* getNavItems() */}
           {navItems.map((item, index) => (

@@ -30,6 +30,7 @@ import ProfileEdit from "@/pages/PlayerPages/ProfileUser/ProfileEdit";
 import RegisterPage from "@/pages/Register/Register";
 import NotFound from "@/pages/Not-found";
 import Message from "@/pages/PlayerPages/Message/Message";
+import StadionMapSearch from "@/pages/PlayerPages/MapSearch/StadionMapSearch";
 
 export const router = [
   {
@@ -74,6 +75,7 @@ export const router = [
           { path: "arenaconfirmed", element: <ArenaConfirmed /> },
           { path: "arenasms", element: <ArenaSms /> },
           { path: "filter", element: <StadionFilter /> },
+          { path: "map", element: <StadionMapSearch /> },
           { path: "orders", element: <MainOrder /> },
           { path: "profile", element: <ProfileUser /> },
           { path: "edit", element: <ProfileEdit /> },

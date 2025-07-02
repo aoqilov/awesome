@@ -101,6 +101,13 @@ const ArenaConfirmed = () => {
       },
     });
   }
+  let stadiumName = null;
+  try {
+    const stadiumRaw = localStorage.getItem("stadium");
+    stadiumName = stadiumRaw ? JSON.parse(stadiumRaw)?.name : null;
+  } catch (error) {
+    console.error("Stadiumni localStorage dan olishda xatolik:", error);
+  }
 
   if (isLoading) return <Loading />;
   return (
@@ -132,7 +139,7 @@ const ArenaConfirmed = () => {
               className="w-full rounded-xl text-center text-base font-semibold py-2"
               style={{ background: "rgba(242, 244, 245, 1)" }}
             >
-              {/* {stadiumName} */}
+              {stadiumName}
             </div>
             {/* arena info */}
             <div className="flex items-center justify-between mt-3 border-b-2 border-dashed border-gray-300">

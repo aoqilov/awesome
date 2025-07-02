@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // import { useTranslation } from '@/hooks/translation';
 
-import { createContext, Dispatch, useContext, useState } from "react";
+import {
+  createContext,
+  Dispatch,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { PageTransition } from "@/shared/Motion";
 
@@ -19,6 +26,7 @@ export interface PlayerPayload {
   userType: string | undefined;
   agree: boolean | undefined;
   avatar: any;
+  avatarPreview?: string; // For displaying preview of selected image
   // Player-specific fields
   familyName?: string | undefined;
   birthDate?: any;
@@ -57,8 +65,22 @@ export interface ValidationState {
 const RegisterContext = createContext({});
 
 const RegisterPage = () => {
-  const [step, setStep] = useState(0);
+  const [searchParams] = useSearchParams();
+  const stepParam = searchParams.get("step");
+  const [step, setStep] = useState(stepParam ? parseInt(stepParam, 10) : 0);
   const [isEdit, setisEdit] = useState({ bool: false, id: "" });
+
+  // Update step when URL parameter changes
+  useEffect(() => {
+    const stepParam = searchParams.get("step");
+    if (stepParam) {
+      const stepNumber = parseInt(stepParam, 10);
+      if (stepNumber >= 0 && stepNumber <= 3) {
+        setStep(stepNumber);
+      }
+    }
+  }, [searchParams]);
+
   const {
     state: payload,
     setState: setPayload,
@@ -81,6 +103,31 @@ const RegisterPage = () => {
     requiredFields: ["phone", "fullName", "agree"],
     autoValidateOnChange: true,
   });
+
+  // Load user data from localStorage when navigating directly to step 2 (OTP)
+  useEffect(() => {
+    const stepParam = searchParams.get("step");
+    if (stepParam === "2") {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          if (userData && userData.email && userData.name) {
+            // Extract phone from email (format: chat_id@gmail.com where chat_id is phone)
+            const phone = userData.email.replace("@gmail.com", "");
+            setPayload((prev) => ({
+              ...prev,
+              phone: phone.startsWith("+") ? phone : `+${phone}`,
+              fullName: userData.name,
+              userType: userData.role,
+            }));
+          }
+        } catch (error) {
+          console.error("Error parsing stored user data:", error);
+        }
+      }
+    }
+  }, [searchParams, setPayload]);
 
   // const t = useTranslation();
   const currentStep = () => {

@@ -3,10 +3,22 @@ import CalendarSvg from "@/assets/svg/CalendarSvg";
 import LocationSvg from "@/assets/svg/LocationSvg";
 import StarFullSvg from "@/assets/svg/StarFullSvg";
 import { motion } from "framer-motion";
-import { useTranslation } from "@/hooks/translation";
+import { DeepOrderType } from "@/types/pocketbaseTypes";
+import useNumberFormat from "@/hooks/useNumberFormat ";
+import BootsBig from "@/assets/boots/bootsBig";
+import dayjs from "dayjs";
+import "dayjs/locale/uz"; // yoki 'ru', 'en', qaysi til kerak bo‘lsa
+dayjs.locale("uz");
 
-const OrderCard: React.FC = () => {
-  const t = useTranslation();
+interface OrderCardProps {
+  item: DeepOrderType;
+}
+
+const OrderCard: React.FC<OrderCardProps> = ({ item }) => {
+  console.log(item?.expand?.field?.name);
+  console.log("OrderCard item", item);
+  const formatMoney = useNumberFormat();
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -18,26 +30,25 @@ const OrderCard: React.FC = () => {
       <div className="w-full flex items-start justify-between ">
         <div>
           <div className="flex items-center justify-start gap-2">
-            <h1 className="font-semibold text-sm">SmartArena</h1>
+            <h1 className="font-semibold text-sm">
+              {item?.expand?.field?.expand?.stadium?.name}
+            </h1>
             <StarFullSvg color="#FFB323" width={20} />
-            <h1>4.9</h1>
+            <h1>{item?.expand?.field?.expand?.stadium?.score}</h1>
           </div>
           <div className="flex items-center justify-start gap-2 ">
             <LocationSvg width={20} />{" "}
             <div>
               <h1>
-                {t({
-                  uz: "Toshkent shahri",
-                  en: "Tashkent city",
-                  ru: "Город Ташкент",
-                })}
+                {
+                  item?.expand?.field?.expand?.stadium?.expand?.city?.expand
+                    ?.region?.expand?.name.key
+                }
               </h1>
               <p className="text-[12px]">
-                {t({
-                  uz: "Bektemir tumani",
-                  en: "Bektemir district",
-                  ru: "Бектемирский район",
-                })}
+                {item?.expand?.field?.expand?.stadium?.expand?.city?.expand
+                  ?.name?.key ?? ""}{" "}
+                tumani
               </p>
             </div>
           </div>
@@ -45,13 +56,12 @@ const OrderCard: React.FC = () => {
         <div>
           {" "}
           <div className="bg-[#F2F4F5] rounded-md px-2">
-            {t({ uz: "000 000 uzs", en: "000 000 UZS", ru: "000 000 сум" })}
+            {formatMoney(item?.totalPrice ?? 0)} SO'M
           </div>
           <div className="flex justify-end mt-2 gap-1 items-center">
-            <BootsMin />
-            <h1 className="text-sm my-1">
-              {t({ uz: "8-maydon", en: "Field 8", ru: "Поле 8" })}
-            </h1>
+            {item?.expand?.field?.type == "grass" ? <BootsBig /> : <BootsMin />}
+
+            <h1 className="text-sm my-1">{item?.expand?.field?.name}</h1>
           </div>
         </div>
       </div>
@@ -73,13 +83,7 @@ const OrderCard: React.FC = () => {
         {" "}
         <div className="flex items-center justify-between gap-1">
           <CalendarSvg />
-          <h1 className="text-sm">
-            {t({
-              uz: "00.00, chorshanba",
-              en: "00.00, Wednesday",
-              ru: "00.00, среда",
-            })}
-          </h1>
+          <h1 className="text-sm">{dayjs(item?.date).format("DD.MM, dddd")}</h1>
         </div>
         <div className="bg-green-500/20 text-center px-1 text-green-500 rounded-md ">
           00:00-00:00

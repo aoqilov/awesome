@@ -3,7 +3,7 @@
 
 import { motion } from "framer-motion";
 import { Button, Input, DatePicker, Select } from "antd";
-import { ChevronRight } from "lucide-react";
+import { Camera, ChevronRight, User } from "lucide-react";
 import { useTranslation } from "@/hooks/translation";
 import {
   type RegisterContextType,
@@ -19,12 +19,14 @@ import {
   UsersRoleOptions,
   CitiesRecord,
 } from "@/types/pocketbaseTypes";
+import { useRef, useEffect } from "react";
+import dayjs from "dayjs";
 
 const Profile = () => {
   const { payload, handleChange, stateValidation, setPayload, isEdit } =
     useRegister() as RegisterContextType;
   const t = useTranslation();
-  // const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { navigate } = useNavigateWithChatId();
 
   const { update } = usePocketBaseCollection<UsersRecord>("users");
@@ -36,46 +38,103 @@ const Profile = () => {
   const { data: cities } = listCities({
     expand: "name",
   });
-  // const handleAvatarClick = () => {
-  //   fileInputRef.current?.click();
-  // };
 
-  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onload = (event) => {
-  //       if (event.target?.result) {
-  //         setPayload((prevPayload) => ({
-  //           ...prevPayload,
-  //           avatar: event.target?.result,
-  //         }));
-  //       }
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
+  // Cleanup effect to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      // Clean up the preview URL when component unmounts
+      if (payload?.avatarPreview) {
+        URL.revokeObjectURL(payload.avatarPreview);
+      }
+    };
+  }, [payload?.avatarPreview]);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Basic validation
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        message.error(
+          t({
+            uz: "Faqat rasm fayllari qabul qilinadi (JPEG, PNG, GIF, WebP)",
+            ru: "Принимаются только файлы изображений (JPEG, PNG, GIF, WebP)",
+            en: "Only image files are accepted (JPEG, PNG, GIF, WebP)",
+          })
+        );
+        return;
+      }
+
+      if (file.size > maxSize) {
+        message.error(
+          t({
+            uz: "Fayl hajmi 5MB dan kichik bo'lishi kerak",
+            ru: "Размер файла должен быть меньше 5МБ",
+            en: "File size must be less than 5MB",
+          })
+        );
+        return;
+      }
+
+      // Store the actual File object for backend upload
+      setPayload((prevPayload) => ({
+        ...prevPayload,
+        avatar: file, // Store the File object, not the data URL
+        avatarPreview: URL.createObjectURL(file), // Create preview URL for display
+      }));
+    }
+  };
 
   const { mutate } = update();
   const { message } = useApp();
+
   const handleContinue = () => {
+    const userId =
+      isEdit.id || JSON.parse(localStorage.getItem("user") || "{}").id;
+
+    // Prepare the data object
+    const updateData: any = {
+      fullname: [payload?.fullName, payload?.familyName]
+        .filter(Boolean)
+        .join(" "),
+      role: payload?.userType as UsersRoleOptions,
+      liveCity: payload?.residencePlace?.district,
+      bornCity: payload?.birthPlace?.district,
+      language: payload.lang,
+      birthDate: payload?.birthDate
+        ? dayjs(payload.birthDate, "DD.MM.YYYY").format("YYYY-MM-DD HH:mm:ss")
+        : undefined,
+    };
+
+    // If there's a new avatar file, include it
+    if (payload?.avatar instanceof File) {
+      updateData.avatar = payload.avatar;
+    }
+
     mutate(
       {
-        id: isEdit.id,
-        data: {
-          fullname: [payload?.fullName, payload?.familyName]
-            .filter(Boolean)
-            .join(" "),
-          avatar: payload?.avatar,
-          role: payload?.userType as UsersRoleOptions,
-          liveCity: payload?.residencePlace?.district,
-          bornCity: payload?.birthPlace?.district,
-          language: payload.lang,
-          birthDate: payload?.birthDate,
-        },
+        id: userId,
+        data: updateData,
       },
       {
         onSuccess: () => {
+          // Clean up the preview URL to prevent memory leaks
+          if (payload?.avatarPreview) {
+            URL.revokeObjectURL(payload.avatarPreview);
+          }
+
           // Handle successful update
           message.success(
             t({
@@ -112,7 +171,9 @@ const Profile = () => {
   };
 
   // Check if user is a player
-  const isPlayer = payload?.userType === "player";
+  const payloadUserType =
+    payload?.userType || JSON.parse(localStorage.getItem("user") || "{}")?.role;
+  const isPlayer = payloadUserType === "player";
 
   // Handle extended field changes
   const handleExtendedChange = (field: string, value: any) => {
@@ -157,7 +218,6 @@ const Profile = () => {
     >
       <div className="flex-1 flex flex-col items-center py-8">
         {/* Avatar */}
-        {/* 
         <motion.div
           variants={itemVariants}
           className="relative mb-8 mt-4"
@@ -168,9 +228,13 @@ const Profile = () => {
             className="w-40 h-40 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer"
             onClick={handleAvatarClick}
           >
-            {payload?.avatar ? (
+            {payload?.avatarPreview || payload?.avatar ? (
               <img
-                src={payload?.avatar || "/placeholder.svg"}
+                src={
+                  payload?.avatarPreview ||
+                  payload?.avatar ||
+                  "/placeholder.svg"
+                }
                 alt="Profile"
                 className="w-full h-full rounded-full object-cover"
               />
@@ -191,7 +255,7 @@ const Profile = () => {
             accept="image/*"
             className="hidden"
           />
-        </motion.div> */}
+        </motion.div>
 
         {/* Name Input */}
         <motion.div variants={itemVariants} className="w-full mb-6 px-4">
@@ -277,13 +341,25 @@ const Profile = () => {
               </label>
               <DatePicker
                 size="large"
-                value={payload?.birthDate}
-                onChange={(date) => handleExtendedChange("birthDate", date)}
-                placeholder="--/--/----"
+                value={
+                  payload?.birthDate
+                    ? dayjs(payload.birthDate, "DD.MM.YYYY")
+                    : null
+                }
+                onChange={(date, dateString) => {
+                  console.log(date);
+                  // dateString = "20.04.2000"
+
+                  handleExtendedChange("birthDate", dateString);
+                }}
+                placeholder="--.--.----"
+                format="DD.MM.YYYY"
+                allowClear
                 className="w-full text-lg rounded-lg"
-                format="DD/MM/YYYY"
+                defaultPickerValue={dayjs("01.01.2000", "DD.MM.YYYY")}
                 status={stateValidation?.birthDate ? "error" : ""}
               />
+
               {stateValidation?.birthDate && (
                 <p className="text-red-500 text-sm mt-1">
                   {t({
@@ -337,6 +413,7 @@ const Profile = () => {
                   onChange={(value) =>
                     handleNestedChange("birthPlace", "district", value)
                   }
+                  style={{ marginTop: "20px" }}
                   placeholder={
                     t({
                       uz: "Tuman / shaharcha",
@@ -364,7 +441,7 @@ const Profile = () => {
 
             {/* Residence Place */}
             <motion.div variants={itemVariants} className="w-full mb-6 px-4">
-              <label className="block text-gray-700 text-lg mb-2">
+              <label className="block text-gray-700 text-lg mb-2 mt-1">
                 {t({
                   uz: "Yashash manzilingiz:",
                   ru: "Место проживания:",
@@ -413,7 +490,8 @@ const Profile = () => {
                       en: "District / town",
                     }) as string
                   }
-                  className="w-full text-lg rounded-lg"
+                  className="w-full text-lg rounded-lg mt-1"
+                  style={{ marginTop: "20px" }}
                   status={
                     stateValidation?.residencePlace?.district ? "error" : ""
                   }
