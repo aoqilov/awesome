@@ -1,77 +1,54 @@
 import { useQueryParam } from "@/hooks/useQueryParam";
-import { pb } from "@/pb/pb";
+import { useUser } from "@/contexts/UserContext";
 import { ConfigProvider, theme } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-
-interface UserRecordModel {
-  avatar: string;
-  birthDate: string;
-  bornCity: string;
-  chatId: string;
-  collectionId: string;
-  collectionName: string;
-  created: string;
-  email: string;
-  emailVisibility: false;
-  fullname: string;
-  id: string;
-  language: string;
-  liveCity: string;
-  phoneNumber: string;
-  role: string;
-  updated: string;
-  verified: boolean;
-}
 
 const MainMiddleware = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { chat_id } = useQueryParam();
-
-  const [user, setUser] = useState<undefined | UserRecordModel>();
-
-  const getUser = async (): Promise<UserRecordModel> => {
-    try {
-      const { record } = await pb
-        .collection("users")
-        .authWithPassword(`${chat_id}@gmail.com`, chat_id);
-      return record as UserRecordModel;
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      pb.authStore.clear();
-      localStorage.removeItem("user");
-      throw error;
-    }
-  };
+  const { 
+    user, 
+    fetchUser, 
+    clearUser, 
+    isLoading, 
+    error, 
+    isInitialized 
+  } = useUser();
 
   useEffect(() => {
     const authenticateUser = async () => {
+      // Wait for UserContext to initialize
+      if (!isInitialized) return;
+
+      // If no chat_id, redirect to register
+      if (!chat_id) {
+        navigate(`/register?chat_id=${chat_id}`, { replace: true });
+        return;
+      }
+
       try {
         let currentUser = user;
 
-        if (!currentUser) {
-          const data = await getUser();
-
-          setUser(data);
-          currentUser = data;
+        // Always fetch user data fresh (no localStorage persistence)
+        if (!currentUser && !isLoading && !error) {
+          currentUser = await fetchUser(chat_id);
         }
 
+        // If still no user after fetch attempt, redirect to register
         if (!currentUser) {
-          localStorage.removeItem("user");
           navigate(`/register?chat_id=${chat_id}`, { replace: true });
           return;
         }
 
-        localStorage.setItem("user", JSON.stringify(currentUser)); // redux yoki context
-
-        // 👉 verified = false bo'lsa — verify sahifaga yuboramiz (step=2 for OTP)
+        // If user is not verified, redirect to OTP step
         if (!currentUser.verified) {
           navigate(`/register?chat_id=${chat_id}&step=2`, { replace: true });
           return;
         }
 
-        // ✅ Role bo'yicha yo'naltirish
+        // Handle role-based routing
         const role = currentUser.role;
         const isPlayerPath = pathname.startsWith("/client");
         const isManagerPath = pathname.startsWith("/dashboard");
@@ -86,27 +63,31 @@ const MainMiddleware = () => {
           return;
         }
 
-        // ❌ Noma'lum role bo'lsa logout
+        // If unknown role, clear user and redirect to register
         if (role !== "player" && role !== "manager") {
-          pb.authStore.clear();
-          localStorage.removeItem("user");
+          clearUser();
           navigate(`/register?chat_id=${chat_id}`, { replace: true });
           return;
         }
-      } catch (error) {
-        console.error("Auth error:", error);
-        pb.authStore.clear();
+      } catch (authError) {
+        console.error("Auth error:", authError);
+        clearUser();
         navigate(`/register?chat_id=${chat_id}`, { replace: true });
       }
     };
 
-    if (!chat_id) {
-      navigate(`/register?chat_id=${chat_id}`, { replace: true });
-      return;
-    }
-
     authenticateUser();
-  }, [chat_id, pathname, navigate, user]); // Added 'user' to dependencies
+  }, [
+    chat_id,
+    pathname,
+    navigate,
+    user,
+    fetchUser,
+    clearUser,
+    isLoading,
+    error,
+    isInitialized,
+  ]);
 
   return (
     <div className="cw-screen h-screen w-full">

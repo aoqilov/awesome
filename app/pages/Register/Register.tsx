@@ -1,8 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // import { useTranslation } from '@/hooks/translation';
 
-import { createContext, Dispatch, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  Dispatch,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
 import { useSearchParams } from "react-router-dom";
+import { useUser } from "@/contexts/UserContext";
 
 import { PageTransition } from "@/shared/Motion";
 
@@ -60,13 +67,13 @@ const RegisterContext = createContext({});
 
 const RegisterPage = () => {
   const [searchParams] = useSearchParams();
-  const stepParam = searchParams.get('step');
+  const stepParam = searchParams.get("step");
   const [step, setStep] = useState(stepParam ? parseInt(stepParam, 10) : 0);
   const [isEdit, setisEdit] = useState({ bool: false, id: "" });
 
   // Update step when URL parameter changes
   useEffect(() => {
-    const stepParam = searchParams.get('step');
+    const stepParam = searchParams.get("step");
     if (stepParam) {
       const stepNumber = parseInt(stepParam, 10);
       if (stepNumber >= 0 && stepNumber <= 3) {
@@ -98,30 +105,21 @@ const RegisterPage = () => {
     autoValidateOnChange: true,
   });
 
-  // Load user data from localStorage when navigating directly to step 2 (OTP)
+  // Load user data from UserContext when navigating directly to step 2 (OTP)
+  const { user } = useUser();
+
   useEffect(() => {
-    const stepParam = searchParams.get('step');
-    if (stepParam === '2') {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        try {
-          const userData = JSON.parse(storedUser);
-          if (userData && userData.email && userData.name) {
-            // Extract phone from email (format: chat_id@gmail.com where chat_id is phone)
-            const phone = userData.email.replace('@gmail.com', '');
-            setPayload(prev => ({
-              ...prev,
-              phone: phone.startsWith('+') ? phone : `+${phone}`,
-              fullName: userData.name,
-              userType: userData.role
-            }));
-          }
-        } catch (error) {
-          console.error('Error parsing stored user data:', error);
-        }
+    const stepParam = searchParams.get("step");
+    if (stepParam === "2") {
+      if (user && user.email) {
+        setPayload((prev) => ({
+          ...prev,
+          fullName: user.fullname,
+          userType: user.role,
+        }));
       }
     }
-  }, [searchParams, setPayload]);
+  }, [searchParams, user, setPayload]);
 
   // const t = useTranslation();
   const currentStep = () => {

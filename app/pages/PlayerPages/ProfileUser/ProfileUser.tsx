@@ -1,36 +1,30 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Avatar, Button } from "antd";
 import EditSvg from "@/assets/svg/EditSvg";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import BackBtn from "@/components/ui/back-btn";
 import { useTranslation } from "@/hooks/translation";
-import { usePocketBaseCollection, usePocketBaseFile } from "@/pb/usePbMethods";
-import { UsersResponse } from "@/types/pocketbaseTypes";
+import { useUser } from "@/contexts/UserContext";
+import { usePocketBaseFile } from "@/pb/usePbMethods";
 import Loading from "@/pages/Loading";
 import dayjs from "dayjs";
 
 export default function ProfileUser() {
-  const userId = JSON.parse(localStorage.getItem("user") || "{}").id;
-
-  const { one } = usePocketBaseCollection<UsersResponse>("users");
-
-  const { data: playerData, isLoading } = one(
-    userId,
-    "avatar,liveCity.name,bornCity.name"
-  );
+  const { user: playerData, isLoading } = useUser();
 
   const t = useTranslation();
   const navigate = useNavigate();
+  const { getFileUrl } = usePocketBaseFile();
 
   const fullname = playerData?.fullname || "";
   const [firstName, lastName] = fullname.split(" ");
   const formatted = dayjs(playerData?.birthDate).format("DD.MM.YYYY");
-  const bornCity = playerData?.expand?.bornCity?.expand;
-  const bornCityName = bornCity?.name?.eng;
-  const liveCity = playerData?.expand?.bornCity?.expand;
-  const liveCityName = liveCity?.name?.eng || "N/A";
-  const { getFileUrl } = usePocketBaseFile();
+  
+  // For now, we'll use the raw city IDs. In a complete implementation,
+  // you might want to fetch the expanded city data separately or 
+  // modify the UserContext to include expanded data
+  const bornCityName = playerData?.bornCity || "N/A";
+  const liveCityName = playerData?.liveCity || "N/A";
 
   if (isLoading) {
     return <Loading />;

@@ -30,14 +30,20 @@ import ProfileEdit from "@/pages/PlayerPages/ProfileUser/ProfileEdit";
 import RegisterPage from "@/pages/Register/Register";
 import NotFound from "@/pages/Not-found";
 import Message from "@/pages/PlayerPages/Message/Message";
+import { RegisterProvider } from "@/contexts/RegisterContext";
+import { UserProvider } from "@/contexts/UserContext";
 
 export const router = [
   {
     path: "/",
     element: (
-      <QueryParamProvider>
-        <MainMiddleware />
-      </QueryParamProvider>
+      <UserProvider>
+        <RegisterProvider>
+          <QueryParamProvider>
+            <MainMiddleware />
+          </QueryParamProvider>
+        </RegisterProvider>
+      </UserProvider>
     ),
     children: [
       // MANAGER ROUTES

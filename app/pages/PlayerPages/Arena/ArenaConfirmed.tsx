@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import BackBtn from "@/components/ui/back-btn";
 import { useTranslation } from "@/hooks/translation";
+import { useUser } from "@/contexts/UserContext";
 import imageConfirm from "../../../assets/confirmcheck.png";
 import { motion } from "framer-motion";
 
@@ -20,6 +20,7 @@ import { useQueryParam } from "@/hooks/useQueryParam";
 const ArenaConfirmed = () => {
   const navigate = useNavigate();
   const { chat_id } = useQueryParam();
+  const { user } = useUser();
   const t = useTranslation();
   // /////
   const { create } = usePocketBaseCollection("orders");
@@ -44,7 +45,7 @@ const ArenaConfirmed = () => {
 
   const createMutation = create();
   const payloadOrder = {
-    user: JSON.parse(localStorage.getItem("user") || "{}").id,
+    user: user?.id,
     field: notVerifyOrder.field,
     date: notVerifyOrder.date,
     totalTime: notVerifyOrder.totalTime.length,

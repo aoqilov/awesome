@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Button, Typography } from "antd";
 import { ArrowLeft, Edit2 } from "lucide-react";
 import { useTranslation } from "@/hooks/translation";
+import { useUser } from "@/contexts/UserContext";
 import { type RegisterContextType, useRegister } from "../Register";
 import { pb } from "@/pb/pb";
 import { useQueryParam } from "@/hooks/useQueryParam";
@@ -14,6 +15,7 @@ const { Title, Text } = Typography;
 
 const OTP = () => {
   const { payload, setStep, setPayload, setisEdit } = useRegister() as RegisterContextType;
+  const { user } = useUser();
   const t = useTranslation();
   const [otp, setOtp] = useState<string[]>(["", "", "", ""]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -25,9 +27,7 @@ const OTP = () => {
   // Format phone number for display
   const formatDisplayPhone = (phone: string) => {
     if (!phone) {
-      try {
-        return JSON.parse(localStorage.getItem("user") || "{}")?.phoneNumber;
-      } catch (error) {}
+      return user?.phoneNumber || "";
     }
     const cleaned = phone.replace(/\D/g, "");
     const match = cleaned.match(/^(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})$/);
@@ -95,8 +95,8 @@ const OTP = () => {
     setTimeLeft(60);
     setCanResend(false);
     
-    // Clear stored OTP ID
-    localStorage.removeItem("otpId");
+    // Clear the registration OTP ID from sessionStorage
+    sessionStorage.removeItem("registration_otp_id");
     
     // Reset the isEdit state to prevent update mode and force create mode
     setisEdit({ bool: false, id: "" });
@@ -117,14 +117,16 @@ const OTP = () => {
 
   // Handle continue button
   const handleContinue = async () => {
-    const otpId = payload.otp || localStorage.getItem("otpId") || "";
+    // Get OTP ID from payload first, then fallback to sessionStorage
+    const otpId = payload.otp || sessionStorage.getItem("registration_otp_id") || "";
 
     if (otp.join("").length === 4) {
       await pb
         .collection("users")
         .authWithOTP(otpId || "", otp.join(""))
         .then(() => {
-          localStorage.removeItem("otpId");
+          // Clear the OTP ID from sessionStorage after successful verification
+          sessionStorage.removeItem("registration_otp_id");
           setStep(3);
         })
         .catch((err) => {
@@ -138,9 +140,17 @@ const OTP = () => {
   const { chat_id } = useQueryParam();
   const handleResend = async () => {
     if (canResend) {
-      setTimeLeft(60); // Reset timer to 5:24
+      setTimeLeft(60); // Reset timer
       setCanResend(false);
-      await pb.collection("users").requestOTP(chat_id + "@gmail.com");
+      try {
+        const req = await pb.collection("users").requestOTP(chat_id + "@gmail.com");
+        // Update both payload and sessionStorage with new OTP ID
+        setPayload((p) => ({ ...p, otp: req.otpId }));
+        sessionStorage.setItem("registration_otp_id", req.otpId);
+      } catch (error) {
+        console.error("Error resending OTP:", error);
+        message.error("Failed to resend OTP");
+      }
     }
   };
 
