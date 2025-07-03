@@ -3,7 +3,7 @@
 
 import { motion } from "framer-motion";
 import { Button, Input, DatePicker, Select } from "antd";
-import { Camera, Camera, ChevronRight, User, User } from "lucide-react";
+import { Camera, ChevronRight, User } from "lucide-react";
 import { useTranslation } from "@/hooks/translation";
 import { useUser } from "@/contexts/UserContext";
 import { useQueryParam } from "@/hooks/useQueryParam";
@@ -95,7 +95,7 @@ const Profile = () => {
     }
   };
 
-  const { mutate } = update();
+  const { mutate, isPending } = update();
   const { message } = useApp();
 
   const handleContinue = () => {
@@ -543,6 +543,7 @@ const Profile = () => {
           type="primary"
           onClick={handleContinue}
           disabled={!isFormValid}
+          loading={isPending}
           className={`w-full h-14 rounded-full text-lg font-medium flex items-center justify-center ${
             isFormValid
               ? "bg-green-500 hover:bg-green-600"

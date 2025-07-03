@@ -19,6 +19,7 @@ import PhoneNumber from "./Steps/PhoneNumber";
 import OTP from "./Steps/OTP";
 import Profile from "./Steps/Profile";
 import { UsersLanguageOptions } from "@/types/pocketbaseTypes";
+import Loading from "../Loading";
 // Define the extended payload type with player-specific fields
 export interface PlayerPayload {
   lang: UsersLanguageOptions | undefined;
@@ -79,6 +80,9 @@ const RegisterPage = () => {
       if (stepNumber >= 0 && stepNumber <= 3) {
         setStep(stepNumber);
       }
+    } else {
+      // If no step parameter, default to step 0
+      setStep(0);
     }
   }, [searchParams]);
 
@@ -105,9 +109,11 @@ const RegisterPage = () => {
     autoValidateOnChange: true,
   });
 
-  // Load user data from UserContext when navigating directly to step 2 (OTP)
-  const { user } = useUser();
+  // Load user data from UserContext (already handled by MainMiddleware)
+  const { user, isLoading } = useUser();
 
+  // Don't render Register component until MainMiddleware completes initial auth check
+  // This prevents showing wrong step before redirection
   useEffect(() => {
     const stepParam = searchParams.get("step");
     if (stepParam === "2") {
@@ -134,6 +140,11 @@ const RegisterPage = () => {
         return <Profile />;
     }
   };
+
+  // Show loading when user data is being fetched
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <RegisterContext.Provider

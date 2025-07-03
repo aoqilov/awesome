@@ -86,7 +86,10 @@ export const router = [
           { path: "profile", element: <ProfileUser /> },
           { path: "edit", element: <ProfileEdit /> },
           { path: "messages", element: <Message /> },
-        ],
+        ].map((route) => ({
+          ...route,
+          element: <PageTransition>{route.element}</PageTransition>,
+        })),
       },
 
       // REGISTER

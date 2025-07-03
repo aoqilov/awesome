@@ -14,22 +14,41 @@ import {
 import { useQueryParam } from "@/hooks/useQueryParam";
 import { useNavigate } from "react-router-dom";
 import BackBtn from "@/components/ui/back-btn";
+import { useUser } from "@/contexts/UserContext";
 
 export default function ProfileEdit() {
   const [form] = Form.useForm();
   const t = useTranslation();
   const navigate = useNavigate();
   const { chat_id } = useQueryParam();
-  const userId = JSON.parse(localStorage.getItem("user") || "{}")?.id;
+  const { user: _user } = useUser();
+  const userId = _user?.id;
+  if (!userId) {
+    return (
+      <div className="w-full px-4 py-8 text-center">
+        <p className="text-gray-500">
+          {t({
+            uz: "Foydalanuvchi ma'lumotlari topilmadi",
+            ru: "Данные пользователя не найдены",
+            en: "User data not found",
+          })}
+        </p>
+      </div>
+    );
+  }
   const { one, patch } = usePocketBaseCollection<UsersRecord>("users");
   const { list: listRegions } =
     usePocketBaseCollection<RegionsRecord>("regions");
   const { list: listCities } = usePocketBaseCollection<CitiesRecord>("cities");
   const { getFileUrl } = usePocketBaseFile();
 
-  const { data: user } = one(userId);
-  const { data: regions } = listRegions({ expand: "name" });
-  const { data: cities } = listCities({ expand: "name" });
+  const { data: user, isLoading: userLoading } = one(userId);
+  const { data: regions, isLoading: regionsLoading } = listRegions({
+    expand: "name",
+  });
+  const { data: cities, isLoading: citiesLoading } = listCities({
+    expand: "name",
+  });
 
   const [imageFile, setImageFile] = useState<RcFile | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -126,7 +145,19 @@ export default function ProfileEdit() {
     navigate(`/client/profile?chat_id=${chat_id || ""}`);
   };
 
-  if (!userId) return null;
+  if (userLoading || regionsLoading || citiesLoading) {
+    return (
+      <div className="w-full px-4 py-8 text-center">
+        <p className="text-gray-500">
+          {t({
+            uz: "Yuklanmoqda...",
+            ru: "Загрузка...",
+            en: "Loading...",
+          })}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full px-4">

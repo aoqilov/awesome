@@ -3,7 +3,7 @@ import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button, Typography } from "antd";
-import { ArrowLeft, Edit2, Edit2 } from "lucide-react";
+import { ArrowLeft, Edit2 } from "lucide-react";
 import { useTranslation } from "@/hooks/translation";
 import { useUser } from "@/contexts/UserContext";
 import { type RegisterContextType, useRegister } from "../Register";
@@ -14,7 +14,7 @@ import useApp from "antd/es/app/useApp";
 const { Title, Text } = Typography;
 
 const OTP = () => {
-  const { payload, setStep, setPayload, setisEdit, setPayload, setisEdit } =
+  const { payload, setStep, setPayload, setisEdit } =
     useRegister() as RegisterContextType;
   const { user } = useUser();
   const t = useTranslation();
@@ -124,7 +124,6 @@ const OTP = () => {
     if (otp.join("").length === 4) {
       await pb
         .collection("users")
-        .authWithOTP(otpId || "", otp.join(""))
         .authWithOTP(otpId || "", otp.join(""))
         .then(() => {
           // Clear the OTP ID from sessionStorage after successful verification
