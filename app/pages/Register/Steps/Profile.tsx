@@ -3,7 +3,7 @@
 
 import { motion } from "framer-motion";
 import { Button, Input, DatePicker, Select } from "antd";
-import { Camera, ChevronRight, User } from "lucide-react";
+import { Camera, Camera, ChevronRight, User, User } from "lucide-react";
 import { useTranslation } from "@/hooks/translation";
 import { useUser } from "@/contexts/UserContext";
 import { useQueryParam } from "@/hooks/useQueryParam";
@@ -22,6 +22,7 @@ import {
   CitiesRecord,
 } from "@/types/pocketbaseTypes";
 import { useRef, useEffect } from "react";
+import dayjs from "dayjs";
 
 const Profile = () => {
   const { payload, handleChange, stateValidation, setPayload, isEdit } =
@@ -109,7 +110,9 @@ const Profile = () => {
       liveCity: payload?.residencePlace?.district,
       bornCity: payload?.birthPlace?.district,
       language: payload.lang,
-      birthDate: payload?.birthDate,
+      birthDate: payload?.birthDate
+        ? dayjs(payload.birthDate, "DD.MM.YYYY").format("YYYY-MM-DD HH:mm:ss")
+        : undefined,
       verified: true, // Mark user as verified after profile completion
     };
 
@@ -359,13 +362,25 @@ const Profile = () => {
               </label>
               <DatePicker
                 size="large"
-                value={payload?.birthDate}
-                onChange={(date) => handleExtendedChange("birthDate", date)}
-                placeholder="--/--/----"
+                value={
+                  payload?.birthDate
+                    ? dayjs(payload.birthDate, "DD.MM.YYYY")
+                    : null
+                }
+                onChange={(date, dateString) => {
+                  console.log(date);
+                  // dateString = "20.04.2000"
+
+                  handleExtendedChange("birthDate", dateString);
+                }}
+                placeholder="--.--.----"
+                format="DD.MM.YYYY"
+                allowClear
                 className="w-full text-lg rounded-lg"
-                format="DD/MM/YYYY"
+                defaultPickerValue={dayjs("01.01.2000", "DD.MM.YYYY")}
                 status={stateValidation?.birthDate ? "error" : ""}
               />
+
               {stateValidation?.birthDate && (
                 <p className="text-red-500 text-sm mt-1">
                   {t({
@@ -419,6 +434,7 @@ const Profile = () => {
                   onChange={(value) =>
                     handleNestedChange("birthPlace", "district", value)
                   }
+                  style={{ marginTop: "20px" }}
                   placeholder={
                     t({
                       uz: "Tuman / shaharcha",
@@ -446,7 +462,7 @@ const Profile = () => {
 
             {/* Residence Place */}
             <motion.div variants={itemVariants} className="w-full mb-6 px-4">
-              <label className="block text-gray-700 text-lg mb-2">
+              <label className="block text-gray-700 text-lg mb-2 mt-1">
                 {t({
                   uz: "Yashash manzilingiz:",
                   ru: "Место проживания:",
@@ -495,7 +511,8 @@ const Profile = () => {
                       en: "District / town",
                     }) as string
                   }
-                  className="w-full text-lg rounded-lg"
+                  className="w-full text-lg rounded-lg mt-1"
+                  style={{ marginTop: "20px" }}
                   status={
                     stateValidation?.residencePlace?.district ? "error" : ""
                   }

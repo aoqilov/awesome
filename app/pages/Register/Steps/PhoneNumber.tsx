@@ -84,6 +84,7 @@ const PhoneNumber = () => {
       passwordConfirm: chat_id,
       phoneNumber: payload.phone,
       role: payload.userType,
+      role: payload.userType,
     };
 
     const onSuccess = async () => {

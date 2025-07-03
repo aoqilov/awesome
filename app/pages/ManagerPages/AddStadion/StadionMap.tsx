@@ -1,8 +1,7 @@
-import { useTranslation } from '@/hooks/translation';
-import { useAddStadion } from './Stadion';
+import { useTranslation } from "@/hooks/translation";
+import { useAddStadion } from "./Stadion";
 
-import YandexMapComponent from '@/components/YandexMaps.component';
-import { Input, Select } from 'antd';
+import { Input, Select } from "antd";
 const StadionMap = () => {
   const { payload, setPayload, setStep } = useAddStadion();
   const t = useTranslation();
@@ -11,9 +10,9 @@ const StadionMap = () => {
       <div className="relative">
         <h1 className="text-center text-xl ">
           {t({
-            uz: 'Stadion yaratish',
-            ru: 'Создать стадион',
-            en: 'Create stadium'
+            uz: "Stadion yaratish",
+            ru: "Создать стадион",
+            en: "Create stadium",
           })}
         </h1>
         <div className="absolute top-0 left-0" onClick={() => setStep?.(0)}>
@@ -35,18 +34,18 @@ const StadionMap = () => {
         </div>
       </div>
       <div className="h-[calc(100vh-115px)] border ">
-        <YandexMapComponent
+        {/* <YandexMapComponent
           // onSelect={
             // (lat, lng) =>
             // setPayload?.((p) => ({ ...p, location: `${lat},${lng}` }))
           // }
           // value={payload?.location}
-        />
+        /> */}
       </div>
       <div className="pb-[85px] absolute bottom-0 left-0 right-0  bg-white rounded-t-xl p-4">
         <div className="my-4">
           <Select
-            placeholder={'Viloyat / shahar'}
+            placeholder={"Viloyat / shahar"}
             className="w-full "
             value={payload?.province}
             onChange={(value) =>
@@ -56,7 +55,7 @@ const StadionMap = () => {
         </div>
         <div className="my-4">
           <Select
-            placeholder={'Tuman / shaharcha'}
+            placeholder={"Tuman / shaharcha"}
             className="w-full "
             value={payload?.city}
             onChange={(value) => setPayload?.((p) => ({ ...p, city: value }))}
@@ -70,7 +69,7 @@ const StadionMap = () => {
             onChange={(e) =>
               setPayload?.((p) => ({
                 ...p,
-                locationTitle: e.target.value || ''
+                locationTitle: e.target.value || "",
               }))
             }
           />

@@ -3,6 +3,27 @@ import { useUser } from "@/contexts/UserContext";
 import { ConfigProvider, theme } from "antd";
 import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import Loading from "@/pages/Loading";
+
+interface UserRecordModel {
+  avatar: string;
+  birthDate: string;
+  bornCity: string;
+  chatId: string;
+  collectionId: string;
+  collectionName: string;
+  created: string;
+  email: string;
+  emailVisibility: false;
+  fullname: string;
+  id: string;
+  language: string;
+  liveCity: string;
+  phoneNumber: string;
+  role: string;
+  updated: string;
+  verified: boolean;
+}
 
 const MainMiddleware = () => {
   const navigate = useNavigate();
@@ -55,11 +76,13 @@ const MainMiddleware = () => {
 
         if (role === "player" && !isPlayerPath) {
           navigate(`/client/home?chat_id=${chat_id}`, { replace: true });
+          setIsLoading(false);
           return;
         }
 
         if (role === "manager" && !isManagerPath) {
           navigate(`/dashboard/home?chat_id=${chat_id}`, { replace: true });
+          setIsLoading(false);
           return;
         }
 
@@ -67,12 +90,14 @@ const MainMiddleware = () => {
         if (role !== "player" && role !== "manager") {
           clearUser();
           navigate(`/register?chat_id=${chat_id}`, { replace: true });
+          setIsLoading(false);
           return;
         }
       } catch (authError) {
         console.error("Auth error:", authError);
         clearUser();
         navigate(`/register?chat_id=${chat_id}`, { replace: true });
+        setIsLoading(false);
       }
     };
 

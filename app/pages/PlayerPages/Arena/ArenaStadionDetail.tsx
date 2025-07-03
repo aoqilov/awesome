@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import HeartFullSvg from "@/assets/svg/HeartFullSvg";
-import ShareSvg from "@/assets/svg/ShareSvg";
+
 import ForMappingSocialSvg from "@/assets/svg/social/ForMappingSocialSvg";
 import StarFullSvg from "@/assets/svg/StarFullSvg";
-import YandexMap from "@/components/yandex-map";
+import YandexMapPicker from "@/components/YandexMapPicker";
 import { formatTime } from "@/hooks/useFormatDate";
 import Loading from "@/pages/Loading";
 import { usePocketBaseCollection, usePocketBaseFile } from "@/pb/usePbMethods";
@@ -14,6 +14,7 @@ import {
 } from "@/types/pocketbaseTypes";
 import { Carousel, Image } from "antd";
 import { Calendar, Heart } from "lucide-react";
+import { useState } from "react";
 
 // Dummy translation function for demonstration; replace with your actual translation hook or import
 const t = (obj: { uz: string; en: string; ru: string }) => obj.uz;
@@ -24,6 +25,7 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
   const { data: fieldsData, isLoading: fieldsLoading } = fields({
     filter: `stadium.id = "${stadiumLocal.id}"`,
   });
+  console.log(fieldsData);
   //  STADIUMS
   const { list } = usePocketBaseCollection<StadiumsResponse>("stadiums");
   const { data: stadiums, isLoading } = list({
@@ -43,7 +45,15 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
   const formatData = formatTime; // assign the function, not the result
 
   const { getFileUrl } = usePocketBaseFile();
-
+  //
+  //
+  //
+  //
+  const [adrees, setAdrees] = useState("");
+  console.log(adrees);
+  const handleAddress = (address: string) => {
+    setAdrees(address);
+  };
   if (isLoading && fieldsLoading && isLoadingFeatures) {
     return <Loading />;
   }
@@ -51,34 +61,47 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
     <div className="relative">
       {/* fields images */}
       <Carousel autoplay infinite>
-        {fieldsData?.flatMap((field: any, fieldIdx: number) =>
-          field.images?.map((image: string, imgIdx: number) => {
-            const imgUrl = getFileUrl(field.collectionId, field.id, image);
+        {fieldsData?.length === 0 ? (
+          <div className="w-full h-[188px] rounded-[20px] flex items-center justify-center bg-gray-100 mt-5">
+            <p className="text-gray-500  text-center mt-10">
+              {t({
+                uz: "Bu stadion uchun maydonlar mavjud emas",
+                en: "No fields available for this stadium",
+                ru: "Нет полей для этого стадиона",
+              })}
+            </p>
+          </div>
+        ) : (
+          fieldsData?.flatMap((field: any, fieldIdx: number) =>
+            field.images?.map((image: string, imgIdx: number) => {
+              const imgUrl = getFileUrl(field.collectionId, field.id, image);
 
-            return (
-              <div
-                key={`${fieldIdx}-${imgIdx}`}
-                className="w-full h-[188px] mt-5 rounded-[12px] overflow-hidden "
-              >
-                <Image
-                  src={imgUrl}
-                  alt={`Image ${imgIdx}`}
-                  preview={{
-                    mask: <span>Ko'rish</span>, // optional mask
-                  }}
-                  height="100%"
-                  width="100%"
-                  style={{
-                    objectFit: "cover",
-                  }}
-                />
-              </div>
-            );
-          })
+              return (
+                <div
+                  key={`${fieldIdx}-${imgIdx}`}
+                  className="w-full h-[188px] mt-5 rounded-[12px] overflow-hidden "
+                >
+                  <Image
+                    src={imgUrl}
+                    alt={`Image ${imgIdx}`}
+                    preview={{
+                      mask: <span>Ko'rish</span>, // optional mask
+                    }}
+                    height="100%"
+                    width="100%"
+                    style={{
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
+              );
+            })
+          )
         )}
       </Carousel>
       {stadiums?.map((stadium) => (
         <div key={stadium.id}>
+          {/* hera */}
           <div className="absolute  top-7 right-2 p-[6px] bg-[#72777A] rounded-[6px]">
             {stadium.isSaved ? (
               <HeartFullSvg />
@@ -130,20 +153,20 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
                   ru: "Адрес",
                 })}
               </p>
-              <span className="flex items-center gap-1 text-black font-semibold cursor-pointer">
+              {/* <span className="flex items-center gap-1 text-black font-semibold cursor-pointer">
                 <ShareSvg width={20} />
                 {t({
                   uz: "Ulashish",
                   en: "Share",
                   ru: "Поделиться",
                 })}
-              </span>
+              </span> */}
             </div>
-            <div className=" w-full bg-yellow-200 mt-5">
-              <YandexMap
-                className="h-full w-full rounded-[16px]"
-                longitude={stadium?.longlat?.lon}
-                latitude={stadium?.longlat?.lat}
+            <div className=" w-full bg-white shadow-md mt-5 rounded-[20px] overflow-hidden p-2">
+              <YandexMapPicker
+                lat={stadium?.longlat?.lat}
+                lon={stadium?.longlat?.lon}
+                onAddress={handleAddress}
               />
             </div>
           </div>
@@ -198,22 +221,22 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
           {/* comentariy izoh */}
           {/* ------------ hali oylanmadi */}
           {/* <div className="w-full"> */}
-          <p className="font-medium text-start mt-5">
+          {/* <p className="font-medium text-start mt-5">
             {t({
               uz: "Izohlar",
               en: "Comments",
               ru: "Комментарии",
             })}
-          </p>
+          </p> */}
           {/* box */}
-          <div className="mt-3 bg-white rounded-[20px] p-4 shadow-md">
-            {/* box - title */}
-            <div className="flex justify-between items-center">
-              <p className="text-[16px] font-medium text-gray-700 flex items-center gap-1">
-                <StarFullSvg width={20} />
-                {stadium?.score} | {stadium?.ratesCount} ta ovoz
-              </p>
-              {/* <span className="text-[14px] text-blue-700 font-semibold flex items-center gap-1 cursor-pointer">
+          {/* <div className="mt-3 bg-white rounded-[20px] p-4 shadow-md"> */}
+          {/* box - title */}
+          {/* <div className="flex justify-between items-center"> */}
+          {/* <p className="text-[16px] font-medium text-gray-700 flex items-center gap-1"> */}
+          {/* <StarFullSvg width={20} /> */}
+          {/* {stadium?.score} | {stadium?.ratesCount} ta ovoz */}
+          {/* </p> */}
+          {/* <span className="text-[14px] text-blue-700 font-semibold flex items-center gap-1 cursor-pointer">
                   <EditSvg width={20} height={20} color="blue" />
                   {t({
                     uz: "Izoh yozish",
@@ -221,12 +244,12 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
                     ru: "Написать комментарий",
                   })}
                 </span> */}
-            </div>
+          {/* </div> */}
 
-            {/* commentary cards */}
-            <div className="mt-4 overflow-x-auto scroll-hide">
-              <div className="flex gap-3 w-max">
-                {/* {stadiumsRatesData.map((rate, index) => (
+          {/* commentary cards */}
+          {/* <div className="mt-4 overflow-x-auto scroll-hide"> */}
+          {/* <div className="flex gap-3 w-max"> */}
+          {/* {stadiumsRatesData.map((rate, index) => (
                     <div
                       key={rate.id || index}
                       className="w-[260px] bg-gray-100 rounded-[12px] p-3 flex-shrink-0 shadow"
@@ -256,14 +279,20 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
                       </div>
                     </div>
                   ))} */}
-              </div>
-            </div>
-          </div>
+          {/* </div> */}
+          {/* </div> */}
+          {/* </div> */}
           {/* </div> */}
           {/* ------------ */}
           {/* social */}
           <div className="mt-5">
-            <p className="font-medium text-start mt-5">Qoidalar</p>
+            <p className="font-medium text-start mt-5">
+              {t({
+                uz: "ijtimoiy tarmoqlar",
+                en: "Social networks",
+                ru: "Социальные сети",
+              })}
+            </p>
             <div className="bg-white p-4 shadow-md rounded-[16px] grid grid-cols-4 gap-4 mt-3">
               {Object.entries(socialLinks).map(([key, value]) =>
                 value ? (

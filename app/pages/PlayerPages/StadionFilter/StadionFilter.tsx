@@ -13,6 +13,7 @@ import { usePocketBaseCollection, usePocketBaseFile } from "@/pb/usePbMethods";
 import Loading from "@/pages/Loading";
 import dayjs from "dayjs";
 import useNumberFormat from "@/hooks/useNumberFormat ";
+import { useNavigate } from "react-router-dom";
 const ICONS = {
   barcha: () => null,
   gazon: (isSelected: string) => (
@@ -24,6 +25,7 @@ const ICONS = {
 };
 
 const StadionFilter = () => {
+  const navigate = useNavigate();
   const formatMoney = useNumberFormat();
   const t = useTranslation();
   const { getFileUrl } = usePocketBaseFile();
@@ -51,6 +53,7 @@ const StadionFilter = () => {
     stadiumRegionsData({
       expand: "name",
     });
+  console.log(stadiumRegions);
   const [selectRegion, setSelectRegion] = useState<string | null>(null);
   const [selectCity, setSelectCity] = useState<string | null>(null);
   // ------------------ FOR CITYS----------------------------------------------------]
@@ -75,28 +78,39 @@ const StadionFilter = () => {
   const [rangePrice, setRangePrice] = useState<[number, number]>([
     50000, 1000000,
   ]);
+  const [from, to] = rangePrice;
   console.log(rangePrice);
 
   console.log(formattedHours);
 
   //------------------- foor boots type stadion--------------------------------------]
-  const [selectedFieldType, setSelectedFieldType] = useState("barcha");
+  const [selectedFieldType, setSelectedFieldType] = useState<string | null>(
+    null
+  );
 
   const renderFieldOption = (
-    value: keyof typeof ICONS,
+    value: "barcha" | "gazon" | "futzal",
     label: React.ReactNode
   ) => {
-    const isSelected = selectedFieldType === value;
+    const mapToRealValue = {
+      barcha: null,
+      gazon: "grass",
+      futzal: "futsal",
+    } as const;
+
+    const isSelected = selectedFieldType === mapToRealValue[value];
+
     return (
       <div
         key={value}
-        onClick={() => setSelectedFieldType(value)}
+        onClick={() => setSelectedFieldType(mapToRealValue[value])}
         className={`flex items-center gap-2 cursor-pointer select-none px-2 py-1 rounded-xl border transition-all duration-200 
           ${
             isSelected
               ? "bg-green-500 text-white border-green-500"
               : "border-gray-300 text-gray-700"
-          }`}
+          }
+        `}
       >
         <div
           className={`w-5 h-5 flex items-center justify-center rounded-full border 
@@ -104,7 +118,8 @@ const StadionFilter = () => {
               isSelected
                 ? "bg-white text-green-500 border-white"
                 : "border-gray-400"
-            }`}
+            }
+          `}
         >
           {isSelected && <CheckOutlined className="text-xs" />}
         </div>
@@ -114,6 +129,25 @@ const StadionFilter = () => {
         </span>
       </div>
     );
+  };
+
+  const handleSubmit = () => {
+    const filterData = {
+      fieldType: selectedFieldType,
+      region: selectRegion,
+      city: selectCity,
+      fieldSize: selectFieldSize,
+      timeRange: formattedHours,
+      priceRange: rangePrice,
+      activIcons: activeIcons,
+    };
+    console.log(filterData);
+    try {
+      localStorage.setItem("filterData", JSON.stringify(filterData));
+      navigate(-1);
+    } catch (error) {
+      console.error("Error saving filter data:", error);
+    }
   };
   if (
     isLoadingStadiumIcon &&
@@ -135,12 +169,12 @@ const StadionFilter = () => {
         </h5>
       </div>
       {/* form section */}
-      <div className="w-full  p-4 rounded-2xl  mt-3">
-        <div>
+      <div className="w-full  p-4 rounded-2xl   ">
+        <div className=" overflow-x-auto scrollbar-hide">
           <p className="font-semibold text-sm mb-2">
             {t({ uz: "Maydon turi", en: "Field type", ru: "Тип поля" })}
           </p>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {renderFieldOption(
               "barcha",
               t({ uz: "Barcha", en: "All", ru: "Все" })
@@ -151,7 +185,7 @@ const StadionFilter = () => {
             )}
             {renderFieldOption(
               "futzal",
-              t({ uz: "Futzal", en: "Futsal", ru: "Футзал" })
+              t({ uz: "Futsal", en: "Futsal", ru: "Футзал" })
             )}
           </div>
         </div>
@@ -251,11 +285,11 @@ const StadionFilter = () => {
             range
             min={50000}
             max={1000000}
-            step={10000}
+            step={50000}
             value={rangePrice}
+            trackStyle={[{ backgroundColor: "green" }]}
             onChange={(value: any) => {
               setRangePrice(value);
-              console.log("Tanlangan narx:", value); // bu yerda chiqadi
             }}
             tooltip={{
               formatter: (value: any) => formatMoney(value),
@@ -263,8 +297,8 @@ const StadionFilter = () => {
           />
 
           <div className="flex justify-between text-xs">
-            <span>{formatMoney(50000)} UZS</span>
-            <span>{formatMoney(1000000)} UZS</span>
+            <span>{formatMoney(from)} UZS</span>
+            <span>{formatMoney(to)} UZS</span>
           </div>
         </div>
         <div className="mt-5">
@@ -312,6 +346,7 @@ const StadionFilter = () => {
           type="primary"
           className="w-full bg-green-500 hover:bg-green-600 mt-5 "
           style={{ height: "48px", borderRadius: "48px" }}
+          onClick={() => handleSubmit()}
         >
           {t({
             uz: "Filtrni qo'llash",
