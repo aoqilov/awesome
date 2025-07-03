@@ -1,0 +1,115 @@
+const LocationBall = () => {
+  return (
+    <svg
+      width="36"
+      height="49"
+      viewBox="0 0 36 49"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g filter="url(#filter0_d_21646_11351)">
+        <path
+          d="M34 15.8015C34 32.9771 20.9891 45 18.25 45C15.5109 45 2.5 32.9771 2.5 15.8015C2.5 7.16944 9.64606 0 18.25 0C26.8539 0 34 7.16944 34 15.8015Z"
+          fill="#42BA3D"
+        />
+      </g>
+      <g filter="url(#filter1_d_21646_11351)">
+        <ellipse
+          cx="18.25"
+          cy="15.8011"
+          rx="13.5245"
+          ry="13.5687"
+          fill="white"
+        />
+      </g>
+      <g clip-path="url(#clip0_21646_11351)">
+        <path
+          d="M18.25 5.7998C12.7362 5.7998 8.25 10.2856 8.25 15.7998C8.25 21.3141 12.7362 25.7998 18.25 25.7998C23.7638 25.7998 28.25 21.3141 28.25 15.7998C28.25 10.2856 23.7638 5.7998 18.25 5.7998ZM25.6394 10.4278H25.2118C25.0274 10.4278 24.8642 10.5469 24.8074 10.722L23.8909 13.5425L21.494 14.5958L18.6754 12.5482V9.72157L21.054 7.99446C21.2034 7.88603 21.2656 7.694 21.2087 7.51889L21.0731 7.10156C22.9256 7.70426 24.5149 8.88469 25.6394 10.4278ZM15.4273 7.10115L15.2918 7.51848C15.2349 7.69404 15.2971 7.88559 15.4465 7.99405L17.8247 9.72116V12.5478L15.006 14.5954L12.6086 13.5416L11.6918 10.7212C11.6349 10.5452 11.4713 10.4269 11.2873 10.4269H10.8606C11.9851 8.88469 13.5749 7.70426 15.4273 7.10115ZM9.10157 15.7927L9.45979 16.0531C9.53447 16.1069 9.62201 16.1349 9.70999 16.1349C9.79753 16.1349 9.88556 16.1074 9.9602 16.0531L12.3157 14.3416L14.7126 15.3954L15.8002 18.7407L14.3509 20.4665H11.3935C11.2091 20.4665 11.046 20.5856 10.9891 20.7607L10.8571 21.1665C9.75802 19.6576 9.10112 17.806 9.10112 15.7998C9.10112 15.7971 9.10157 15.7949 9.10157 15.7927ZM15.4202 24.4958L15.7744 24.2371C15.9237 24.1296 15.9864 23.9367 15.9295 23.762L15.0269 20.9856L16.4762 19.2607H20.0237L21.4717 20.9856L20.5695 23.7625C20.5126 23.9381 20.5757 24.1296 20.7251 24.2381L21.0793 24.4959C20.1877 24.7861 19.2379 24.9492 18.2504 24.9492C17.262 24.9491 16.3122 24.7869 15.4202 24.4958ZM25.6424 21.1678L25.5104 20.7607C25.4531 20.5851 25.2896 20.4669 25.1056 20.4669L22.1487 20.4674L20.7007 18.742L21.7874 15.3963L24.1851 14.3429L26.5402 16.0532C26.6149 16.1078 26.7025 16.1354 26.7905 16.1354C26.8785 16.1354 26.9665 16.1079 27.0407 16.0532L27.399 15.7932C27.399 15.7954 27.3994 15.7977 27.3994 15.8003C27.3989 17.806 26.7411 19.6576 25.6424 21.1678Z"
+          fill="#42BA3D"
+        />
+      </g>
+      <defs>
+        <filter
+          id="filter0_d_21646_11351"
+          x="0.5"
+          y="0"
+          width="35.5"
+          height="49"
+          filterUnits="userSpaceOnUse"
+          color-interpolation-filters="sRGB"
+        >
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dy="2" />
+          <feGaussianBlur stdDeviation="1" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="BackgroundImageFix"
+            result="effect1_dropShadow_21646_11351"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_21646_11351"
+            result="shape"
+          />
+        </filter>
+        <filter
+          id="filter1_d_21646_11351"
+          x="3.72559"
+          y="2.23242"
+          width="29.0488"
+          height="29.1375"
+          filterUnits="userSpaceOnUse"
+          color-interpolation-filters="sRGB"
+        >
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dy="1" />
+          <feGaussianBlur stdDeviation="0.5" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="BackgroundImageFix"
+            result="effect1_dropShadow_21646_11351"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_21646_11351"
+            result="shape"
+          />
+        </filter>
+        <clipPath id="clip0_21646_11351">
+          <rect
+            width="20"
+            height="20"
+            fill="white"
+            transform="translate(8.25 5.7998)"
+          />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+};
+
+export default LocationBall;

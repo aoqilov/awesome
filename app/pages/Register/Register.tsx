@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // import { useTranslation } from '@/hooks/translation';
 
-import { createContext, Dispatch, useContext, useState } from "react";
+import {
+  createContext,
+  Dispatch,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
+import { useSearchParams } from "react-router-dom";
+import { useUser } from "@/contexts/UserContext";
 
 import { PageTransition } from "@/shared/Motion";
 
@@ -11,6 +19,7 @@ import PhoneNumber from "./Steps/PhoneNumber";
 import OTP from "./Steps/OTP";
 import Profile from "./Steps/Profile";
 import { UsersLanguageOptions } from "@/types/pocketbaseTypes";
+import Loading from "../Loading";
 // Define the extended payload type with player-specific fields
 export interface PlayerPayload {
   lang: UsersLanguageOptions | undefined;
@@ -19,6 +28,7 @@ export interface PlayerPayload {
   userType: string | undefined;
   agree: boolean | undefined;
   avatar: any;
+  avatarPreview?: string; // For displaying preview of selected image
   // Player-specific fields
   familyName?: string | undefined;
   birthDate?: any;
@@ -57,8 +67,25 @@ export interface ValidationState {
 const RegisterContext = createContext({});
 
 const RegisterPage = () => {
-  const [step, setStep] = useState(0);
+  const [searchParams] = useSearchParams();
+  const stepParam = searchParams.get("step");
+  const [step, setStep] = useState(stepParam ? parseInt(stepParam, 10) : 0);
   const [isEdit, setisEdit] = useState({ bool: false, id: "" });
+
+  // Update step when URL parameter changes
+  useEffect(() => {
+    const stepParam = searchParams.get("step");
+    if (stepParam) {
+      const stepNumber = parseInt(stepParam, 10);
+      if (stepNumber >= 0 && stepNumber <= 3) {
+        setStep(stepNumber);
+      }
+    } else {
+      // If no step parameter, default to step 0
+      setStep(0);
+    }
+  }, [searchParams]);
+
   const {
     state: payload,
     setState: setPayload,
@@ -82,6 +109,24 @@ const RegisterPage = () => {
     autoValidateOnChange: true,
   });
 
+  // Load user data from UserContext (already handled by MainMiddleware)
+  const { user, isLoading } = useUser();
+
+  // Don't render Register component until MainMiddleware completes initial auth check
+  // This prevents showing wrong step before redirection
+  useEffect(() => {
+    const stepParam = searchParams.get("step");
+    if (stepParam === "2") {
+      if (user && user.email) {
+        setPayload((prev) => ({
+          ...prev,
+          fullName: user.fullname,
+          userType: user.role,
+        }));
+      }
+    }
+  }, [searchParams, user, setPayload]);
+
   // const t = useTranslation();
   const currentStep = () => {
     switch (step) {
@@ -95,6 +140,11 @@ const RegisterPage = () => {
         return <Profile />;
     }
   };
+
+  // Show loading when user data is being fetched
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <RegisterContext.Provider

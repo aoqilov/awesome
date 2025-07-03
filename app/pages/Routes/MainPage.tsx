@@ -1,4 +1,4 @@
-import HomePage from '../ManagerPages/HomePage';
+import HomePage from "../ManagerPages/HomePage";
 
 const MainPage = () => {
   return <HomePage />;

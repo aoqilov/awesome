@@ -72,7 +72,7 @@ export default function YandexMap({
 
       const script = document.createElement("script");
       script.src =
-        "https://api-maps.yandex.ru/2.1/?apikey=YOUR_API_KEY&lang=ru_RU";
+        "https://api-maps.yandex.ru/2.1/?apikey=5f9adfc9-44b5-4c03-bb42-18102ecc41ab&lang=uz_RU";
       script.onload = () => {
         window.ymaps.ready(initializeMap);
       };

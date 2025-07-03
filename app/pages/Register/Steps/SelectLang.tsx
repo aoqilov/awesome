@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { Button } from "antd";
 import { ChevronRight } from "lucide-react";
 import { UsersLanguageOptions } from "@/types/pocketbaseTypes";
+import { useLocation } from "react-router-dom";
 
 interface Language {
   code: string;
@@ -17,6 +18,8 @@ interface Language {
 }
 
 const SelectLang = () => {
+  const location = useLocation();
+  console.log("Current Location:", location.pathname);
   const { setStep, payload, setPayload } = useRegister() as RegisterContextType;
   const { setLang } = useLang();
   const t = useTranslation();
@@ -45,8 +48,8 @@ const SelectLang = () => {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-white flex flex-col">
-      <div className="flex-1 flex flex-col items-center justify-start px-4 py-12">
+    <div className="h-[95vh] w-full bg-white flex flex-col relative">
+      <div className="flex-1 flex flex-col items-center justify-start px-4 py-8 ">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-medium text-gray-800">
             {t({
@@ -106,12 +109,12 @@ const SelectLang = () => {
         </div>
       </div>
 
-      <motion.div variants={itemVariants} className="p-4 mb-4">
+      <motion.div variants={itemVariants} className="p-4 ">
         <Button
           type="primary"
           onClick={handleNext}
           disabled={!payload.lang}
-          className={`w-full h-14 rounded-full text-lg font-medium flex items-center justify-center ${
+          className={`w-full h-14  rounded-full text-lg font-medium flex items-center justify-center absolute bottom-0 left-0 right-0 bg-white ${
             payload.lang
               ? "bg-green-500 hover:bg-green-600"
               : "bg-gray-200 text-gray-400"
