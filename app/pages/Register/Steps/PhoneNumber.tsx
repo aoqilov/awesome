@@ -73,8 +73,7 @@ const PhoneNumber = () => {
   const { chat_id } = useQueryParam();
 
   useEffect(() => {
-    localStorage.setItem("role", JSON.stringify("player"));
-
+    // Remove localStorage dependency, just set in context
     setPayload((p) => ({ ...p, userType: "player" }));
   }, [setPayload]);
 
@@ -94,13 +93,14 @@ const PhoneNumber = () => {
         .authWithPassword(data.email, chat_id);
       const req = await pb.collection("users").requestOTP(data.email);
       setPayload((p) => ({ ...p, otp: req.otpId }));
-      localStorage.setItem("otpId", req.otpId);
+      // Store OTP ID in sessionStorage to persist across page refreshes during registration
+      sessionStorage.setItem("registration_otp_id", req.otpId);
       setisEdit({ bool: true, id: user.record.id });
 
       message.success(
         t({
           uz: "Tasdiqlash kodi yuborildi",
-          ru: "Код подтверждения отправлен",
+          ru: "Код подтверждения отправлен", 
           en: "Verification code sent",
         })
       );
@@ -143,10 +143,7 @@ const PhoneNumber = () => {
             oldPassword: chat_id,
             ...data,
           };
-          updateMutate(
-            { id: user.record.id, data: updatePayload },
-            { onSuccess, onError }
-          );
+          updateMutate({ id: user.record.id, data: updatePayload }, { onSuccess, onError });
         })
         .catch(() => {
           // User doesn't exist, create new one
@@ -190,14 +187,11 @@ const PhoneNumber = () => {
             ]}
             size="large"
             onChange={(value) => {
-              // ✅ Redux/contextga set qilish
+              // Set in context only, no localStorage needed
               setPayload((p) => ({
                 ...p,
                 userType: value as unknown as string,
               }));
-
-              // ✅ LocalStoragega yozish
-              localStorage.setItem("role", JSON.stringify(value));
             }}
             className="mx-auto"
           />

@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { Button, Input, DatePicker, Select } from "antd";
 import { Camera, ChevronRight, User } from "lucide-react";
 import { useTranslation } from "@/hooks/translation";
+import { useUser } from "@/contexts/UserContext";
+import { useQueryParam } from "@/hooks/useQueryParam";
 import {
   type RegisterContextType,
   useRegister,
@@ -25,6 +27,8 @@ import dayjs from "dayjs";
 const Profile = () => {
   const { payload, handleChange, stateValidation, setPayload, isEdit } =
     useRegister() as RegisterContextType;
+  const { user, fetchUser } = useUser();
+  const { chat_id } = useQueryParam();
   const t = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { navigate } = useNavigateWithChatId();
@@ -58,14 +62,8 @@ const Profile = () => {
     if (file) {
       // Basic validation
       const maxSize = 5 * 1024 * 1024; // 5MB
-      const allowedTypes = [
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-      ];
-
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      
       if (!allowedTypes.includes(file.type)) {
         message.error(
           t({
@@ -76,7 +74,7 @@ const Profile = () => {
         );
         return;
       }
-
+      
       if (file.size > maxSize) {
         message.error(
           t({
@@ -87,7 +85,7 @@ const Profile = () => {
         );
         return;
       }
-
+      
       // Store the actual File object for backend upload
       setPayload((prevPayload) => ({
         ...prevPayload,
@@ -97,13 +95,12 @@ const Profile = () => {
     }
   };
 
-  const { mutate } = update();
+  const { mutate, isPending } = update();
   const { message } = useApp();
 
   const handleContinue = () => {
-    const userId =
-      isEdit.id || JSON.parse(localStorage.getItem("user") || "{}").id;
-
+    const userId = isEdit.id || user?.id;
+    
     // Prepare the data object
     const updateData: any = {
       fullname: [payload?.fullName, payload?.familyName]
@@ -116,6 +113,7 @@ const Profile = () => {
       birthDate: payload?.birthDate
         ? dayjs(payload.birthDate, "DD.MM.YYYY").format("YYYY-MM-DD HH:mm:ss")
         : undefined,
+      verified: true, // Mark user as verified after profile completion
     };
 
     // If there's a new avatar file, include it
@@ -125,25 +123,53 @@ const Profile = () => {
 
     mutate(
       {
-        id: userId,
+        id: userId || "",
         data: updateData,
       },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           // Clean up the preview URL to prevent memory leaks
           if (payload?.avatarPreview) {
             URL.revokeObjectURL(payload.avatarPreview);
           }
+          
+          // Clean up registration-related session storage
+          sessionStorage.removeItem("registration_otp_id");
+          sessionStorage.removeItem("registration_state");
+          
+          // Refresh user data in context to get the updated information
+          try {
+            await fetchUser(chat_id);
+            
+            // Handle successful update
+            message.success(
+              t({
+                uz: "Profil muvaffaqiyatli yangilandi",
+                ru: "Профиль успешно обновлен", 
+                en: "Profile updated successfully",
+              })
+            );
 
-          // Handle successful update
-          message.success(
-            t({
-              uz: "Profil muvaffaqiyatli yangilandi",
-              ru: "Профиль успешно обновлен",
-              en: "Profile updated successfully",
-            })
-          );
-          navigate("/dashboard/home");
+            // Navigate based on user role
+            const userRole = payload?.userType || user?.role;
+            if (userRole === "player") {
+              navigate("/client/home");
+            } else if (userRole === "manager") {
+              navigate("/dashboard/home");  
+            } else {
+              // Fallback to dashboard if role is unclear
+              navigate("/dashboard/home");
+            }
+          } catch (fetchError) {
+            console.error("Error refreshing user data:", fetchError);
+            // Still navigate even if refresh fails
+            const userRole = payload?.userType || user?.role;
+            if (userRole === "player") {
+              navigate("/client/home");
+            } else {
+              navigate("/dashboard/home");
+            }
+          }
         },
         onError: (error) => {
           // Handle error
@@ -171,8 +197,7 @@ const Profile = () => {
   };
 
   // Check if user is a player
-  const payloadUserType =
-    payload?.userType || JSON.parse(localStorage.getItem("user") || "{}")?.role;
+  const payloadUserType = payload?.userType || user?.role;
   const isPlayer = payloadUserType === "player";
 
   // Handle extended field changes
@@ -230,11 +255,7 @@ const Profile = () => {
           >
             {payload?.avatarPreview || payload?.avatar ? (
               <img
-                src={
-                  payload?.avatarPreview ||
-                  payload?.avatar ||
-                  "/placeholder.svg"
-                }
+                src={payload?.avatarPreview || payload?.avatar || "/placeholder.svg"}
                 alt="Profile"
                 className="w-full h-full rounded-full object-cover"
               />
@@ -522,6 +543,7 @@ const Profile = () => {
           type="primary"
           onClick={handleContinue}
           disabled={!isFormValid}
+          loading={isPending}
           className={`w-full h-14 rounded-full text-lg font-medium flex items-center justify-center ${
             isFormValid
               ? "bg-green-500 hover:bg-green-600"

@@ -1,25 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Avatar } from "antd";
 import EditSvg from "@/assets/svg/EditSvg";
 import { useNavigate } from "react-router-dom";
 import BackBtn from "@/components/ui/back-btn";
 import { useTranslation } from "@/hooks/translation";
-import { usePocketBaseCollection, usePocketBaseFile } from "@/pb/usePbMethods";
-import { UsersResponse } from "@/types/pocketbaseTypes";
+import { useUser } from "@/contexts/UserContext";
+import { usePocketBaseFile } from "@/pb/usePbMethods";
 import Loading from "@/pages/Loading";
 import dayjs from "dayjs";
 import { useQueryParam } from "@/hooks/useQueryParam";
 import { UserOutlined } from "@ant-design/icons";
 
 export default function ProfileUser() {
-  const userId = JSON.parse(localStorage.getItem("user") || "{}").id;
-
-  const { one } = usePocketBaseCollection<UsersResponse>("users");
-
-  const { data: playerData, isLoading } = one(
-    userId,
-    "avatar,liveCity.name,bornCity.name"
-  );
+  const { user: playerData, isLoading } = useUser();
 
   const t = useTranslation();
   const navigate = useNavigate();

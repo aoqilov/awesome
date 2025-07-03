@@ -9,6 +9,7 @@ import {
   useEffect,
 } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useUser } from "@/contexts/UserContext";
 
 import { PageTransition } from "@/shared/Motion";
 
@@ -18,6 +19,7 @@ import PhoneNumber from "./Steps/PhoneNumber";
 import OTP from "./Steps/OTP";
 import Profile from "./Steps/Profile";
 import { UsersLanguageOptions } from "@/types/pocketbaseTypes";
+import Loading from "../Loading";
 // Define the extended payload type with player-specific fields
 export interface PlayerPayload {
   lang: UsersLanguageOptions | undefined;
@@ -78,6 +80,9 @@ const RegisterPage = () => {
       if (stepNumber >= 0 && stepNumber <= 3) {
         setStep(stepNumber);
       }
+    } else {
+      // If no step parameter, default to step 0
+      setStep(0);
     }
   }, [searchParams]);
 
@@ -104,30 +109,23 @@ const RegisterPage = () => {
     autoValidateOnChange: true,
   });
 
-  // Load user data from localStorage when navigating directly to step 2 (OTP)
+  // Load user data from UserContext (already handled by MainMiddleware)
+  const { user, isLoading } = useUser();
+
+  // Don't render Register component until MainMiddleware completes initial auth check
+  // This prevents showing wrong step before redirection
   useEffect(() => {
     const stepParam = searchParams.get("step");
     if (stepParam === "2") {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        try {
-          const userData = JSON.parse(storedUser);
-          if (userData && userData.email && userData.name) {
-            // Extract phone from email (format: chat_id@gmail.com where chat_id is phone)
-            const phone = userData.email.replace("@gmail.com", "");
-            setPayload((prev) => ({
-              ...prev,
-              phone: phone.startsWith("+") ? phone : `+${phone}`,
-              fullName: userData.name,
-              userType: userData.role,
-            }));
-          }
-        } catch (error) {
-          console.error("Error parsing stored user data:", error);
-        }
+      if (user && user.email) {
+        setPayload((prev) => ({
+          ...prev,
+          fullName: user.fullname,
+          userType: user.role,
+        }));
       }
     }
-  }, [searchParams, setPayload]);
+  }, [searchParams, user, setPayload]);
 
   // const t = useTranslation();
   const currentStep = () => {
@@ -142,6 +140,11 @@ const RegisterPage = () => {
         return <Profile />;
     }
   };
+
+  // Show loading when user data is being fetched
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <RegisterContext.Provider

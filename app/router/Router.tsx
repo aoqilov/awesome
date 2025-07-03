@@ -30,15 +30,21 @@ import ProfileEdit from "@/pages/PlayerPages/ProfileUser/ProfileEdit";
 import RegisterPage from "@/pages/Register/Register";
 import NotFound from "@/pages/Not-found";
 import Message from "@/pages/PlayerPages/Message/Message";
+import { RegisterProvider } from "@/contexts/RegisterContext";
+import { UserProvider } from "@/contexts/UserContext";
 import StadionMapSearch from "@/pages/PlayerPages/MapSearch/StadionMapSearch";
 
 export const router = [
   {
     path: "/",
     element: (
-      <QueryParamProvider>
-        <MainMiddleware />
-      </QueryParamProvider>
+      <UserProvider>
+        <RegisterProvider>
+          <QueryParamProvider>
+            <MainMiddleware />
+          </QueryParamProvider>
+        </RegisterProvider>
+      </UserProvider>
     ),
     children: [
       // MANAGER ROUTES
@@ -80,7 +86,10 @@ export const router = [
           { path: "profile", element: <ProfileUser /> },
           { path: "edit", element: <ProfileEdit /> },
           { path: "messages", element: <Message /> },
-        ],
+        ].map((route) => ({
+          ...route,
+          element: <PageTransition>{route.element}</PageTransition>,
+        })),
       },
 
       // REGISTER

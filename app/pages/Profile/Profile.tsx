@@ -8,15 +8,14 @@ import {
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useTranslation } from "@/hooks/translation";
+import { useUser } from "@/contexts/UserContext";
 
 import { motion, AnimatePresence } from "framer-motion"; // Import Framer Motion
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Copy } from "lucide-react";
 import useApp from "antd/es/app/useApp";
 import { getImage } from "@/lib/utils";
 import { usePocketBaseCollection } from "@/pb/usePbMethods";
 import {
-  UsersRecord,
   CitiesRecord,
   TranslationsRecord,
 } from "@/types/pocketbaseTypes";
@@ -39,7 +38,7 @@ const ProfilePage = () => {
   const t = useTranslation();
   const rawLang = useLang().lang as string;
   const lang = (rawLang === "en" ? "eng" : rawLang) as keyof TranslationsRecord;
-  const [pocketbase_auth] = useLocalStorage("pocketbase_auth", null);
+  const { user: currentUser } = useUser();
 
   const [userProfile, setUserProfile] = useState<UserProfile>({
     name: "Abrorjon",
@@ -53,7 +52,7 @@ const ProfilePage = () => {
     cancelledTasks: 1,
   });
 
-  const userId = pocketbase_auth?.record?.id;
+  const userId = currentUser?.id;
   const [cityId, setCityId] = useState<string | null>(null);
   const [bornCityId, setBornCityId] = useState<string | null>(null);
 
@@ -92,33 +91,38 @@ const ProfilePage = () => {
     hover: { scale: 1.05, transition: { duration: 0.2 } },
     tap: { scale: 0.95 },
   };
-  const { one, update } = usePocketBaseCollection<UsersRecord>("users");
+  const { one, update } = usePocketBaseCollection("users");
   // const { one: oneRegion } = usePocketBaseCollection<RegionsRecord>("regions");
   const { one: oneCity } = usePocketBaseCollection<CitiesRecord>("cities");
 
-  const { data: userData, refetch } = one(userId || "");
+  // Use the fetched user data from the separate query for expanded data
+  const { data: userDBData, refetch } = one(userId || "");
   const { data: userCity } = oneCity(cityId || "", "name");
   const { data: userBornCity } = oneCity(bornCityId || "", "name");
 
+  // Combine user data from context and database
+  const userData = currentUser || userDBData;
+
   const { message } = useApp();
   const { mutate } = update();
+  
   useEffect(() => {
-    if (userData) {
+    if (userData && userData !== null && typeof userData === 'object') {
       setUserProfile((p) => ({
         ...p,
-        name: userData.fullname || "",
-        birthDate: dayjs(userData.birthDate).format("DD.MM.YYYY"),
-        phone: userData.phoneNumber || "",
-        address: userData.liveCity || "",
-        city: userData.liveCity || "",
-        avatar: userData.avatar || "",
+        name: (userData as any)?.fullname || "",
+        birthDate: dayjs((userData as any)?.birthDate).format("DD.MM.YYYY"),
+        phone: (userData as any)?.phoneNumber || "",
+        address: (userData as any)?.liveCity || "",
+        city: (userData as any)?.liveCity || "",
+        avatar: (userData as any)?.avatar || "",
       }));
 
-      if (userData.liveCity) {
-        setCityId(userData.liveCity);
+      if ((userData as any)?.liveCity) {
+        setCityId((userData as any).liveCity);
       }
-      if (userData.bornCity) {
-        setBornCityId(userData.bornCity);
+      if ((userData as any)?.bornCity) {
+        setBornCityId((userData as any).bornCity);
       }
     }
   }, [userData]);
@@ -149,7 +153,7 @@ const ProfilePage = () => {
         birthDate: dayjs(values.birthDate).format("YYYY-MM-DD"),
       };
       await mutate({
-        id: pocketbase_auth?.record?.id || "",
+        id: currentUser?.id || "",
         data: updatedData,
       });
       message.success(
@@ -326,7 +330,7 @@ const ProfilePage = () => {
             {/* Header */}
             <motion.div className="relative mb-6" variants={containerVariants}>
               <h1 className="text-center text-xl">
-                {userData?.fullname ||
+                {(userData as any)?.fullname ||
                   t({
                     uz: "Nomalum Foydalanuvchi",
                     ru: "Неизвестный пользователь",
@@ -347,8 +351,8 @@ const ProfilePage = () => {
                 size={100}
                 src={getImage(
                   "users",
-                  userData?.id || "",
-                  userData?.avatar || ""
+                  (userData as any)?.id || "",
+                  (userData as any)?.avatar || ""
                 )}
                 icon={<UserOutlined />}
                 className="mb-6"
@@ -357,7 +361,7 @@ const ProfilePage = () => {
                 className="text-gray-500 font-light text-[12px] cursor-pointer flex items-center justify-center gap-1"
                 title="ID ni nusxalash"
                 onClick={() => {
-                  navigator.clipboard.writeText(pocketbase_auth?.record?.id);
+                  navigator.clipboard.writeText(currentUser?.id || "");
                   message.success(
                     t({
                       uz: "ID nusxalandi",
@@ -369,7 +373,7 @@ const ProfilePage = () => {
               >
                 {" "}
                 <Copy size={12} />
-                {pocketbase_auth?.record?.id}
+                {currentUser?.id}
               </div>
               {/* <div className="flex items-center justify-center gap-2 mb-2 mt-4">
                 <Rate

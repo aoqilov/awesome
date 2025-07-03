@@ -7,19 +7,20 @@ import { ArrowRight } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import BackBtn from "@/components/ui/back-btn";
 import { useTranslation } from "@/hooks/translation";
-// import { useQueryParam } from "@/hooks/useQueryParam";
+import { useUser } from "@/contexts/UserContext";
+import { useQueryParam } from "@/hooks/useQueryParam";
 import { usePocketBaseCollection } from "@/pb/usePbMethods";
 import { FieldsRecord, OrderItemResponse } from "@/types/pocketbaseTypes";
 import Loading from "@/pages/Loading";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { useQueryParam } from "@/hooks/useQueryParam";
 
 const ArenaOrder = () => {
   const { chat_id } = useQueryParam(); // Assuming chat_id is passed as a URL parameter
   const { id } = useParams();
   const navigate = useNavigate();
   const t = useTranslation();
+  const { user } = useUser();
   //
   const [activeField, setActiveField] = useState<null | any>(null);
   const [currentFieldId, setCurrentFieldId] = useState<string>(id || "");
@@ -74,7 +75,7 @@ const ArenaOrder = () => {
       setCurrentFieldId(initialField.id);
     }
   }, [maydonlar, activeField, id]);
-  const userId = JSON.parse(localStorage.getItem("user") || "{}")?.id;
+  const userId = user?.id;
   // Agar userId bo'lmasa, uni olish
   const payloadOrder = {
     field: currentFieldId,
