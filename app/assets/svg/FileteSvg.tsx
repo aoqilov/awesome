@@ -24,8 +24,8 @@ const FileterSvg: React.FC<IconProps> = ({
         <path
           d="M17.0999 13.2363L10.7999 13.2363M7.1999 13.2363L0.899902 13.2363M17.0999 7.99995L8.9999 7.99995M5.3999 7.99995L0.899902 7.99995M17.0999 2.76359L12.5999 2.76359M8.9999 2.76359L0.899903 2.76359M10.7999 15.2L10.7999 11.2727M5.3999 9.96359L5.3999 6.03632M12.5999 4.72722L12.5999 0.799951"
           stroke={color}
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </g>
       <defs>

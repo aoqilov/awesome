@@ -160,3 +160,14 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Safari and Chrome */
 }
+/* ------------------------ autofill uchun */
+/* Autofill bo‘lganda browser o‘zgartirib yuboradigan uslublarni bloklaymiz */
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important; /* fonni tozalaydi */
+  box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: black !important; /* matn rangi */
+  caret-color: transparent !important; /* kursorni yashirish */
+  border-radius: 9999px !important; /* doira ko‘rinishi */
+  border: 2px solid #10b981 !important; /* green-500 */
+  transition: background-color 9999s ease-in-out 0s !important;
+}

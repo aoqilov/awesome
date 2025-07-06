@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import BackBtn from "@/components/ui/back-btn";
 import { useTranslation } from "@/hooks/translation";
 import { useUser } from "@/contexts/UserContext";
@@ -6,7 +7,7 @@ import { motion } from "framer-motion";
 
 import BootsBig from "@/assets/boots/bootsBig";
 import { Calendar, Check } from "lucide-react";
-import { Button } from "antd";
+import { Button, message } from "antd";
 import { usePocketBaseCollection } from "@/pb/usePbMethods";
 import Loading from "@/pages/Loading";
 import { FieldsRecord } from "@/types/pocketbaseTypes";
@@ -16,6 +17,7 @@ import useNumberFormat from "@/hooks/useNumberFormat ";
 import { pb } from "@/pb/pb";
 import { useNavigate } from "react-router-dom";
 import { useQueryParam } from "@/hooks/useQueryParam";
+import { useState } from "react";
 
 const ArenaConfirmed = () => {
   const navigate = useNavigate();
@@ -33,8 +35,7 @@ const ArenaConfirmed = () => {
     filter: `id = "${notVerifyOrder.field}"`, // Assuming fieldId is passed in orderData
   });
 
-  console.log("Arena Data:", arena);
-
+  const [btnLoad, setBtnLoad] = useState(false);
   // const stadiumName = arena?.[0]?.expand?.stadium?.name || "Stadium";
   const FieldName = arena?.[0]?.name || "Field 1";
   const arenaSize = arena?.[0]?.expand?.size?.name || "5x5";
@@ -68,7 +69,7 @@ const ArenaConfirmed = () => {
   // }
   async function batchCreate(dataOrder: any) {
     try {
-      console.log("Creating batch for order:", dataOrder);
+      setBtnLoad(true);
 
       const batch = pb.createBatch();
 
@@ -82,8 +83,17 @@ const ArenaConfirmed = () => {
         batch.collection("order_items").create(i);
       });
 
-      await batch.send(); // Asinxron operatsiya – try/catch muhim
-      navigate(`/client/home?chat_id=${chat_id}`);
+      await batch.send();
+      setBtnLoad(false);
+      message.success(
+        t({
+          uz: "Buyurtma muvaffaqiyatli yaratildi!",
+          en: "Order created successfully!",
+          ru: "Заказ успешно создан!",
+        })
+      );
+      // Asinxron operatsiya – try/catch muhim
+      navigate(`/client/orders?chat_id=${chat_id}`);
       console.log("Batch creation successful!");
     } catch (error) {
       console.error("❌ Batch creation failed:", error);
@@ -98,6 +108,13 @@ const ArenaConfirmed = () => {
         await batchCreate(data);
       },
       onError: (error) => {
+        message.error(
+          t({
+            uz: "Buyurtma yaratishda xatolik yuz berdi!",
+            en: "Error creating order!",
+            ru: "Ошибка при создании заказа!",
+          })
+        );
         console.error("Error creating order:", error);
       },
     });
@@ -212,6 +229,7 @@ const ArenaConfirmed = () => {
       <Button
         type="primary"
         size="small"
+        loading={btnLoad}
         onClick={() => submitData()}
         style={{
           marginTop: "16px",

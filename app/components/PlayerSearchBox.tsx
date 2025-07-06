@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/components/PlayerSearchBox.tsx
 
 import React from "react";
@@ -16,8 +17,9 @@ interface Props {
   onChange: (val: string) => void;
   showOnlySaved: boolean;
   onToggleSaved: () => void;
-  isFilterActive?: boolean;
+  isFilterActive?: any;
   isMapActive?: boolean;
+  showFilterButton?: boolean; // ✅ yangi prop qo‘shildi
 }
 
 const SearchHeader: React.FC<Props> = ({
@@ -25,9 +27,11 @@ const SearchHeader: React.FC<Props> = ({
   onChange,
   showOnlySaved,
   onToggleSaved,
-  isFilterActive = false,
+  isFilterActive,
   isMapActive = false,
+  showFilterButton = true, // ✅ default holatda filter tugmasi bor
 }) => {
+  console.log(isFilterActive);
   const { chat_id } = useQueryParam();
   const navigate = useNavigate();
   const t = useTranslation();
@@ -67,18 +71,27 @@ const SearchHeader: React.FC<Props> = ({
         )}
 
         <div className="flex gap-2 ml-2">
-          <span
-            onClick={onFilterClick}
-            className={`w-[32px] h-[32px] rounded-[8px] flex items-center justify-center cursor-pointer ${
-              isFilterActive ? "bg-[#ECFCE5]" : "bg-gray-100"
-            }`}
-          >
-            <FileterSvg
-              width={20}
-              height={20}
-              color={isFilterActive ? "green" : "gray"}
-            />
-          </span>
+          {showFilterButton && (
+            <span
+              onClick={onFilterClick}
+              className={`w-[32px] h-[32px] rounded-[8px] flex items-center justify-center cursor-pointer ${
+                isFilterActive && Object.keys(isFilterActive).length > 0
+                  ? "bg-[#ECFCE5]"
+                  : "bg-gray-100"
+              }`}
+            >
+              <FileterSvg
+                width={20}
+                height={20}
+                color={
+                  isFilterActive && Object.keys(isFilterActive).length > 0
+                    ? "green"
+                    : "gray"
+                }
+              />
+            </span>
+          )}
+
           <span
             onClick={onMapClick}
             className={`w-[32px] h-[32px] rounded-[8px] flex items-center justify-center cursor-pointer ${

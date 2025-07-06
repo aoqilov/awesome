@@ -69,8 +69,13 @@ const MoreArena = () => {
         <ArenaStadionDetail stadiumLocal={stadiumLocal} />
       ) : (
         <div className="arena----cards my-3">
-          {arena &&
-            arena.map((item) => <ArenaCard key={item.id} item={item} />)}
+          {arena && arena.length > 0 ? (
+            arena.map((item) => <ArenaCard key={item.id} item={item} />)
+          ) : (
+            <p className="text-center text-gray-500 py-6">
+              Maydonlar mavjud emas
+            </p>
+          )}
         </div>
       )}
     </div>

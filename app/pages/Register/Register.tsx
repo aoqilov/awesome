@@ -8,8 +8,9 @@ import {
   useState,
   useEffect,
 } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useUser } from "@/contexts/UserContext";
+import { useQueryParam } from "@/hooks/useQueryParam";
 
 import { PageTransition } from "@/shared/Motion";
 
@@ -67,6 +68,45 @@ export interface ValidationState {
 const RegisterContext = createContext({});
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
+  const { chat_id } = useQueryParam();
+  const { user: currentUser, fetchUser } = useUser();
+
+  // ✅ Check if user is already authenticated and verified
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      if (!chat_id) return;
+
+      try {
+        // Try to fetch user if not already loaded
+        let userToCheck = currentUser;
+        if (!userToCheck) {
+          userToCheck = await fetchUser(chat_id);
+        }
+
+        // If user exists and is verified, redirect to appropriate dashboard
+        if (userToCheck && userToCheck.verified) {
+          const role = userToCheck.role;
+
+          if (role === "player") {
+            navigate(`/client/home?chat_id=${chat_id}`, { replace: true });
+            return;
+          }
+
+          if (role === "manager") {
+            navigate(`/dashboard/home?chat_id=${chat_id}`, { replace: true });
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Authentication check error:", error);
+        // Continue with registration flow
+      }
+    };
+
+    checkAuthentication();
+  }, [chat_id, currentUser, fetchUser, navigate]);
+
   const [searchParams] = useSearchParams();
   const stepParam = searchParams.get("step");
   const [step, setStep] = useState(stepParam ? parseInt(stepParam, 10) : 0);

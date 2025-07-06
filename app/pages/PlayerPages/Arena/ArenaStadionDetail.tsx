@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import HeartFullSvg from "@/assets/svg/HeartFullSvg";
+import { useTranslation } from "@/hooks/translation";
+import { useUser } from "@/contexts/UserContext";
+import { useQueryClient } from "@tanstack/react-query";
+import { message } from "antd";
 
 import ForMappingSocialSvg from "@/assets/svg/social/ForMappingSocialSvg";
 import StarFullSvg from "@/assets/svg/StarFullSvg";
@@ -14,12 +17,109 @@ import {
 } from "@/types/pocketbaseTypes";
 import { Carousel, Image } from "antd";
 import { Calendar, Heart } from "lucide-react";
-import { useState } from "react";
-
-// Dummy translation function for demonstration; replace with your actual translation hook or import
-const t = (obj: { uz: string; en: string; ru: string }) => obj.uz;
+import { useEffect, useState } from "react";
+import razdevalkaJpg from "../../../assets/razdevalkaRule.jpg"; // Adjust the path as necessary
+import LocationSvg from "@/assets/svg/LocationSvg";
 
 const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
+  const t = useTranslation();
+  const { user: playerData } = useUser();
+  const queryClient = useQueryClient();
+
+  // ✅ Favorite functionality
+  const [saved, setSaved] = useState(stadiumLocal?.isSaved || false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const { create, remove } = usePocketBaseCollection("user_favorite_stadiums");
+  const { patch } = usePocketBaseCollection("stadiums");
+  const { mutateAsync: mutatePatch } = patch();
+  const { mutateAsync: createFavorite } = create();
+  const { mutateAsync: removeFavorite } = remove();
+
+  // ✅ Stadium.isSaved o'zgarganda local state'ni update qilish
+  useEffect(() => {
+    setSaved(stadiumLocal?.isSaved || false);
+  }, [stadiumLocal?.isSaved]);
+
+  const toggleSaved = async (stadium: any) => {
+    if (isProcessing) return; // ✅ Prevent double clicks
+
+    setIsProcessing(true);
+    const previousSaved = saved;
+    const newSaved = !saved;
+
+    // ✅ Optimistic update
+    setSaved(newSaved);
+
+    try {
+      if (newSaved) {
+        // ✅ Adding to favorites
+        const favoriteRecord = await createFavorite({
+          user: playerData?.id,
+          stadium: stadium?.id,
+        });
+
+        // ✅ Update stadium with savedId and isSaved
+        await mutatePatch({
+          id: stadium.id,
+          data: {
+            isSaved: true,
+            savedId: (favoriteRecord as { id: string }).id,
+          },
+        });
+        message.success(
+          t({
+            uz: "Sevimlilar ro'yxatiga qo'shildi!",
+            en: "Added to favorites!",
+            ru: "Добавлено в избранное!",
+          })
+        );
+      } else {
+        // ✅ Removing from favorites
+        if (stadium.savedId) {
+          await removeFavorite(stadium.savedId);
+        }
+
+        // ✅ Update stadium
+        await mutatePatch({
+          id: stadium.id,
+          data: {
+            isSaved: false,
+            savedId: null,
+          },
+        });
+        message.success(
+          t({
+            uz: "Sevimlilar ro'yxatidan olib tashlandi!",
+            en: "Removed from favorites!",
+            ru: "Удалено из избранного!",
+          })
+        );
+      }
+
+      // ✅ Invalidate and refetch stadium queries
+      queryClient.invalidateQueries({
+        queryKey: ["stadiums"],
+      });
+    } catch (error) {
+      // ✅ Revert optimistic update on error
+      console.error("❌ Favorite toggle error:", error);
+      setSaved(previousSaved);
+      message.error(
+        t({
+          uz: "Xatolik yuz berdi!",
+          en: "An error occurred!",
+          ru: "Произошла ошибка!",
+        })
+      );
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  useEffect(() => {
+    window.scrollTo(0, 0); // Sahifani yuqoriga qaytaradi
+  }, []);
   // FIELDS
   const { list: fields } = usePocketBaseCollection<FieldsRecord>("fields");
   const { data: fieldsData, isLoading: fieldsLoading } = fields({
@@ -101,10 +201,20 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
       </Carousel>
       {stadiums?.map((stadium) => (
         <div key={stadium.id}>
-          {/* hera */}
-          <div className="absolute  top-7 right-2 p-[6px] bg-[#72777A] rounded-[6px]">
-            {stadium.isSaved ? (
-              <HeartFullSvg />
+          {" "}
+          {/* heart button */}
+          <span
+            onClick={() => toggleSaved(stadium)}
+            className={`absolute w-7 h-7 z-10 top-7 right-2 rounded-[6px] flex items-center justify-center cursor-pointer transition-all duration-200 ${
+              isProcessing ? "opacity-50 pointer-events-none" : ""
+            }`}
+            style={{
+              backgroundColor: saved ? "#EF4444" : "#72777A", // 🔴 red-500 yoki kulrang
+            }}
+          >
+            {" "}
+            {isProcessing ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <Heart
                 width={20}
@@ -113,9 +223,9 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
                 className="cursor-pointer"
               />
             )}
-          </div>
+          </span>
           {/* stadium details wokringtime + rate*/}
-          <div className="flex items-center justify-between mt-3 gap-5">
+          <div className="flex items-center justify-between mt-3 gap-x-5">
             <div className="flex  flex-col justify-between mt-3 w-[50%]">
               <p>
                 {t({
@@ -139,14 +249,17 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
               </p>
               <span className="flex items-center gap-1 text-gray-500 mt-3 w-full h-10 bg-white rounded-[8px] pl-2">
                 <StarFullSvg width={20} />
-                {stadium.score} | {stadium.ratesCount} ta ovoz
+                <span className="font-[600] text-[18px]">
+                  {stadium.score}
+                </span>{" "}
+                | {stadium.ratesCount} ta ovoz
               </span>
             </div>
           </div>
           {/* map detail */}
           <div>
-            <div className="flex items-center justify-between mt-5">
-              <p className="font-medium text-start mt-5">
+            <div className="flex items-center justify-between mt-5 ">
+              <p className="font-medium text-start ">
                 {t({
                   uz: "Manzil",
                   en: "Address",
@@ -162,12 +275,16 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
                 })}
               </span> */}
             </div>
-            <div className=" w-full bg-white shadow-md mt-5 rounded-[20px] overflow-hidden p-2">
+            <div className=" w-full bg-white shadow-md mt-3 rounded-[20px] overflow-hidden p-2">
               <YandexMapPicker
                 lat={stadium?.longlat?.lat}
                 lon={stadium?.longlat?.lon}
                 onAddress={handleAddress}
               />
+              <div className="mt-2 text-[12px] text-gray-700 flex items-center gap-1">
+                <LocationSvg /> <strong>Manzil:</strong>{" "}
+                {stadium?.address || "Yuklanmoqda..."}
+              </div>
             </div>
           </div>
           {/* feature qullayliklar */}
@@ -204,7 +321,7 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
             </div>
           </div>
           {/* rules - qoidalar */}
-          <div className="mt-5">
+          <div>
             <p className="font-medium text-start mt-5">
               {t({
                 uz: "Qoidalar",
@@ -212,10 +329,20 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
                 ru: "Правила",
               })}
             </p>
-            <div className="p-2 rounded-[20px] bg-white shadow-md my-3">
-              <p className="bg-red-500 rounded-[12px] text-white p-2">
-                {stadium?.rules}
-              </p>
+
+            <div
+              className="mt-5 p-5 rounded-[20px] text-white shadow-md"
+              style={{
+                backgroundImage: `linear-gradient(rgba(220, 38, 38, 0.9), rgba(220, 38, 38, 0.8)), url(${razdevalkaJpg})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                minHeight: "88px",
+              }}
+            >
+              <div className="mt-2 rounded-[12px] text-white text-sm leading-relaxed z-30">
+                <p className="">{stadium.rules || "qoidalar mavjud emas"} </p>
+              </div>
             </div>
           </div>
           {/* comentariy izoh */}
@@ -245,7 +372,6 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
                   })}
                 </span> */}
           {/* </div> */}
-
           {/* commentary cards */}
           {/* <div className="mt-4 overflow-x-auto scroll-hide"> */}
           {/* <div className="flex gap-3 w-max"> */}
@@ -285,38 +411,40 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
           {/* </div> */}
           {/* ------------ */}
           {/* social */}
-          <div className="mt-5">
-            <p className="font-medium text-start mt-5">
-              {t({
-                uz: "ijtimoiy tarmoqlar",
-                en: "Social networks",
-                ru: "Социальные сети",
-              })}
-            </p>
-            <div className="bg-white p-4 shadow-md rounded-[16px] grid grid-cols-4 gap-4 mt-3">
-              {Object.entries(socialLinks).map(([key, value]) =>
-                value ? (
-                  <a
-                    key={key}
-                    href={value}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      textDecoration: "none",
-                      listStyle: "none",
-                      color: "#999",
-                    }}
-                    className="flex flex-col items-center  transition "
-                  >
-                    <span className="py-2 px-5 bg-gray-100 rounded-[8px]">
-                      {ForMappingSocialSvg[key]}
-                    </span>
-                    <span className="text-sm font-medium">{key}</span>
-                  </a>
-                ) : null
-              )}
+          {socialLinks && Object.values(socialLinks).some(Boolean) && (
+            <div className="mt-5">
+              <p className="font-medium text-start mt-5">
+                {t({
+                  uz: "ijtimoiy tarmoqlar",
+                  en: "Social networks",
+                  ru: "Социальные сети",
+                })}
+              </p>
+              <div className="bg-white p-4 shadow-md rounded-[16px] grid grid-cols-4 gap-4 mt-3">
+                {Object.entries(socialLinks).map(([key, value]) =>
+                  value ? (
+                    <a
+                      key={key}
+                      href={value}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        textDecoration: "none",
+                        listStyle: "none",
+                        color: "#999",
+                      }}
+                      className="flex flex-col items-center  transition "
+                    >
+                      <span className="py-2 px-5 bg-gray-100 rounded-[8px]">
+                        {ForMappingSocialSvg[key]}
+                      </span>
+                      <span className="text-sm font-medium">{key}</span>
+                    </a>
+                  ) : null
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       ))}
     </div>

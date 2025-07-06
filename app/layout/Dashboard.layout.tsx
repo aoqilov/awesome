@@ -30,11 +30,11 @@ const DashboardLayout = () => {
       label: t({ uz: "Buyurtma", en: "Orders", ru: "Заказы" }),
       path: "/client/orders",
     },
-    {
-      icon: <MessageSquareText size={20} />,
-      label: t({ uz: "Xabarlar", en: "Messages", ru: "Сообщения" }),
-      path: "/client/messages",
-    },
+    // {
+    //   icon: <MessageSquareText size={20} />,
+    //   label: t({ uz: "Xabarlar", en: "Messages", ru: "Сообщения" }),
+    //   path: "/client/messages",
+    // },
 
     {
       icon: <User size={20} />,
@@ -119,7 +119,7 @@ const DashboardLayout = () => {
               key={index}
               to={{ pathname: item.path, search: "?chat_id=" + chat_id }}
               className={() => `relative flex flex-col items-center justify-center
-                transition-all duration-200 py-2 min-w-[55px] 
+                transition-all duration-200 py-3 min-w-[55px] 
               `}
             >
               {({ isActive }) => (

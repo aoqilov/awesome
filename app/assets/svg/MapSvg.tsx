@@ -24,9 +24,9 @@ const MapSvg: React.FC<IconProps> = ({
         <path
           d="M6.09091 12.2L1 15V3.8L6.09091 1M6.09091 12.2L11.9091 15M6.09091 12.2V1M11.9091 15L17 12.2V1L11.9091 3.8M11.9091 15V3.8M11.9091 3.8L6.09091 1"
           stroke="#6C7072"
-          stroke-width="0.9375"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeWidth="0.9375"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </g>
       <defs>

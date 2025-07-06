@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Form, Input, Select, DatePicker, Upload, Button, message } from "antd";
-import { PlusOutlined, UserOutlined } from "@ant-design/icons";
+import { UserOutlined } from "@ant-design/icons";
 import { RcFile } from "antd/es/upload";
 import dayjs from "dayjs";
 import { useTranslation } from "@/hooks/translation";
@@ -15,6 +15,7 @@ import { useQueryParam } from "@/hooks/useQueryParam";
 import { useNavigate } from "react-router-dom";
 import BackBtn from "@/components/ui/back-btn";
 import { useUser } from "@/contexts/UserContext";
+import { Camera } from "lucide-react";
 
 export default function ProfileEdit() {
   const [form] = Form.useForm();
@@ -23,19 +24,7 @@ export default function ProfileEdit() {
   const { chat_id } = useQueryParam();
   const { user: _user } = useUser();
   const userId = _user?.id;
-  if (!userId) {
-    return (
-      <div className="w-full px-4 py-8 text-center">
-        <p className="text-gray-500">
-          {t({
-            uz: "Foydalanuvchi ma'lumotlari topilmadi",
-            ru: "Данные пользователя не найдены",
-            en: "User data not found",
-          })}
-        </p>
-      </div>
-    );
-  }
+
   const { one, patch } = usePocketBaseCollection<UsersRecord>("users");
   const { list: listRegions } =
     usePocketBaseCollection<RegionsRecord>("regions");
@@ -56,7 +45,7 @@ export default function ProfileEdit() {
   const [liveRegion, setLiveRegion] = useState<string | undefined>();
   const [isFormValid, setIsFormValid] = useState(false);
 
-  const { mutate: updateUser, isPending } = patch();
+  const { mutateAsync: updateUser, isPending } = patch();
 
   useEffect(() => {
     if (!user || !cities) return;
@@ -94,8 +83,40 @@ export default function ProfileEdit() {
     const allFilled = Object.values(initialValues).every(Boolean);
     setIsFormValid(allFilled);
   }, [user, cities]);
-
   const handleBeforeUpload = (file: RcFile) => {
+    // ✅ File validation
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "image/svg+xml",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      message.error(
+        t({
+          uz: "Faqat rasm fayllari qabul qilinadi (JPEG, PNG, GIF, WebP, SVG)",
+          ru: "Принимаются только файлы изображений (JPEG, PNG, GIF, WebP, SVG)",
+          en: "Only image files are accepted (JPEG, PNG, GIF, WebP, SVG)",
+        })
+      );
+      return Upload.LIST_IGNORE;
+    }
+
+    if (file.size > maxSize) {
+      message.error(
+        t({
+          uz: "Fayl hajmi 5MB dan kichik bo'lishi kerak",
+          ru: "Размер файла должен быть меньше 5МБ",
+          en: "File size must be less than 5MB",
+        })
+      );
+      return Upload.LIST_IGNORE;
+    }
+
     setImageFile(file);
     const reader = new FileReader();
     reader.onload = () => setPreview(reader.result as string);
@@ -131,6 +152,16 @@ export default function ProfileEdit() {
       (payload as any).avatar = imageFile;
     }
 
+    if (!userId) {
+      message.error(
+        t({
+          uz: "Foydalanuvchi aniqlanmadi",
+          ru: "Пользователь не определён",
+          en: "User not identified",
+        })
+      );
+      return;
+    }
     await updateUser(
       { id: userId, data: payload },
       {
@@ -144,6 +175,19 @@ export default function ProfileEdit() {
     );
     navigate(`/client/profile?chat_id=${chat_id || ""}`);
   };
+  if (!userId) {
+    return (
+      <div className="w-full px-4 py-8 text-center">
+        <p className="text-gray-500">
+          {t({
+            uz: "Foydalanuvchi ma'lumotlari topilmadi",
+            ru: "Данные пользователя не найдены",
+            en: "User data not found",
+          })}
+        </p>
+      </div>
+    );
+  }
 
   if (userLoading || regionsLoading || citiesLoading) {
     return (
@@ -197,8 +241,8 @@ export default function ProfileEdit() {
               beforeUpload={handleBeforeUpload}
               accept="image/*"
             >
-              <div className="absolute bottom-0 right-0 bg-white w-6 h-6 rounded-full flex items-center justify-center border border-gray-300 cursor-pointer hover:bg-gray-100">
-                <PlusOutlined style={{ fontSize: 12 }} />
+              <div className="absolute bottom-0 right-0 bg-green-500 w-6 h-6 rounded-full flex items-center justify-center border p-1 cursor-pointer ">
+                <Camera style={{ fontSize: 12 }} color="white" />
               </div>
             </Upload>
           </div>
@@ -218,7 +262,7 @@ export default function ProfileEdit() {
             },
           ]}
         >
-          <Input size="middle" />
+          <Input size="large" />
         </Form.Item>
 
         <Form.Item
@@ -235,7 +279,7 @@ export default function ProfileEdit() {
             },
           ]}
         >
-          <Input size="middle" />
+          <Input size="large" />
         </Form.Item>
 
         <Form.Item
@@ -256,7 +300,7 @@ export default function ProfileEdit() {
             },
           ]}
         >
-          <Input size="middle" />
+          <Input size="large" />
         </Form.Item>
 
         <Form.Item
@@ -277,7 +321,7 @@ export default function ProfileEdit() {
             },
           ]}
         >
-          <DatePicker size="middle" className="w-full" format="DD.MM.YYYY" />
+          <DatePicker size="large" className="w-full" format="DD.MM.YYYY" />
         </Form.Item>
 
         <Form.Item
@@ -288,7 +332,7 @@ export default function ProfileEdit() {
           })}
         >
           <Select
-            size="middle"
+            size="large"
             value={bornRegion}
             onChange={(val) => {
               setBornRegion(val);
@@ -321,7 +365,7 @@ export default function ProfileEdit() {
           ]}
         >
           <Select
-            size="middle"
+            size="large"
             disabled={!bornRegion}
             options={
               cities
@@ -346,7 +390,7 @@ export default function ProfileEdit() {
           })}
         >
           <Select
-            size="middle"
+            size="large"
             value={liveRegion}
             onChange={(val) => {
               setLiveRegion(val);
@@ -379,7 +423,7 @@ export default function ProfileEdit() {
           ]}
         >
           <Select
-            size="middle"
+            size="large"
             disabled={!liveRegion}
             options={
               cities

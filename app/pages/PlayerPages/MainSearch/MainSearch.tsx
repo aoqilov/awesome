@@ -9,11 +9,14 @@ import { pb } from "@/pb/pb";
 import Loading from "@/pages/Loading";
 import { useDebounce } from "use-debounce";
 import SearchHeader from "@/components/PlayerSearchBox";
+// import { usePocketBaseCollection } from "@/pb/usePbMethods";
+// import { useUser } from "@/contexts/UserContext";
 
 const MainSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 1000);
   const [filterData, setFilterData] = useState<Record<string, any>>({});
+  // const { user: playerData, isLoading: loadingPlayerData } = useUser();
   const t = useTranslation();
 
   // 1. localStorage'dan filterData ni useEffect orqali olish
@@ -35,9 +38,9 @@ const MainSearch = () => {
   const filterParts: string[] = [];
 
   if (filterData.fieldType === "grass") {
-    filterParts.push(`hasGrass = true`);
+    filterParts.push(`hasGrass=true`);
   } else if (filterData.fieldType === "futsal") {
-    filterParts.push("hasFutsal = true");
+    filterParts.push(`hasFutsal=true`);
   }
 
   if (filterData.region) {
@@ -73,7 +76,12 @@ const MainSearch = () => {
 
   const combinedFilter = filterParts.join(" && ");
   const [showOnlySaved, setShowOnlySaved] = useState(false);
-
+  // const { list } = usePocketBaseCollection("user_favorite_stadiums");
+  // const { data: favouriteList } = list({
+  //   expand: "stadium",
+  //   filter: `user.id = "${playerData?.id || ""}"`,
+  // });
+  // console.log(favouriteList);
   const {
     data,
     fetchNextPage,
@@ -88,20 +96,23 @@ const MainSearch = () => {
       const filterQuery = [
         combinedFilter,
         debouncedSearchTerm ? `name ~ "${debouncedSearchTerm}"` : null,
-        showOnlySaved ? "isSaved = true" : null,
-        // `status ="verified"`,
+        `status ="verified"`,
       ]
         .filter(Boolean)
         .join(" && ");
 
+      console.log("🔍 Filter Query:", filterQuery);
+      console.log("🔖 Show Only Saved:", showOnlySaved);
+
       const result = await pb
         .collection("stadiums")
-        .getList<StadiumsRecord>(pageParam, 5, {
+        .getList<StadiumsRecord>(pageParam, 20, {
           sort: "-created",
           expand: "city.region.name, field",
           filter: filterQuery,
         });
 
+      console.log("📊 Fetched stadiums:", result.items.length);
       return result;
     },
     getNextPageParam: (lastPage) =>
@@ -116,9 +127,13 @@ const MainSearch = () => {
     }
   }, [inView, hasNextPage, isFetchingNextPage]);
 
+  console.log(showOnlySaved);
+  console.log(data);
   useEffect(() => {
     refetch();
   }, [debouncedSearchTerm, showOnlySaved]);
+  console.log("🔖 Show Only Saved:", showOnlySaved);
+  console.log("🧪 Final combinedFilter:", combinedFilter);
 
   return (
     <div className="p-4">
@@ -128,7 +143,7 @@ const MainSearch = () => {
         onChange={(val: string) => setSearchTerm(val.toLowerCase())}
         showOnlySaved={showOnlySaved}
         onToggleSaved={() => setShowOnlySaved((prev) => !prev)}
-        isFilterActive={location.pathname.includes("filter")}
+        isFilterActive={filterData}
         isMapActive={location.pathname.includes("map")}
       />
 

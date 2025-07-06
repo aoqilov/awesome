@@ -21,6 +21,7 @@ import { Stadium } from "@/pages/ManagerPages/Stadion/StadionCard";
 interface Props {
   stadiums?: Stadium[]; // stadiums endi optional
   onMarkerClick?: (stadiumId: string, address: string) => void;
+  shouldResetBounds?: boolean; // ✅ Map ni reset qilish uchun
 }
 
 const YANDEX_API_KEY = "5f9adfc9-44b5-4c03-bb42-18102ecc41ab";
@@ -28,6 +29,7 @@ const YANDEX_API_KEY = "5f9adfc9-44b5-4c03-bb42-18102ecc41ab";
 const YandexStadiumMap: React.FC<Props> = ({
   stadiums = [],
   onMarkerClick,
+  shouldResetBounds = false,
 }) => {
   const validStadiums = useMemo(
     () => (Array.isArray(stadiums) ? stadiums : []),
@@ -54,15 +56,24 @@ const YandexStadiumMap: React.FC<Props> = ({
       ],
     ];
   }, [validStadiums]);
-
   useEffect(() => {
-    if (mapRef.current && validStadiums.length) {
+    // ✅ Agar stadium tanlangan bo'lsa (activeId mavjud) va reset talab qilinmagan bo'lsa, map zoom/center o'zgarmasin
+    if (
+      mapRef.current &&
+      validStadiums.length &&
+      (!activeId || shouldResetBounds)
+    ) {
       mapRef.current.setBounds(bounds, {
         checkZoomRange: true,
         zoomMargin: 40,
       });
+
+      // ✅ Reset bounds bo'lganda activeId ni ham reset qilamiz
+      if (shouldResetBounds && activeId) {
+        setActiveId(null);
+      }
     }
-  }, [bounds, validStadiums]);
+  }, [bounds, validStadiums, activeId, shouldResetBounds]);
 
   const fetchAddress = async (lat: number, lon: number): Promise<string> => {
     try {

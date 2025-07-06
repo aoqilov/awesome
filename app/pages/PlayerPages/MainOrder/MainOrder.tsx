@@ -1,4 +1,3 @@
-import BackBtn from "@/components/ui/back-btn";
 import { useTranslation } from "@/hooks/translation";
 import OrderCard from "./CardOrder";
 import { usePocketBaseCollection } from "@/pb/usePbMethods";
@@ -9,31 +8,32 @@ import { PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useQueryParam } from "@/hooks/useQueryParam";
 import { DeepOrderType } from "@/types/pocketbaseTypes";
+import { useUser } from "@/contexts/UserContext";
 
 const MainOrder = () => {
   const t = useTranslation();
   const navigate = useNavigate();
   const { chat_id } = useQueryParam();
   const { list: OrderList } = usePocketBaseCollection<DeepOrderType>("orders");
-  const localUserData = JSON.parse(localStorage.getItem("user") || "{}");
+  const { user: playerData, isLoading } = useUser();
+  const localUserData = playerData?.id || {};
+  console.log("localUserDataID", localUserData);
 
   const { data: OrderData, isLoading: OrderLoading } = OrderList({
-    filter: `user.id = "${localUserData.id}"`,
+    filter: `user.id = "${localUserData}"`,
     expand: "user,field.stadium.city.name,field.stadium.city.region.name",
     sort: "-created",
   });
 
   console.log("OrderData", OrderData);
 
-  if (OrderLoading) return <Loading />;
+  if (OrderLoading && isLoading) return <Loading />;
 
   return (
     <div className="">
       {/* header */}
       <div className="flex items-center justify-center mb-3 relative">
-        <span className="cursor-pointer absolute left-0">
-          <BackBtn />
-        </span>
+        <span className="cursor-pointer absolute left-0"></span>
         <h2 className="text-lg font-semibold ">
           {t({ uz: " Buyurtmalar", ru: " заказы", en: " orders" })}
         </h2>

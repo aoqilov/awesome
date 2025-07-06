@@ -15,17 +15,18 @@ import DateTimeWidget from "@/components/date-time-widget";
 import OrderCard from "../MainOrder/CardOrder";
 import CardSeach from "../MainSearch/CardSeach";
 import BatafsilSvg from "@/assets/svg/BatafsilSvg";
-import LogoSvg from "@/assets/svg/LogoSvg";
+import { useUser } from "@/contexts/UserContext";
+import { LogoSvg } from "@/assets/svg/LogoSvg";
 
 const MainPlayer = () => {
   const navigate = useNavigate();
   const { lang } = useLang();
   const t = useTranslation();
   const { chat_id } = useQueryParam();
+  const { user: playerData, isLoading } = useUser();
 
   const today = dayjs().format("YYYY-MM-DD");
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const userId = user?.id;
+  const userId = playerData?.id;
 
   const { list: OrderList } = usePocketBaseCollection<DeepOrderType>("orders");
   const { list: StadiumList } = usePocketBaseCollection<any>("stadiums");
@@ -41,7 +42,7 @@ const MainPlayer = () => {
     expand: "city.region.name",
   });
 
-  if (isLoadingOrders || isLoadingStadiums) return <Loading />;
+  if (isLoadingOrders && isLoadingStadiums && isLoading) return <Loading />;
 
   return (
     <div>

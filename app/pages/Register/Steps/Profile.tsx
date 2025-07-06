@@ -62,8 +62,14 @@ const Profile = () => {
     if (file) {
       // Basic validation
       const maxSize = 5 * 1024 * 1024; // 5MB
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-      
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
+
       if (!allowedTypes.includes(file.type)) {
         message.error(
           t({
@@ -74,7 +80,7 @@ const Profile = () => {
         );
         return;
       }
-      
+
       if (file.size > maxSize) {
         message.error(
           t({
@@ -85,7 +91,7 @@ const Profile = () => {
         );
         return;
       }
-      
+
       // Store the actual File object for backend upload
       setPayload((prevPayload) => ({
         ...prevPayload,
@@ -100,7 +106,7 @@ const Profile = () => {
 
   const handleContinue = () => {
     const userId = isEdit.id || user?.id;
-    
+
     // Prepare the data object
     const updateData: any = {
       fullname: [payload?.fullName, payload?.familyName]
@@ -132,20 +138,20 @@ const Profile = () => {
           if (payload?.avatarPreview) {
             URL.revokeObjectURL(payload.avatarPreview);
           }
-          
+
           // Clean up registration-related session storage
           sessionStorage.removeItem("registration_otp_id");
           sessionStorage.removeItem("registration_state");
-          
+
           // Refresh user data in context to get the updated information
           try {
             await fetchUser(chat_id);
-            
+
             // Handle successful update
             message.success(
               t({
                 uz: "Profil muvaffaqiyatli yangilandi",
-                ru: "Профиль успешно обновлен", 
+                ru: "Профиль успешно обновлен",
                 en: "Profile updated successfully",
               })
             );
@@ -155,7 +161,7 @@ const Profile = () => {
             if (userRole === "player") {
               navigate("/client/home");
             } else if (userRole === "manager") {
-              navigate("/dashboard/home");  
+              navigate("/dashboard/home");
             } else {
               // Fallback to dashboard if role is unclear
               navigate("/dashboard/home");
@@ -241,33 +247,37 @@ const Profile = () => {
       animate="visible"
       variants={containerVariants}
     >
-      <div className="flex-1 flex flex-col items-center py-8">
+      <div className="flex-1 flex flex-col items-center ">
         {/* Avatar */}
         <motion.div
           variants={itemVariants}
-          className="relative mb-8 mt-4"
+          className="relative mb-4"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
           <div
-            className="w-40 h-40 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer"
+            className="w-25 h-25 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer"
             onClick={handleAvatarClick}
           >
             {payload?.avatarPreview || payload?.avatar ? (
               <img
-                src={payload?.avatarPreview || payload?.avatar || "/placeholder.svg"}
+                src={
+                  payload?.avatarPreview ||
+                  payload?.avatar ||
+                  "/placeholder.svg"
+                }
                 alt="Profile"
                 className="w-full h-full rounded-full object-cover"
               />
             ) : (
-              <User className="h-20 w-20 text-gray-400" />
+              <User className="h-15 w-15 text-gray-400" />
             )}
           </div>
           <div
             className="absolute bottom-0 right-0 bg-green-500 p-2 rounded-full cursor-pointer"
             onClick={handleAvatarClick}
           >
-            <Camera className="h-6 w-6 text-white" />
+            <Camera className="h-4 w-4 text-white" />
           </div>
           <input
             type="file"

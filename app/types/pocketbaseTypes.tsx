@@ -313,6 +313,7 @@ export type UsersRecord = {
   bornCity?: RecordIdString;
   created?: IsoDateString;
   email: string;
+  chat_id?: string;
   emailVisibility?: boolean;
   fullname?: string;
   id: string;

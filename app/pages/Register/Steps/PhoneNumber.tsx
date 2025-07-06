@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, type JSX } from "react";
 import { motion } from "framer-motion";
 import { Phone, Check, ChevronRight } from "lucide-react";
@@ -84,6 +82,7 @@ const PhoneNumber = () => {
       passwordConfirm: chat_id,
       phoneNumber: payload.phone,
       role: payload.userType,
+      chatId: chat_id,
     };
 
     const onSuccess = async () => {
@@ -100,7 +99,7 @@ const PhoneNumber = () => {
       message.success(
         t({
           uz: "Tasdiqlash kodi yuborildi",
-          ru: "Код подтверждения отправлен", 
+          ru: "Код подтверждения отправлен",
           en: "Verification code sent",
         })
       );
@@ -143,7 +142,10 @@ const PhoneNumber = () => {
             oldPassword: chat_id,
             ...data,
           };
-          updateMutate({ id: user.record.id, data: updatePayload }, { onSuccess, onError });
+          updateMutate(
+            { id: user.record.id, data: updatePayload },
+            { onSuccess, onError }
+          );
         })
         .catch(() => {
           // User doesn't exist, create new one

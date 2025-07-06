@@ -75,9 +75,7 @@ const StadionFilter = () => {
   >(null);
   const formattedHours = selectTime?.map((time) => String(time.hour()));
   // price
-  const [rangePrice, setRangePrice] = useState<[number, number]>([
-    50000, 1000000,
-  ]);
+  const [rangePrice, setRangePrice] = useState<[number, number]>([0, 1000000]);
   const [from, to] = rangePrice;
   console.log(rangePrice);
 
@@ -283,7 +281,7 @@ const StadionFilter = () => {
           </p>
           <Slider
             range
-            min={50000}
+            min={0}
             max={1000000}
             step={50000}
             value={rangePrice}
