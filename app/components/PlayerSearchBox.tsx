@@ -31,7 +31,6 @@ const SearchHeader: React.FC<Props> = ({
   isMapActive = false,
   showFilterButton = true, // ✅ default holatda filter tugmasi bor
 }) => {
-  console.log(isFilterActive);
   const { chat_id } = useQueryParam();
   const navigate = useNavigate();
   const t = useTranslation();

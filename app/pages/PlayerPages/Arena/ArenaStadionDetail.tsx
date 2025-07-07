@@ -150,7 +150,6 @@ const ArenaStadionDetail = ({ stadiumLocal }: { stadiumLocal: any }) => {
   //
   //
   const [adrees, setAdrees] = useState("");
-  console.log(adrees);
   const handleAddress = (address: string) => {
     setAdrees(address);
   };
