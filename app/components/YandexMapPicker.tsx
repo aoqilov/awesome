@@ -48,36 +48,86 @@ const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
     getAddress();
   }, [lat, lon]);
 
-  // Marshrut tuzish funksiyasi (brauzerda ishlaydi)
-  const navigateToStadium = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const url = `https://yandex.com/maps/?rtext=${latitude},${longitude}~${lat},${lon}&rtt=auto`;
-          window.open(url, "_blank");
-        },
-        (error) => {
-          console.error("Location access denied:", error.message);
-          alert("Joylashuvni aniqlab bo‘lmadi.");
-        }
-      );
-    } else {
-      alert("Brauzeringiz geolokatsiyani qo‘llab-quvvatlamaydi.");
-    }
-  };
+  // Merged navigation function that tries app first, then falls back to browser
+  const navigateToLocation = () => {
+    // Always prepare the browser URL as fallback
+    const openBrowserNavigation = () => {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            const browserUrl = `https://yandex.com/maps/?rtext=${latitude},${longitude}~${lat},${lon}&rtt=auto`;
+            window.open(browserUrl, "_blank");
+          },
+          (error) => {
+            console.error("Location access denied:", error.message);
+            // Use fixed URL without current location if geolocation denied
+            const browserUrl = `https://yandex.com/maps/?rtext=~${lat},${lon}&rtt=auto`;
+            window.open(browserUrl, "_blank");
+            alert("Joylashuvni aniqlab bo'lmadi, manzil xaritada ko'rsatildi.");
+          }
+        );
+      } else {
+        // If no geolocation support, show destination on map
+        const browserUrl = `https://yandex.com/maps/?pt=${lat},${lon}`;
+        window.open(browserUrl, "_blank");
+        alert("Brauzeringiz geolokatsiyani qo'llab-quvvatlamaydi, manzil xaritada ko'rsatildi.");
+      }
+    };
 
-  // Mobilda Yandex.Navigator ilovasini ochish
-  const openYandexNavigatorApp = () => {
-    const url = `yandexnavi://build_route_on_map?lat_to=${lat}&lon_to=${lon}`;
+    // Yandex Navigator app deeplink
+    const appUrl = `yandexnavi://build_route_on_map?lat_to=${lat}&lon_to=${lon}`;
 
+    // In Telegram WebView, use a safer approach
     if (isTelegramWebView()) {
-      alert(
-        "Telegram ichidan Yandex Navigator ilovasini ochib bo‘lmaydi.\n\nIltimos, brauzer orqali sahifani oching yoki bu linkni Telegram chat orqali yuboring:"
-      );
-      console.log("Yandex Navi deeplink:", url);
+      console.log("Telegram WebView detected, using safer navigation method");
+      
+      // For Telegram WebView, use an iframe to try to open the app
+      // This method prevents the "Failed to launch" error
+      try {
+        // Create a hidden iframe for app attempt
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = appUrl;
+        document.body.appendChild(iframe);
+        
+        // Remove iframe after short delay
+        setTimeout(() => {
+          if (iframe && iframe.parentNode) {
+            iframe.parentNode.removeChild(iframe);
+          }
+        }, 500);
+        
+        // Fallback to browser navigation after a short delay
+        setTimeout(openBrowserNavigation, 1500);
+      } catch (e) {
+        // If any error, immediately go to browser navigation
+        console.error("Error launching app from Telegram WebView:", e);
+        openBrowserNavigation();
+      }
     } else {
-      window.location.href = url;
+      // For regular browser, use a more reliable approach
+      try {
+        // Create a hidden iframe for app attempt
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = appUrl;
+        document.body.appendChild(iframe);
+        
+        // Remove iframe after short delay
+        setTimeout(() => {
+          if (iframe && iframe.parentNode) {
+            iframe.parentNode.removeChild(iframe);
+          }
+        }, 500);
+        
+        // Fallback to browser navigation after a short delay
+        setTimeout(openBrowserNavigation, 1500);
+      } catch (e) {
+        // If any error, immediately go to browser navigation
+        console.error("Error launching app:", e);
+        openBrowserNavigation();
+      }
     }
   };
 
@@ -112,9 +162,9 @@ const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
           />
         </Map>
 
-        {/* Brauzerda marshrut ochish */}
+        {/* Navigation buttons - unified under one function */}
         <button
-          onClick={navigateToStadium}
+          onClick={navigateToLocation}
           style={{
             position: "absolute",
             bottom: 5,
@@ -126,14 +176,13 @@ const YandexMapPicker: React.FC<YandexMapPickerProps> = ({
             fontSize: "14px",
             boxShadow: "0 0 6px rgba(0,0,0,0.15)",
           }}
-          title="Brauzerda marshrutni ochish"
+          title="Marshrutni ochish"
         >
           <LocationStadion />
         </button>
 
-        {/* Yandex Navigator ilovasini ochish */}
         <button
-          onClick={openYandexNavigatorApp}
+          onClick={navigateToLocation}
           style={{
             position: "absolute",
             bottom: 5,
