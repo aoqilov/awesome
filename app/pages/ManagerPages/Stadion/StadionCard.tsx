@@ -10,6 +10,7 @@ import {
   CitiesRecord,
 } from "@/types/pocketbaseTypes";
 import { useLang } from "@/providers/LangProvider";
+import { useTranslation } from "@/hooks/translation";
 
 // Define the Stadium type
 export interface Stadium {
@@ -20,24 +21,34 @@ export interface Stadium {
   address?: string;
   images?: string[]; // Changed from image: string to images: string[]
   status?: StadiumsStatusOptions;
+  longlat?: { lat: number; lon: number };
   collectionId?: string;
   features?: string[];
+  price?: number;
+  ratesCount?: number;
   expand?: {
     city?: CitiesRecord;
   };
 }
 
 const TranslationText = ({ id }: { id?: string }) => {
+  const t = useTranslation();
   const { one } = usePocketBaseCollection<TranslationsRecord>("translations");
   const { data } = one(id || "");
   const rawLang = useLang().lang;
   const lang = (rawLang === "en" ? "eng" : rawLang) as keyof TranslationsRecord;
-
-  return <>{data?.[lang] || id || "Noma'lum"}</>;
+  return (
+    <>
+      {data?.[lang] ||
+        id ||
+        t({ uz: "Noma'lum", en: "Unknown", ru: "Неизвестно" })}
+    </>
+  );
 };
 
 // Card component that will be mapped
 export const StadiumCard: React.FC<{ stadium: Stadium }> = ({ stadium }) => {
+  const t = useTranslation();
   const { navigate } = useNavigateWithChatId();
   const { getFileUrl } = usePocketBaseFile();
 
@@ -131,7 +142,9 @@ export const StadiumCard: React.FC<{ stadium: Stadium }> = ({ stadium }) => {
               </defs>
             </svg>
 
-            <span className="text-[#ffffff] text-sm">Tasdiqlangan</span>
+            <span className="text-[#ffffff] text-sm">
+              {t({ uz: "Tasdiqlangan", en: "Verified", ru: "Подтверждено" })}
+            </span>
           </div>
         )}
       </div>

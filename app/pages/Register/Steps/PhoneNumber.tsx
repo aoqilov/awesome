@@ -73,6 +73,7 @@ const PhoneNumber = () => {
   const { chat_id } = useQueryParam();
 
   useEffect(() => {
+    // Remove localStorage dependency, just set in context
     setPayload((p) => ({ ...p, userType: "player" }));
   }, [setPayload]);
 
@@ -82,6 +83,7 @@ const PhoneNumber = () => {
       password: chat_id,
       passwordConfirm: chat_id,
       phoneNumber: payload.phone,
+      role: payload.userType,
     };
 
     const onSuccess = async () => {
@@ -91,12 +93,14 @@ const PhoneNumber = () => {
         .authWithPassword(data.email, chat_id);
       const req = await pb.collection("users").requestOTP(data.email);
       setPayload((p) => ({ ...p, otp: req.otpId }));
+      // Store OTP ID in sessionStorage to persist across page refreshes during registration
+      sessionStorage.setItem("registration_otp_id", req.otpId);
       setisEdit({ bool: true, id: user.record.id });
 
       message.success(
         t({
           uz: "Tasdiqlash kodi yuborildi",
-          ru: "Код подтверждения отправлен",
+          ru: "Код подтверждения отправлен", 
           en: "Verification code sent",
         })
       );
@@ -124,15 +128,33 @@ const PhoneNumber = () => {
     };
 
     if (isEdit.bool) {
-      updateMutate({ id: isEdit.id, data }, { onSuccess, onError });
+      const payload = {
+        oldPassword: chat_id,
+        ...data,
+      };
+      updateMutate({ id: isEdit.id, data: payload }, { onSuccess, onError });
     } else {
-      mutate(data, { onSuccess, onError });
+      // Check if user already exists before creating
+      pb.collection("users")
+        .authWithPassword(data.email, chat_id)
+        .then(async (user) => {
+          // User exists, update their phone number
+          const updatePayload = {
+            oldPassword: chat_id,
+            ...data,
+          };
+          updateMutate({ id: user.record.id, data: updatePayload }, { onSuccess, onError });
+        })
+        .catch(() => {
+          // User doesn't exist, create new one
+          mutate(data, { onSuccess, onError });
+        });
     }
   };
 
   return (
     <motion.div
-      className="min-h-screen w-full bg-white flex flex-col"
+      className="h-[97vh] w-full bg-white flex flex-col"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
@@ -165,6 +187,7 @@ const PhoneNumber = () => {
             ]}
             size="large"
             onChange={(value) => {
+              // Set in context only, no localStorage needed
               setPayload((p) => ({
                 ...p,
                 userType: value as unknown as string,
